@@ -1,0 +1,7 @@
+**/build
+gem5_comp*
+gem5_run*
+parsec-2.1-alpha-files.zip
+x86-system.zip
+gem5-v25-0.sif
+
