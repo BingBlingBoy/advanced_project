@@ -42,6 +42,7 @@
 #ifndef __MEM_RUBY_STRUCTURES_CACHEMEMORY_HH__
 #define __MEM_RUBY_STRUCTURES_CACHEMEMORY_HH__
 
+#include <iostream>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -72,7 +73,7 @@ class CacheMemory : public SimObject
   public:
     typedef RubyCacheParams Params;
     typedef std::shared_ptr<replacement_policy::ReplacementData> ReplData;
-    CacheMemory(const Params &p);
+    CacheMemory(const Params &p, const std::string& cache_level_call);
     ~CacheMemory();
 
     void init();
@@ -159,6 +160,8 @@ class CacheMemory : public SimObject
   public:
     int getCacheSize() const { return m_cache_size; }
     int getCacheAssoc() const { return m_cache_assoc; }
+    int getStartIndex() const { return m_start_index_bit; }
+    int getBlockSize() const { return m_block_size; }
     int getNumBlocks() const { return m_cache_num_sets * m_cache_assoc; }
     Addr getAddressAtIdx(int idx) const;
 
@@ -187,6 +190,7 @@ class CacheMemory : public SimObject
     /** We use the replacement policies from the Classic memory system. */
     replacement_policy::Base *m_replacementPolicy_ptr;
 
+    RubySystem *m_ruby_system = nullptr;
     BankedArray dataArray;
     BankedArray tagArray;
     ALUFreeListArray atomicALUArray;
@@ -215,7 +219,6 @@ class CacheMemory : public SimObject
      */
     bool m_use_occupancy;
 
-    RubySystem *m_ruby_system = nullptr;
 
     Addr
     makeLineAddress(Addr addr) const

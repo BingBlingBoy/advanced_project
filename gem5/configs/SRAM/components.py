@@ -16,9 +16,9 @@ cache_hierarchy = MESITwoLevelCacheHierarchy(
         l1d_assoc=8,
         l1i_size="16KiB",
         l1i_assoc=8,
-        l2_size="256KiB",
-        l2_assoc=16,
-        num_l2_banks=1
+        l2_size="1024KiB",
+        l2_assoc=32,
+        num_l2_banks=2
         )
 
 memory = SingleChannelDDR4_2400()

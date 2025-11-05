@@ -115,6 +115,8 @@ class MESITwoLevelCacheHierarchy(
                 board.get_clock_domain(),
             )
 
+            print("mesi L1DCache: ", cache.L1Dcache)
+
             cache.sequencer = RubySequencer(
                 version=i,
                 dcache=cache.L1Dcache,

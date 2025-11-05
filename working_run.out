@@ -1,0 +1,54 @@
+Global frequency set at 1000000000000 ticks per second
+RubySystem Block Size Bytes: 64
+Constructing CacheMemory: L1CacheMemory
+Cache Size inputted: 16384
+Cache Assoc inputted: 8
+Cache Block Size inputted: 0
+Constructing CacheMemory: L1CacheMemory
+Cache Size inputted: 16384
+Cache Assoc inputted: 8
+Cache Block Size inputted: 0
+src/base/statistics.hh:279: warn: One of the stats is a legacy stat. Legacy stat is a stat that does not belong to any statistics::Group. Legacy stat is deprecated.
+Sequencer m_ruby_system_block_size: 64
+Sequencer m_dataCache_ptr: 0x555cadbc4680
+Sequencer m_dataCache_size: 16384
+Sequencer m_dataCache_block_size: 0
+Constructing CacheMemory: L2CacheMemory
+Cache Size inputted: 262144
+Cache Assoc inputted: 16
+Cache Block Size inputted: 0
+src/base/statistics.hh:279: warn: One of the stats is a legacy stat. Legacy stat is a stat that does not belong to any statistics::Group. Legacy stat is deprecated.
+init () m_block_size: 0
+after init () m_block_size: 64
+init () m_block_size: 0
+after init () m_block_size: 64
+init () m_block_size: 0
+after init () m_block_size: 64
+src/base/remote_gdb.cc:418: warn: Sockets disabled, not accepting gdb connections
+gem5 Simulator System.  https://www.gem5.org
+gem5 is copyrighted software; use the --copyright option for details.
+
+gem5 version 25.0.0.1
+gem5 compiled Nov  3 2025 23:36:32
+gem5 started Nov  3 2025 23:39:43
+gem5 executing on cn064.ham8.dur.ac.uk, pid 1398037
+command line: /gem5/build/X86/gem5.opt --outdir=/gem5/configs/SRAM/classic_outputs /gem5/configs/SRAM/components.py
+
+info: Standard input is not a terminal, disabling listeners.
+mesi L1DCache:  <orphan L1Cache>.L1Dcache
+src/mem/ruby/system/Sequencer.cc:710: warn: Replacement policy updates recently became the responsibility of SLICC state machines. Make sure to setMRU() near callbacks in .sm files!
+src/sim/syscall_emul.cc:86: warn: ignoring syscall set_robust_list(...)
+src/sim/syscall_emul.cc:86: warn: ignoring syscall rseq(...)
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/syscall_emul.hh:1121: warn: readlink() called on '/proc/self/exe' may yield unexpected results in various settings.
+      Returning '/nobackup/gfbz98/ADV_PROJ/gem5/configs/SRAM/cache_workload'
+src/sim/syscall_emul.cc:86: warn: ignoring syscall mprotect(...)
+=== Complex Cache Workload ===
+Array size: 64 MiB
+Element count: 16777216
+Stride: 64 bytes
+================================
+Starting measurement...
+[Sequential] Volatile sum: 140737479966720
+[Strided] Volatile sum: 8796084633600
+Measurement complete. Stats dumped to m5out/stats.txt

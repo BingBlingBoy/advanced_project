@@ -40,8 +40,8 @@
 
 machine(MachineType:L1Cache, "MESI Directory L1 Cache CMP")
  : Sequencer * sequencer;
-   CacheMemory * L1Icache;
-   CacheMemory * L1Dcache;
+   L1CacheMemory * L1Icache;
+   L1CacheMemory * L1Dcache;
    RubyPrefetcher * prefetcher;
    int l2_select_num_bits;
    Cycles l1_request_latency := 2;

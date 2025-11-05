@@ -30,7 +30,7 @@ from m5.objects import (
     ClockDomain,
     MESI_Two_Level_L1Cache_Controller,
     MessageBuffer,
-    RubyCache,
+    L1CacheMemory,
     RubyPrefetcher,
 )
 
@@ -70,13 +70,13 @@ class L1Cache(MESI_Two_Level_L1Cache_Controller):
         self.connectQueues(network)
 
         # This is the cache memory object that stores the cache data and tags
-        self.L1Icache = RubyCache(
+        self.L1Icache = L1CacheMemory(
             size=l1i_size,
             assoc=l1i_assoc,
             start_index_bit=self._cache_line_size,
             is_icache=True,
         )
-        self.L1Dcache = RubyCache(
+        self.L1Dcache = L1CacheMemory(
             size=l1d_size,
             assoc=l1d_assoc,
             start_index_bit=self._cache_line_size,

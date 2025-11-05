@@ -35,6 +35,8 @@ class RubyCache(SimObject):
     cxx_class = "gem5::ruby::CacheMemory"
     cxx_header = "mem/ruby/structures/CacheMemory.hh"
 
+    abstract = True
+
     size = Param.MemorySize("capacity in bytes")
     assoc = Param.Int("")
     replacement_policy = Param.BaseReplacementPolicy(TreePLRURP(), "")
@@ -43,6 +45,7 @@ class RubyCache(SimObject):
     block_size = Param.MemorySize(
         "0B", "block size in bytes. 0 means default RubyBlockSize"
     )
+    ruby_system = Param.RubySystem(Parent.any, "The Ruby system this cache is part of")
 
     # Atomic parameters only applicable to GPU atomics
     # Zero atomic latency corresponds to instantanous atomic ALU operations
@@ -66,6 +69,3 @@ class L2CacheMemory(RubyCache):
     type = "L2CacheMemory"
     cxx_class = "gem5::ruby::L2CacheMemory"
     cxx_header = "mem/ruby/structures/L2CacheMemory.hh"
-
-    dataAccessLatency = Param.Cycles(3, "cycles for a data array access")
-    tagAccessLatency = Param.Cycles(3, "cycles for a tag array access")

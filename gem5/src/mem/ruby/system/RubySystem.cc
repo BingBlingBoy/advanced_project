@@ -41,6 +41,7 @@
 #include "mem/ruby/system/RubySystem.hh"
 
 #include <fcntl.h>
+#include <iostream>
 #include <zlib.h>
 
 #include <cstdio>
@@ -76,6 +77,7 @@ RubySystem::RubySystem(const Params &p)
     m_randomization = p.randomization;
 
     m_block_size_bytes = p.block_size_bytes;
+    std::cout << "RubySystem Block Size Bytes: " << m_block_size_bytes << '\n';
     assert(isPowerOf2(m_block_size_bytes));
     m_block_size_bits = floorLog2(m_block_size_bytes);
     m_memory_size_bits = p.memory_size_bits;

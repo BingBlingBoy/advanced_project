@@ -52,6 +52,7 @@
 #include "mem/cache/replacement_policies/weighted_lru_rp.hh"
 #include "mem/ruby/protocol/AccessPermission.hh"
 #include "mem/ruby/system/RubySystem.hh"
+#include <iostream>
 
 namespace gem5
 {
@@ -67,14 +68,16 @@ operator<<(std::ostream& out, const CacheMemory& obj)
     return out;
 }
 
-CacheMemory::CacheMemory(const Params &p)
+CacheMemory::CacheMemory(const Params &p, const std::string& cache_level_call)
     : SimObject(p),
+    m_ruby_system(p.ruby_system),
     dataArray(p.dataArrayBanks, p.dataAccessLatency, p.start_index_bit),
     tagArray(p.tagArrayBanks, p.tagAccessLatency, p.start_index_bit),
     atomicALUArray(p.atomicALUs, p.atomicLatency),
     cacheMemoryStats(this)
 {
-    // m_cache_level = p.cacheLevel;
+
+    std::cout << "Constructing CacheMemory: " << cache_level_call << '\n';
     m_cache_size = p.size;
     m_cache_assoc = p.assoc;
     m_replacementPolicy_ptr = p.replacement_policy;
@@ -84,6 +87,10 @@ CacheMemory::CacheMemory(const Params &p)
     m_block_size = p.block_size;  // may be 0 at this point. Updated in init()
     m_use_occupancy = dynamic_cast<replacement_policy::WeightedLRU*>(
                                     m_replacementPolicy_ptr) ? true : false;
+
+    std::cout << "Cache Size inputted: " << m_cache_size << '\n';
+    std::cout << "Cache Assoc inputted: " << m_cache_assoc << '\n';
+    std::cout << "Cache Block Size inputted: " << m_block_size << '\n';
 }
 
 void
@@ -95,15 +102,28 @@ CacheMemory::setRubySystem(RubySystem* rs)
     atomicALUArray.setBlockSize(rs->getBlockSizeBytes());
 
     if (m_block_size == 0) {
+        std::cout << "SetRubySystem: " << rs->getBlockSizeBytes(); 
         m_block_size = rs->getBlockSizeBytes();
     }
 
+
     m_ruby_system = rs;
+
+    std::cout << "Ruby system: " << rs << '\n';
 }
 
 void
 CacheMemory::init()
 {
+    std::cout << "init () m_block_size: " << m_block_size << '\n';
+
+    dataArray.setClockPeriod(m_ruby_system->clockPeriod());
+    tagArray.setClockPeriod(m_ruby_system->clockPeriod());
+    atomicALUArray.setClockPeriod(m_ruby_system->clockPeriod());
+    atomicALUArray.setBlockSize(m_ruby_system->getBlockSizeBytes());
+    m_block_size = m_ruby_system->getBlockSizeBytes();
+
+    std::cout << "after init () m_block_size: " << m_block_size << '\n';
     assert(m_block_size != 0);
     m_cache_num_sets = (m_cache_size / m_cache_assoc) / m_block_size;
     assert(m_cache_num_sets > 1);

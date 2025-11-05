@@ -29,7 +29,7 @@ import math
 from m5.objects import (
     MESI_Two_Level_L2Cache_Controller,
     MessageBuffer,
-    RubyCache,
+    L2CacheMemory,
 )
 
 
@@ -52,7 +52,7 @@ class L2Cache(MESI_Two_Level_L2Cache_Controller):
         self.connectQueues(network)
 
         # This is the cache memory object that stores the cache data and tags
-        self.L2cache = RubyCache(
+        self.L2cache = L2CacheMemory(
             size=l2_size,
             assoc=l2_assoc,
             start_index_bit=self.getIndexBit(num_l2Caches),

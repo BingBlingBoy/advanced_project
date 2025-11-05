@@ -30,6 +30,7 @@ import math
 import m5
 from m5.defines import buildEnv
 from m5.objects import *
+from m5.objects.RubyCache import L1CacheMemory, L2CacheMemory
 
 from .Ruby import (
     create_directories,

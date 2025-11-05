@@ -16,6 +16,8 @@ VARIANT=opt
 
 module load gcc
 
+find . -maxdepth 1 -name "gem5_run*" -not -name "gem5_run_${SLURM_JOB_ID}.out" -delete
+
 singularity exec \
     --bind $GEM5_DIR:/gem5 \
     $SIF_PATH \
@@ -30,7 +32,7 @@ singularity exec \
     --bind $GEM5_DIR:/gem5 \
     $SIF_PATH \
     /gem5/build/$ISA/gem5.$VARIANT \
-    --outdir=/gem5/configs/SRAM/classic_outputs_with_L2_latency \
+    --outdir=/gem5/configs/SRAM/bigger_classic_outputs \
     /gem5/configs/SRAM/components.py
     # /gem5/configs/SRAM/level2.py --l2_size='1MB' --l1d_size='128kB'
 
