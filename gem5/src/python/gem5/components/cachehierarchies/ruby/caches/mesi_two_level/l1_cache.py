@@ -75,12 +75,14 @@ class L1Cache(MESI_Two_Level_L1Cache_Controller):
             assoc=l1i_assoc,
             start_index_bit=self._cache_line_size,
             is_icache=True,
+            resourceStalls=True,
         )
         self.L1Dcache = L1CacheMemory(
             size=l1d_size,
             assoc=l1d_assoc,
             start_index_bit=self._cache_line_size,
             is_icache=False,
+            resourceStalls=True,
         )
         self.l2_select_num_bits = int(math.log(num_l2Caches, 2))
         self.clk_domain = clk_domain

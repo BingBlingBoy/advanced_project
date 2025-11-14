@@ -54,9 +54,30 @@ class RubyCache(SimObject):
 
     dataArrayBanks = Param.Int(1, "Number of banks for the data array")
     tagArrayBanks = Param.Int(1, "Number of banks for the tag array")
-    dataAccessLatency = Param.Cycles(1, "cycles for a data array access")
-    tagAccessLatency = Param.Cycles(1, "cycles for a tag array access")
+    # dataAccessLatency = Param.Cycles(1, "cycles for a data array access")
+    # tagAccessLatency = Param.Cycles(1, "cycles for a tag array access")
     resourceStalls = Param.Bool(False, "stall if there is a resource failure")
+
+    percentage_of_low_retention_sets = Param.Float(
+            0, "percentage of low retention sets")
+
+    low_retention_data_read_latency = Param.Cycles(
+            1, "cycles read access for low retention for data array")
+    low_retention_tag_read_latency  = Param.Cycles(
+            1, "cycles read access for low retention for tag array")
+    low_retention_data_write_latency = Param.Cycles(
+            1, "cycles write access for low retention for data array")
+    low_retention_tag_write_latency = Param.Cycles(
+            1, "cycles write access for low retention for tag array")
+
+    high_retention_data_read_latency = Param.Cycles(
+            1, "cycles read access for write retention for data array")
+    high_retention_tag_read_latency  = Param.Cycles(
+            1, "cycles read access for write retention for tag array")
+    high_retention_data_write_latency = Param.Cycles(
+            1, "cycles write access for write retention for data array")
+    high_retention_tag_write_latency = Param.Cycles(
+            1, "cycles write access for write retention for tag array")
 
 
 class L1CacheMemory(RubyCache):

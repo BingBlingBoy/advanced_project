@@ -2,7 +2,7 @@
 
 #SBATCH --job-name=gem5_sim
 #SBATCH --nodes=1
-#SBATCH --time=02:59:00
+#SBATCH --time=00:59:00
 #SBATCH --output=gem5_run_%j.out
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=64GB
@@ -32,7 +32,7 @@ singularity exec \
     --bind $GEM5_DIR:/gem5 \
     $SIF_PATH \
     /gem5/build/$ISA/gem5.$VARIANT \
-    --outdir=/gem5/configs/SRAM/bigger_classic_outputs \
+    --outdir=/gem5/configs/SRAM/Separate_Latency_classic_outputs \
     /gem5/configs/SRAM/components.py
     # /gem5/configs/SRAM/level2.py --l2_size='1MB' --l1d_size='128kB'
 

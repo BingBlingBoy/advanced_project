@@ -43,7 +43,21 @@ class L2Cache(MESI_Two_Level_L2Cache_Controller):
         return cls._version - 1
 
     def __init__(
-        self, l2_size, l2_assoc, network, num_l2Caches, cache_line_size
+        self,
+        l2_size,
+        l2_assoc,
+        network,
+        num_l2Caches,
+        cache_line_size,
+        percentage_of_low_retention_sets,
+        low_retention_data_read_latency,
+        low_retention_tag_read_latency,
+        low_retention_data_write_latency,
+        low_retention_tag_write_latency,
+        high_retention_data_read_latency,
+        high_retention_tag_read_latency,
+        high_retention_data_write_latency,
+        high_retention_tag_write_latency
     ):
         super().__init__()
 
@@ -51,11 +65,24 @@ class L2Cache(MESI_Two_Level_L2Cache_Controller):
         self._cache_line_size = cache_line_size
         self.connectQueues(network)
 
+        print("Python Percentage of Low Retention Sets: ",
+              percentage_of_low_retention_sets)
+
         # This is the cache memory object that stores the cache data and tags
         self.L2cache = L2CacheMemory(
             size=l2_size,
             assoc=l2_assoc,
             start_index_bit=self.getIndexBit(num_l2Caches),
+            resourceStalls=True,
+            percentage_of_low_retention_sets=percentage_of_low_retention_sets,
+            low_retention_data_read_latency=low_retention_data_read_latency,
+            low_retention_tag_read_latency=low_retention_tag_read_latency,
+            low_retention_data_write_latency=low_retention_data_write_latency,
+            low_retention_tag_write_latency=low_retention_tag_write_latency,
+            high_retention_data_read_latency=high_retention_data_read_latency,
+            high_retention_tag_read_latency=high_retention_tag_read_latency,
+            high_retention_data_write_latency=high_retention_data_write_latency,
+            high_retention_tag_write_latency=high_retention_tag_write_latency,
         )
 
         self.transitions_per_cycle = 4

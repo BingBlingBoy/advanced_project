@@ -18,7 +18,16 @@ cache_hierarchy = MESITwoLevelCacheHierarchy(
         l1i_assoc=8,
         l2_size="1024KiB",
         l2_assoc=32,
-        num_l2_banks=2
+        num_l2_banks=2,
+        percentage_of_low_retention_sets=0.5,
+        low_retention_data_read_latency=2,
+        low_retention_tag_read_latency=2,
+        low_retention_data_write_latency=2,
+        low_retention_tag_write_latency=2,
+        high_retention_data_read_latency=4,
+        high_retention_tag_read_latency=4,
+        high_retention_data_write_latency=4,
+        high_retention_tag_write_latency=4,
         )
 
 memory = SingleChannelDDR4_2400()

@@ -76,12 +76,7 @@ Sequencer::Sequencer(const Params &p)
 
     m_ruby_system = p.ruby_system;
 
-    std::cout << "Sequencer m_ruby_system_block_size: " << m_ruby_system->getBlockSizeBytes() << '\n';
-
     m_dataCache_ptr = p.dcache;
-    std::cout << "Sequencer m_dataCache_ptr: " << m_dataCache_ptr << '\n';
-    std::cout << "Sequencer m_dataCache_size: " << m_dataCache_ptr->getCacheSize() << '\n';
-    std::cout << "Sequencer m_dataCache_block_size: " << m_dataCache_ptr->getBlockSize() << '\n';
     m_max_outstanding_requests = p.max_outstanding_requests;
     m_deadlock_threshold = p.deadlock_threshold;
 

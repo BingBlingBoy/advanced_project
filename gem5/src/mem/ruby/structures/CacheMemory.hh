@@ -42,6 +42,7 @@
 #ifndef __MEM_RUBY_STRUCTURES_CACHEMEMORY_HH__
 #define __MEM_RUBY_STRUCTURES_CACHEMEMORY_HH__
 
+#include <cstdint>
 #include <iostream>
 #include <string>
 #include <unordered_map>
@@ -119,8 +120,8 @@ class CacheMemory : public SimObject
     AbstractCacheEntry* lookup(Addr address);
     const AbstractCacheEntry* lookup(Addr address) const;
 
-    Cycles getTagLatency() const { return tagArray.getLatency(); }
-    Cycles getDataLatency() const { return dataArray.getLatency(); }
+    // Cycles getTagLatency() const { return tagArray.getLatency(); }
+    // Cycles getDataLatency() const { return dataArray.getLatency(); }
 
     bool isBlockInvalid(int64_t cache_set, int64_t loc);
     bool isBlockNotBusy(int64_t cache_set, int64_t loc);
@@ -165,6 +166,9 @@ class CacheMemory : public SimObject
     int getNumBlocks() const { return m_cache_num_sets * m_cache_assoc; }
     Addr getAddressAtIdx(int idx) const;
 
+    // Get latency of the current set
+    Cycles getRetentionLatency(int64_t cacheSet, CacheRequestType requestType);
+
   private:
     // convert a Address to its location in the cache
     int64_t addressToCacheSet(Addr address) const;
@@ -177,6 +181,9 @@ class CacheMemory : public SimObject
     // Private copy constructor and assignment operator
     CacheMemory(const CacheMemory& obj);
     CacheMemory& operator=(const CacheMemory& obj);
+
+    // Is this set a low retention set?
+    bool isLowRetentionSet(int64_t cacheSet) const;
 
   private:
     // Data Members (m_prefix)
@@ -197,11 +204,27 @@ class CacheMemory : public SimObject
 
     int m_cache_size;
     int m_cache_num_sets;
+    int m_low_retention_cache_num_sets;
     int m_cache_num_set_bits;
     int m_cache_assoc;
     int m_start_index_bit;
     bool m_resource_stalls;
     int m_block_size;
+
+
+    // Latency
+    
+    double m_percentage_of_low_retention_sets;
+
+    Cycles m_low_retention_data_read_latency;
+    Cycles m_low_retention_tag_read_latency;
+    Cycles m_low_retention_data_write_latency;
+    Cycles m_low_retention_tag_write_latency;
+
+    Cycles m_high_retention_data_read_latency;
+    Cycles m_high_retention_tag_read_latency;
+    Cycles m_high_retention_data_write_latency;
+    Cycles m_high_retention_tag_write_latency;
 
     /**
      * We store all the ReplacementData in a 2-dimensional array. By doing

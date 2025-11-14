@@ -41,11 +41,12 @@ namespace gem5
 namespace ruby
 {
 
-BankedArray::BankedArray(unsigned int banks, Cycles accessLatency,
-                         unsigned int startIndexBit)
+// BankedArray::BankedArray(unsigned int banks, Cycles accessLatency,
+//                          unsigned int startIndexBit)
+BankedArray::BankedArray(unsigned int banks, unsigned int startIndexBit)
 {
     this->banks = banks;
-    this->accessLatency = accessLatency;
+    // this->accessLatency = accessLatency;
     this->startIndexBit = startIndexBit;
 
     if (banks != 0) {
@@ -58,8 +59,8 @@ BankedArray::BankedArray(unsigned int banks, Cycles accessLatency,
 bool
 BankedArray::tryAccess(int64_t idx)
 {
-    if (accessLatency == 0)
-        return true;
+    // if (accessLatency == 0)
+    //     return true;
 
     unsigned int bank = mapIndexToBank(idx);
     assert(bank < banks);
@@ -72,7 +73,7 @@ BankedArray::tryAccess(int64_t idx)
 }
 
 void
-BankedArray::reserve(int64_t idx)
+BankedArray::reserve(int64_t idx, Cycles accessLatency)
 {
     if (accessLatency == 0)
         return;
