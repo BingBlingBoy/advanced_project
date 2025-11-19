@@ -217,13 +217,14 @@ structure (CacheMemory, external = "yes") {
   void deallocate(Addr);
   AbstractCacheEntry lookup(Addr);
   bool isTagPresent(Addr);
-  Cycles getTagLatency();
-  Cycles getDataLatency();
+  //Cycles getTagLatency();
+  //Cycles getDataLatency();
   void setMRU(Addr);
   void setMRU(Addr, int);
   void setMRU(AbstractCacheEntry);
   void recordRequestType(CacheRequestType, Addr);
   bool checkResourceAvailable(CacheResourceType, Addr);
+  Cycles getRetentionLatency(CacheRequestType, Addr);
 
   // hardware transactional memory
   void htmCommitTransaction();
@@ -249,13 +250,14 @@ structure (L1CacheMemory, external = "yes") {
   void deallocate(Addr);
   AbstractCacheEntry lookup(Addr);
   bool isTagPresent(Addr);
-  Cycles getTagLatency();
-  Cycles getDataLatency();
+  //Cycles getTagLatency();
+  //Cycles getDataLatency();
   void setMRU(Addr);
   void setMRU(Addr, int);
   void setMRU(AbstractCacheEntry);
   void recordRequestType(CacheRequestType, Addr);
   bool checkResourceAvailable(CacheResourceType, Addr);
+  Cycles getRetentionLatency(CacheRequestType, Addr);
 
   // hardware transactional memory
   void htmCommitTransaction();
@@ -281,13 +283,14 @@ structure (L2CacheMemory, external = "yes") {
   void deallocate(Addr);
   AbstractCacheEntry lookup(Addr);
   bool isTagPresent(Addr);
-  Cycles getTagLatency();
-  Cycles getDataLatency();
+  //Cycles getTagLatency();
+  //Cycles getDataLatency();
   void setMRU(Addr);
   void setMRU(Addr, int);
   void setMRU(AbstractCacheEntry);
   void recordRequestType(CacheRequestType, Addr);
   bool checkResourceAvailable(CacheResourceType, Addr);
+  Cycles getRetentionLatency(CacheRequestType, Addr);
 
   // hardware transactional memory
   void htmCommitTransaction();

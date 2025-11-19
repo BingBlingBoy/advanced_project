@@ -167,7 +167,7 @@ class CacheMemory : public SimObject
     Addr getAddressAtIdx(int idx) const;
 
     // Get latency of the current set
-    Cycles getRetentionLatency(int64_t cacheSet, CacheRequestType requestType);
+    Cycles getRetentionLatency(CacheRequestType requestType, Addr address);
 
   private:
     // convert a Address to its location in the cache

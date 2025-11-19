@@ -419,9 +419,10 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
   // ACTIONS
 
   action(a_issueFetchToMemory, "a", desc="fetch data from memory") {
+    L2cache.recordRequestType(CacheRequestType:TagArrayRead, address);
     peek(L1RequestL2Network_in, RequestMsg) {
       //enqueue(DirRequestL2Network_out, RequestMsg, l2_request_latency) {
-      enqueue(DirRequestL2Network_out, RequestMsg, read_latency) {
+      enqueue(DirRequestL2Network_out, RequestMsg, L2cache.getRetentionLatency(CacheRequestType:TagArrayRead, address)) {
         out_msg.addr := address;
         out_msg.Type := CoherenceRequestType:GETS;
         out_msg.Requestor := machineID;
@@ -434,9 +435,10 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
   }
 
   action(b_forwardRequestToExclusive, "b", desc="Forward request to the exclusive L1") {
+    L2cache.recordRequestType(CacheRequestType:TagArrayRead, address);
     peek(L1RequestL2Network_in, RequestMsg) {
       //enqueue(L1RequestL2Network_out, RequestMsg, to_l1_latency) {
-      enqueue(L1RequestL2Network_out, RequestMsg, read_latency) {
+      enqueue(L1RequestL2Network_out, RequestMsg, L2cache.getRetentionLatency(CacheRequestType:TagArrayRead, address)) {
         assert(is_valid(cache_entry));
         out_msg.addr := address;
         out_msg.Type := in_msg.Type;
@@ -448,8 +450,10 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
   }
 
   action(c_exclusiveReplacement, "c", desc="Send data to memory") {
+    L2cache.recordRequestType(CacheRequestType:TagArrayRead, address);
+    L2cache.recordRequestType(CacheRequestType:DataArrayRead, address);
     //enqueue(responseL2Network_out, ResponseMsg, l2_response_latency) {
-    enqueue(responseL2Network_out, ResponseMsg, write_latency) {
+    enqueue(responseL2Network_out, ResponseMsg, L2cache.getRetentionLatency(CacheRequestType:DataArrayRead, address)) {
       assert(is_valid(cache_entry));
       out_msg.addr := address;
       out_msg.Type := CoherenceResponseType:MEMORY_DATA;
@@ -462,7 +466,9 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
   }
 
   action(c_exclusiveCleanReplacement, "cc", desc="Send ack to memory for clean replacement") {
-    enqueue(responseL2Network_out, ResponseMsg, l2_response_latency) {
+    L2cache.recordRequestType(CacheRequestType:TagArrayRead, address);
+    //enqueue(responseL2Network_out, ResponseMsg, l2_response_latency) {
+    enqueue(responseL2Network_out, ResponseMsg, L2cache.getRetentionLatency(CacheRequestType:TagArrayRead, address)) {
       out_msg.addr := address;
       out_msg.Type := CoherenceResponseType:ACK;
       out_msg.Sender := machineID;
@@ -472,8 +478,7 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
   }
 
   action(ct_exclusiveReplacementFromTBE, "ct", desc="Send data to memory") {
-    //enqueue(responseL2Network_out, ResponseMsg, l2_response_latency) {
-    enqueue(responseL2Network_out, ResponseMsg, write_latency) {
+    enqueue(responseL2Network_out, ResponseMsg, l2_response_latency) {
       assert(is_valid(tbe));
       out_msg.addr := address;
       out_msg.Type := CoherenceResponseType:MEMORY_DATA;
@@ -486,9 +491,11 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
   }
 
   action(d_sendDataToRequestor, "d", desc="Send data from cache to reqeustor") {
+    L2cache.recordRequestType(CacheRequestType:TagArrayRead, address);
+    L2cache.recordRequestType(CacheRequestType:DataArrayRead, address);
     peek(L1RequestL2Network_in, RequestMsg) {
       //enqueue(responseL2Network_out, ResponseMsg, l2_response_latency) {
-      enqueue(responseL2Network_out, ResponseMsg, read_latency) {
+      enqueue(responseL2Network_out, ResponseMsg, L2cache.getRetentionLatency(CacheRequestType:DataArrayRead, address)) {
         assert(is_valid(cache_entry));
         out_msg.addr := address;
         out_msg.Type := CoherenceResponseType:DATA;
@@ -506,9 +513,11 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
   }
 
   action(dd_sendExclusiveDataToRequestor, "dd", desc="Send data from cache to reqeustor") {
+    L2cache.recordRequestType(CacheRequestType:TagArrayRead, address);
+    L2cache.recordRequestType(CacheRequestType:DataArrayRead, address);
     peek(L1RequestL2Network_in, RequestMsg) {
       //enqueue(responseL2Network_out, ResponseMsg, l2_response_latency) {
-      enqueue(responseL2Network_out, ResponseMsg, read_latency) {
+      enqueue(responseL2Network_out, ResponseMsg, L2cache.getRetentionLatency(CacheRequestType:DataArrayRead, address)) {
         assert(is_valid(cache_entry));
         out_msg.addr := address;
         out_msg.Type := CoherenceResponseType:DATA_EXCLUSIVE;
@@ -526,9 +535,11 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
   }
 
   action(ds_sendSharedDataToRequestor, "ds", desc="Send data from cache to reqeustor") {
+    L2cache.recordRequestType(CacheRequestType:TagArrayRead, address);
+    L2cache.recordRequestType(CacheRequestType:DataArrayRead, address);
     peek(L1RequestL2Network_in, RequestMsg) {
       //enqueue(responseL2Network_out, ResponseMsg, l2_response_latency) {
-      enqueue(responseL2Network_out, ResponseMsg, read_latency) {
+      enqueue(responseL2Network_out, ResponseMsg, L2cache.getRetentionLatency(CacheRequestType:DataArrayRead, address)) {
         assert(is_valid(cache_entry));
         out_msg.addr := address;
         out_msg.Type := CoherenceResponseType:DATA;
@@ -544,7 +555,10 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
   action(e_sendDataToGetSRequestors, "e", desc="Send data from cache to all GetS IDs") {
     assert(is_valid(tbe));
     assert(tbe.L1_GetS_IDs.count() > 0);
-    enqueue(responseL2Network_out, ResponseMsg, to_l1_latency) {
+    L2cache.recordRequestType(CacheRequestType:TagArrayRead, address);
+    L2cache.recordRequestType(CacheRequestType:DataArrayRead, address);
+    //enqueue(responseL2Network_out, ResponseMsg, to_l1_latency) {
+    enqueue(responseL2Network_out, ResponseMsg, L2cache.getRetentionLatency(CacheRequestType:DataArrayRead, address)) {
       assert(is_valid(cache_entry));
       out_msg.addr := address;
       out_msg.Type := CoherenceResponseType:DATA;
@@ -558,7 +572,10 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
   action(ex_sendExclusiveDataToGetSRequestors, "ex", desc="Send data from cache to all GetS IDs") {
     assert(is_valid(tbe));
     assert(tbe.L1_GetS_IDs.count() == 1);
-    enqueue(responseL2Network_out, ResponseMsg, to_l1_latency) {
+    L2cache.recordRequestType(CacheRequestType:TagArrayRead, address);
+    L2cache.recordRequestType(CacheRequestType:DataArrayRead, address);
+    //enqueue(responseL2Network_out, ResponseMsg, to_l1_latency) {
+    enqueue(responseL2Network_out, ResponseMsg, L2cache.getRetentionLatency(CacheRequestType:DataArrayRead, address)) {
       assert(is_valid(cache_entry));
       out_msg.addr := address;
       out_msg.Type := CoherenceResponseType:DATA_EXCLUSIVE;
@@ -570,7 +587,10 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
   }
 
   action(ee_sendDataToGetXRequestor, "ee", desc="Send data from cache to GetX ID") {
-    enqueue(responseL2Network_out, ResponseMsg, to_l1_latency) {
+    L2cache.recordRequestType(CacheRequestType:TagArrayRead, address);
+    L2cache.recordRequestType(CacheRequestType:DataArrayRead, address);
+    //enqueue(responseL2Network_out, ResponseMsg, to_l1_latency) {
+    enqueue(responseL2Network_out, ResponseMsg, L2cache.getRetentionLatency(CacheRequestType:DataArrayRead, address)) {
       assert(is_valid(tbe));
       assert(is_valid(cache_entry));
       out_msg.addr := address;
@@ -586,8 +606,9 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
   }
 
   action(f_sendInvToSharers, "f", desc="invalidate sharers for L2 replacement") {
+    L2cache.recordRequestType(CacheRequestType:TagArrayRead, address);
     //enqueue(L1RequestL2Network_out, RequestMsg, to_l1_latency) {
-    enqueue(L1RequestL2Network_out, RequestMsg, write_latency) {
+    enqueue(L1RequestL2Network_out, RequestMsg, L2cache.getRetentionLatency(CacheRequestType:TagArrayRead, address)) {
       assert(is_valid(cache_entry));
       out_msg.addr := address;
       out_msg.Type := CoherenceRequestType:INV;
@@ -598,9 +619,10 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
   }
 
   action(fw_sendFwdInvToSharers, "fw", desc="invalidate sharers for request") {
+    L2cache.recordRequestType(CacheRequestType:TagArrayRead, address);
     peek(L1RequestL2Network_in, RequestMsg) {
       //enqueue(L1RequestL2Network_out, RequestMsg, to_l1_latency) {
-      enqueue(L1RequestL2Network_out, RequestMsg, write_latency) {
+      enqueue(L1RequestL2Network_out, RequestMsg, L2cache.getRetentionLatency(CacheRequestType:TagArrayRead, address)) {
         assert(is_valid(cache_entry));
         out_msg.addr := address;
         out_msg.Type := CoherenceRequestType:INV;
@@ -612,9 +634,10 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
   }
 
   action(fwm_sendFwdInvToSharersMinusRequestor, "fwm", desc="invalidate sharers for request, requestor is sharer") {
+    L2cache.recordRequestType(CacheRequestType:TagArrayRead, address);
     peek(L1RequestL2Network_in, RequestMsg) {
       //enqueue(L1RequestL2Network_out, RequestMsg, to_l1_latency) {
-      enqueue(L1RequestL2Network_out, RequestMsg, write_latency) {
+      enqueue(L1RequestL2Network_out, RequestMsg, L2cache.getRetentionLatency(CacheRequestType:TagArrayRead, address)) {
         assert(is_valid(cache_entry));
         out_msg.addr := address;
         out_msg.Type := CoherenceRequestType:INV;
@@ -659,13 +682,17 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
   }
 
   action(m_writeDataToCache, "m", desc="Write data from response queue to cache") {
-    peek(responseL2Network_in, ResponseMsg) {
-      assert(is_valid(cache_entry));
-      cache_entry.DataBlk := in_msg.DataBlk;
-      if (in_msg.Dirty) {
-        cache_entry.Dirty := in_msg.Dirty;
+      L2cache.recordRequestType(CacheRequestType:TagArrayRead, address);
+      L2cache.recordRequestType(CacheRequestType:DataArrayRead, address);
+      peek(responseL2Network_in, ResponseMsg) {
+          enqueue(responseL2Network_out, RequestMsg, L2cache.getRetentionLatency(CacheRequestType:DataArrayWrite, address)) {
+              assert(is_valid(cache_entry));
+              cache_entry.DataBlk := in_msg.DataBlk;
+              if (in_msg.Dirty) {
+                  cache_entry.Dirty := in_msg.Dirty;
+              }
+          }
       }
-    }
   }
 
   action(mr_writeDataToCacheFromRequest, "mr", desc="Write data from response queue to cache") {
@@ -728,7 +755,7 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
   action(t_sendWBAck, "t", desc="Send writeback ACK") {
     peek(L1RequestL2Network_in, RequestMsg) {
       //enqueue(responseL2Network_out, ResponseMsg, to_l1_latency) {
-      enqueue(responseL2Network_out, ResponseMsg, write_latency) {
+      enqueue(responseL2Network_out, ResponseMsg, L2cache.getRetentionLatency(CacheRequestType:DataArrayWrite, address)) {
         out_msg.addr := address;
         out_msg.Type := CoherenceResponseType:WB_ACK;
         out_msg.Sender := machineID;

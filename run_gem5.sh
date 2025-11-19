@@ -32,7 +32,6 @@ singularity exec \
     --bind $GEM5_DIR:/gem5 \
     $SIF_PATH \
     /gem5/build/$ISA/gem5.$VARIANT \
-    --outdir=/gem5/configs/SRAM/Separate_Latency_classic_outputs \
+    --outdir=/gem5/configs/SRAM/1.0_retention \
     /gem5/configs/SRAM/components.py
-    # /gem5/configs/SRAM/level2.py --l2_size='1MB' --l1d_size='128kB'
 

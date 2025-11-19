@@ -1,4 +1,5 @@
 **/build
+/gem5/configs/SRAM/
 gem5_comp*
 gem5_run*
 parsec-2.1-alpha-files.zip

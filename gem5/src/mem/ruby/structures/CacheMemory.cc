@@ -182,8 +182,9 @@ CacheMemory::isLowRetentionSet(int64_t cacheSet) const
 }
 
 Cycles
-CacheMemory::getRetentionLatency(int64_t cacheSet, CacheRequestType requestType)
+CacheMemory::getRetentionLatency(CacheRequestType requestType, Addr address)
 {
+    int64_t cacheSet = addressToCacheSet(address);
     if (isLowRetentionSet(cacheSet))
     {
         switch (requestType) {
@@ -747,8 +748,8 @@ CacheMemory::recordRequestType(CacheRequestType requestType, Addr addr)
                 Cycles accessLatency = isLowRetention ?
                     m_low_retention_data_read_latency : m_high_retention_data_read_latency;
 
-                std::cout << "Is Low Retention: " << isLowRetention << '\n';
-                std::cout << "Access Latency: " << accessLatency << '\n';
+                // std::cout << "Is Low Retention: " << isLowRetention << '\n';
+                // std::cout << "Access Latency: " << accessLatency << '\n';
 
                 dataArray.reserve(addressToCacheSet(addr),
                                   accessLatency);
@@ -761,8 +762,8 @@ CacheMemory::recordRequestType(CacheRequestType requestType, Addr addr)
                 Cycles accessLatency = isLowRetention ?
                     m_low_retention_data_write_latency : m_high_retention_data_write_latency;
 
-                std::cout << "Is Low Retention: " << isLowRetention << '\n';
-                std::cout << "Access Latency: " << accessLatency << '\n';
+                // std::cout << "Is Low Retention: " << isLowRetention << '\n';
+                // std::cout << "Access Latency: " << accessLatency << '\n';
 
                 dataArray.reserve(addressToCacheSet(addr),
                                   accessLatency);
@@ -775,8 +776,8 @@ CacheMemory::recordRequestType(CacheRequestType requestType, Addr addr)
                 Cycles accessLatency = isLowRetention ?
                     m_low_retention_tag_read_latency : m_high_retention_tag_read_latency;
 
-                std::cout << "Is Low Retention: " << isLowRetention << '\n';
-                std::cout << "Access Latency: " << accessLatency << '\n';
+                // std::cout << "Is Low Retention: " << isLowRetention << '\n';
+                // std::cout << "Access Latency: " << accessLatency << '\n';
 
                 tagArray.reserve(addressToCacheSet(addr),
                                   accessLatency);
@@ -789,8 +790,8 @@ CacheMemory::recordRequestType(CacheRequestType requestType, Addr addr)
                 Cycles accessLatency = isLowRetention ?
                     m_low_retention_tag_write_latency : m_high_retention_tag_write_latency;
 
-                std::cout << "Is Low Retention: " << isLowRetention << '\n';
-                std::cout << "Access Latency: " << accessLatency << '\n';
+                // std::cout << "Is Low Retention: " << isLowRetention << '\n';
+                // std::cout << "Access Latency: " << accessLatency << '\n';
 
                 tagArray.reserve(addressToCacheSet(addr),
                                   accessLatency);

@@ -1,0 +1,84 @@
+Global frequency set at 1000000000000 ticks per second
+Cache Level Call: L1CacheMemory
+Percentage from params: 0
+Low retention data read latency: 1
+Low retention tag read latency: 1
+Low retention data write latency: 1
+Low retention tag write latency: 1
+High retention data read latency: 1
+High retention tag read latency: 1
+High retention data write latency: 1
+High retention tag write latency: 1
+Cache Level Call: L1CacheMemory
+Percentage from params: 0
+Low retention data read latency: 1
+Low retention tag read latency: 1
+Low retention data write latency: 1
+Low retention tag write latency: 1
+High retention data read latency: 1
+High retention tag read latency: 1
+High retention data write latency: 1
+High retention tag write latency: 1
+src/base/statistics.hh:279: warn: One of the stats is a legacy stat. Legacy stat is a stat that does not belong to any statistics::Group. Legacy stat is deprecated.
+Cache Level Call: L2CacheMemory
+Percentage from params: 0.5
+Low retention data read latency: 2
+Low retention tag read latency: 2
+Low retention data write latency: 2
+Low retention tag write latency: 2
+High retention data read latency: 4
+High retention tag read latency: 4
+High retention data write latency: 4
+High retention tag write latency: 4
+Cache Level Call: L2CacheMemory
+Percentage from params: 0.5
+Low retention data read latency: 2
+Low retention tag read latency: 2
+Low retention data write latency: 2
+Low retention tag write latency: 2
+High retention data read latency: 4
+High retention tag read latency: 4
+High retention data write latency: 4
+High retention tag write latency: 4
+src/base/statistics.hh:279: warn: One of the stats is a legacy stat. Legacy stat is a stat that does not belong to any statistics::Group. Legacy stat is deprecated.
+Total cache sets: 32
+Percentage of Low Retention Cache Sets: 0
+Low retention cache sets: 0
+Total cache sets: 32
+Percentage of Low Retention Cache Sets: 0
+Low retention cache sets: 0
+Total cache sets: 512
+Percentage of Low Retention Cache Sets: 0.5
+Low retention cache sets: 256
+Total cache sets: 512
+Percentage of Low Retention Cache Sets: 0.5
+Low retention cache sets: 256
+src/base/remote_gdb.cc:418: warn: Sockets disabled, not accepting gdb connections
+gem5 Simulator System.  https://www.gem5.org
+gem5 is copyrighted software; use the --copyright option for details.
+
+gem5 version 25.0.0.1
+gem5 compiled Nov 19 2025 13:28:09
+gem5 started Nov 19 2025 13:39:43
+gem5 executing on cn097.ham8.dur.ac.uk, pid 3729312
+command line: /gem5/build/X86/gem5.opt --outdir=/gem5/configs/SRAM/half_retention /gem5/configs/SRAM/components.py
+
+info: Standard input is not a terminal, disabling listeners.
+mesi L1DCache:  <orphan L1Cache>.L1Dcache
+Python Percentage of Low Retention Sets:  0.5
+Python Percentage of Low Retention Sets:  0.5
+src/mem/ruby/system/Sequencer.cc:705: warn: Replacement policy updates recently became the responsibility of SLICC state machines. Make sure to setMRU() near callbacks in .sm files!
+src/sim/syscall_emul.cc:86: warn: ignoring syscall set_robust_list(...)
+src/sim/syscall_emul.cc:86: warn: ignoring syscall rseq(...)
+src/sim/mem_state.cc:443: info: Increasing stack size by one page.
+src/sim/syscall_emul.hh:1121: warn: readlink() called on '/proc/self/exe' may yield unexpected results in various settings.
+      Returning '/nobackup/gfbz98/ADV_PROJ/gem5/configs/SRAM/cache_workload'
+src/sim/syscall_emul.cc:86: warn: ignoring syscall mprotect(...)
+=== L2 Latency Verification Workload ===
+Array size: 512 KiB
+1. Warming up cache (fetching from DRAM)...
+Volatile sum: 53680537600
+2. Resetting stats...
+3. Running measurement (Should be all L2 Hits)...
+Volatile sum: 53680537600
+Measurement complete.
