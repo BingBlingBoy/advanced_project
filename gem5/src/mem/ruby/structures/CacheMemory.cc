@@ -87,28 +87,30 @@ CacheMemory::CacheMemory(const Params &p, const std::string& cache_level_call)
     m_use_occupancy = dynamic_cast<replacement_policy::WeightedLRU*>(
                                     m_replacementPolicy_ptr) ? true : false;
 
-    std::cout << "Cache Level Call: " << cache_level_call << '\n';
-
-    std::cout << "Percentage from params: " << p.percentage_of_low_retention_sets << '\n';
+    // std::cout << "Cache Level Call: " << cache_level_call << '\n';
+    //
+    // std::cout << "Percentage from params: " << p.percentage_of_low_retention_sets << '\n';
     m_percentage_of_low_retention_sets = p.percentage_of_low_retention_sets;
 
-    m_low_retention_data_read_latency = p.low_retention_data_read_latency;
-    m_low_retention_tag_read_latency = p.low_retention_tag_read_latency;
-    m_low_retention_data_write_latency = p.low_retention_data_write_latency;
-    m_low_retention_tag_write_latency = p.low_retention_tag_write_latency;
-    std::cout << "Low retention data read latency: " << m_low_retention_data_read_latency << '\n';
-    std::cout << "Low retention tag read latency: " << m_low_retention_tag_read_latency << '\n';
-    std::cout << "Low retention data write latency: " << m_low_retention_data_write_latency << '\n';
-    std::cout << "Low retention tag write latency: " << m_low_retention_tag_write_latency << '\n';
+    m_low_retention.data.read_latency = p.low_retention_data_read_latency;
+    m_low_retention.tag.read_latency = p.low_retention_tag_read_latency;
+    m_low_retention.data.write_latency = p.low_retention_data_write_latency;
+    m_low_retention.tag.write_latency = p.low_retention_tag_write_latency;
 
-    m_high_retention_data_read_latency = p.high_retention_data_read_latency;
-    m_high_retention_tag_read_latency = p.high_retention_tag_read_latency;
-    m_high_retention_data_write_latency = p.high_retention_data_write_latency;
-    m_high_retention_tag_write_latency = p.high_retention_tag_write_latency;
-    std::cout << "High retention data read latency: " << m_high_retention_data_read_latency << '\n';
-    std::cout << "High retention tag read latency: " << m_high_retention_tag_read_latency << '\n';
-    std::cout << "High retention data write latency: " << m_high_retention_data_write_latency << '\n';
-    std::cout << "High retention tag write latency: " << m_high_retention_tag_write_latency << '\n';
+    // std::cout << "Low retention data read latency: " << m_low_retention.data.read_latency << '\n';
+    // std::cout << "Low retention tag read latency: " << m_low_retention.tag.read_latency << '\n';
+    // std::cout << "Low retention data write latency: " << m_low_retention.data.write_latency << '\n';
+    // std::cout << "Low retention tag write latency: " << m_low_retention.tag.write_latency << '\n';
+
+    m_high_retention.data.read_latency = p.high_retention_data_read_latency;
+    m_high_retention.tag.read_latency = p.high_retention_tag_read_latency;
+    m_high_retention.data.write_latency = p.high_retention_data_write_latency;
+    m_high_retention.tag.write_latency = p.high_retention_tag_write_latency;
+
+    // std::cout << "High retention data read latency: " << m_high_retention.data.read_latency << '\n';
+    // std::cout << "High retention tag read latency: " << m_high_retention.tag.read_latency << '\n';
+    // std::cout << "High retention data write latency: " << m_high_retention.data.write_latency << '\n';
+    // std::cout << "High retention tag write latency: " << m_high_retention.tag.write_latency << '\n';
 }
 
 void
@@ -139,12 +141,12 @@ CacheMemory::init()
     assert(m_block_size != 0);
     
     m_cache_num_sets = (m_cache_size / m_cache_assoc) / m_block_size;
-    std::cout << "Total cache sets: " << m_cache_num_sets << '\n';
+    // std::cout << "Total cache sets: " << m_cache_num_sets << '\n';
     assert(m_cache_num_sets > 1);
 
-    std::cout << "Percentage of Low Retention Cache Sets: " << m_percentage_of_low_retention_sets << '\n';
+    // std::cout << "Percentage of Low Retention Cache Sets: " << m_percentage_of_low_retention_sets << '\n';
     m_low_retention_cache_num_sets = m_cache_num_sets * m_percentage_of_low_retention_sets;
-    std::cout << "Low retention cache sets: " << m_low_retention_cache_num_sets << '\n';
+    // std::cout << "Low retention cache sets: " << m_low_retention_cache_num_sets << '\n';
     assert(m_cache_num_sets >= 0);
 
     m_cache_num_set_bits = floorLog2(m_cache_num_sets);
@@ -185,39 +187,69 @@ Cycles
 CacheMemory::getRetentionLatency(CacheRequestType requestType, Addr address)
 {
     int64_t cacheSet = addressToCacheSet(address);
+    Cycles basic_latency;
     if (isLowRetentionSet(cacheSet))
     {
         switch (requestType) {
             case CacheRequestType_DataArrayRead:
-                return m_low_retention_data_read_latency;
+                basic_latency = m_low_retention.data.read_latency;
+                break;
             case CacheRequestType_DataArrayWrite:
-                return m_low_retention_data_write_latency;
+                basic_latency = m_low_retention.data.write_latency;
+                break;
             case CacheRequestType_TagArrayRead:
-                return m_low_retention_tag_read_latency;
+                basic_latency = m_low_retention.tag.read_latency;
+                break;
             case CacheRequestType_TagArrayWrite:
-                return m_low_retention_tag_write_latency;
+                basic_latency = m_low_retention.tag.write_latency;
+                break;
             default:
                 warn("CacheMemory access_type not found: %s",
                      CacheRequestType_to_string(requestType));
-                return Cycles(1);
+                basic_latency = Cycles(1);
         }
     } 
     else 
     {
         switch (requestType) {
             case CacheRequestType_DataArrayRead:
-                return m_high_retention_data_read_latency;
+                basic_latency = m_high_retention.data.read_latency;
+                break;
             case CacheRequestType_DataArrayWrite:
-                return m_high_retention_data_write_latency;
+                basic_latency = m_high_retention.data.write_latency;
+                break;
             case CacheRequestType_TagArrayRead:
-                return m_high_retention_tag_read_latency;
+                basic_latency = m_high_retention.tag.read_latency;
+                break;
             case CacheRequestType_TagArrayWrite:
-                return m_high_retention_tag_write_latency;
+                basic_latency = m_high_retention.tag.write_latency;
+                break;
             default:
                 warn("CacheMemory access_type not found: %s",
                      CacheRequestType_to_string(requestType));
-                return Cycles(1);
+                basic_latency = Cycles(1);
         }
+    }
+
+    Tick bankFreeTick;
+    if (requestType == CacheRequestType_DataArrayRead || requestType == CacheRequestType_DataArrayWrite)
+    {
+        bankFreeTick = dataArray.getBankEndTime(cacheSet);
+    }
+    else
+    {
+        bankFreeTick = tagArray.getBankEndTime(cacheSet);
+    }
+
+    Tick currTick = curTick();
+
+    if (bankFreeTick > currTick)
+    {
+        return m_ruby_system->ticksToCycles(bankFreeTick - currTick);
+    }
+    else
+    {
+        return basic_latency;
     }
 }
 
@@ -746,7 +778,7 @@ CacheMemory::recordRequestType(CacheRequestType requestType, Addr addr)
             if (m_resource_stalls)
             {
                 Cycles accessLatency = isLowRetention ?
-                    m_low_retention_data_read_latency : m_high_retention_data_read_latency;
+                    m_low_retention.data.read_latency : m_high_retention.data.read_latency;
 
                 // std::cout << "Is Low Retention: " << isLowRetention << '\n';
                 // std::cout << "Access Latency: " << accessLatency << '\n';
@@ -756,11 +788,12 @@ CacheMemory::recordRequestType(CacheRequestType requestType, Addr addr)
             }
             cacheMemoryStats.numDataArrayReads++;
             return;
+
         case CacheRequestType_DataArrayWrite:
             if (m_resource_stalls)
             {
                 Cycles accessLatency = isLowRetention ?
-                    m_low_retention_data_write_latency : m_high_retention_data_write_latency;
+                    m_low_retention.data.write_latency : m_high_retention.data.write_latency;
 
                 // std::cout << "Is Low Retention: " << isLowRetention << '\n';
                 // std::cout << "Access Latency: " << accessLatency << '\n';
@@ -770,11 +803,12 @@ CacheMemory::recordRequestType(CacheRequestType requestType, Addr addr)
             }
             cacheMemoryStats.numDataArrayWrites++;
             return;
+
         case CacheRequestType_TagArrayRead:
             if (m_resource_stalls)
             {
                 Cycles accessLatency = isLowRetention ?
-                    m_low_retention_tag_read_latency : m_high_retention_tag_read_latency;
+                    m_low_retention.tag.read_latency : m_high_retention.tag.read_latency;
 
                 // std::cout << "Is Low Retention: " << isLowRetention << '\n';
                 // std::cout << "Access Latency: " << accessLatency << '\n';
@@ -784,11 +818,12 @@ CacheMemory::recordRequestType(CacheRequestType requestType, Addr addr)
             }
             cacheMemoryStats.numTagArrayReads++;
             return;
+
         case CacheRequestType_TagArrayWrite:
             if (m_resource_stalls)
             {
                 Cycles accessLatency = isLowRetention ?
-                    m_low_retention_tag_write_latency : m_high_retention_tag_write_latency;
+                    m_low_retention.tag.write_latency : m_high_retention.tag.write_latency;
 
                 // std::cout << "Is Low Retention: " << isLowRetention << '\n';
                 // std::cout << "Access Latency: " << accessLatency << '\n';
@@ -799,11 +834,13 @@ CacheMemory::recordRequestType(CacheRequestType requestType, Addr addr)
             }
             cacheMemoryStats.numTagArrayWrites++;
             return;
+
         case CacheRequestType_AtomicALUOperation:
             if (m_resource_stalls)
                 atomicALUArray.reserve(addr);
             cacheMemoryStats.numAtomicALUOperations++;
             return;
+
         default:
             warn("CacheMemory access_type not found: %s",
                  CacheRequestType_to_string(requestType));

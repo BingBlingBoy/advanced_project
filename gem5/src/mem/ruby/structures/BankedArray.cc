@@ -83,20 +83,24 @@ BankedArray::reserve(int64_t idx, Cycles accessLatency)
     unsigned int bank = mapIndexToBank(idx);
     assert(bank < banks);
 
-    if (busyBanks[bank].endAccess >= curTick()) {
-        if (busyBanks[bank].startAccess == curTick() &&
-             busyBanks[bank].idx == idx) {
-            // this is the same reservation (can happen when
-            // e.g., reserve the same resource for read and write)
-            return; // OK
-        } else {
-            panic("BankedArray reservation error");
-        }
-    }
+    // More than one access to a bank is being used
+    // if (busyBanks[bank].endAccess >= curTick()) {
+    //     if (busyBanks[bank].startAccess == curTick() &&
+    //          busyBanks[bank].idx == idx) {
+    //         // this is the same reservation (can happen when
+    //         // e.g., reserve the same resource for read and write)
+    //         return; // OK
+    //     } else {
+    //         panic("BankedArray reservation error");
+    //     }
+    // }
+
+    Tick currTick = curTick();
+    Tick startTime = std::max(currTick, busyBanks[bank].endAccess);
 
     busyBanks[bank].idx = idx;
-    busyBanks[bank].startAccess = curTick();
-    busyBanks[bank].endAccess = curTick() +
+    busyBanks[bank].startAccess = startTime;
+    busyBanks[bank].endAccess = startTime +
         (accessLatency-1) * clockPeriod;
 }
 

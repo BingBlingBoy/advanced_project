@@ -10,6 +10,7 @@
 set -e
 
 GEM5_DIR=./gem5
+PARSEC_BENCHMARKS_DIR=./PARSEC_BENCHMARKS
 SIF_PATH=./gem5-v25-0.sif
 ISA=X86
 VARIANT=opt
@@ -20,11 +21,13 @@ find . -maxdepth 1 -name "gem5_compilation*" -not -name "gem5_compilation_${SLUR
 
 singularity exec \
     --bind $GEM5_DIR:/gem5 \
+    --bind $PARSEC_BENCHMARKS_DIR:/parsec \
     $SIF_PATH \
-    bash -c "cd /gem5 && scons build/$ISA/gem5.$VARIANT -j$SLURM_CPUS_PER_TASK"
+    bash -c "cd /gem5 && scons build/$ISA/gem5.$VARIANT -j52"
 
 singularity exec \
     --bind $GEM5_DIR:/gem5 \
+    --bind $PARSEC_BENCHMARKS_DIR:/parsec \
     $SIF_PATH \
-    bash -c "cd /gem5 && scons build/$ISA/compile_commands.json -j$SLURM_CPUS_PER_TASK"
+    bash -c "cd /gem5 && scons build/$ISA/compile_commands.json -j52"
 

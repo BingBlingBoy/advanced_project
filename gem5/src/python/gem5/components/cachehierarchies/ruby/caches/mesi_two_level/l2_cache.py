@@ -65,8 +65,8 @@ class L2Cache(MESI_Two_Level_L2Cache_Controller):
         self._cache_line_size = cache_line_size
         self.connectQueues(network)
 
-        print("Python Percentage of Low Retention Sets: ",
-              percentage_of_low_retention_sets)
+        # print("Python Percentage of Low Retention Sets: ",
+        #       percentage_of_low_retention_sets)
 
         # This is the cache memory object that stores the cache data and tags
         self.L2cache = L2CacheMemory(

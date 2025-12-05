@@ -70,15 +70,15 @@ class MESITwoLevelCacheHierarchy(
         l2_size: str,
         l2_assoc: int,
         num_l2_banks: int,
-        percentage_of_low_retention_sets: float,
-        low_retention_data_read_latency: int,
-        low_retention_tag_read_latency: int,
-        low_retention_data_write_latency: int,
-        low_retention_tag_write_latency: int,
-        high_retention_data_read_latency: int,
-        high_retention_tag_read_latency: int,
-        high_retention_data_write_latency: int,
-        high_retention_tag_write_latency: int,
+        percentage_of_low_retention_sets: float = 0,
+        low_retention_data_read_latency: int = 1,
+        low_retention_tag_read_latency: int = 1,
+        low_retention_data_write_latency: int = 1,
+        low_retention_tag_write_latency: int = 1,
+        high_retention_data_read_latency: int = 1,
+        high_retention_tag_read_latency: int = 1,
+        high_retention_data_write_latency: int = 1,
+        high_retention_tag_write_latency: int = 1,
 
     ):
         AbstractRubyCacheHierarchy.__init__(self=self)
@@ -134,7 +134,7 @@ class MESITwoLevelCacheHierarchy(
                 board.get_clock_domain(),
             )
 
-            print("mesi L1DCache: ", cache.L1Dcache)
+            # print("mesi L1DCache: ", cache.L1Dcache)
 
             cache.sequencer = RubySequencer(
                 version=i,

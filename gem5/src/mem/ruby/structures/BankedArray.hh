@@ -32,10 +32,12 @@
 #ifndef __MEM_RUBY_STRUCTURES_BANKEDARRAY_HH__
 #define __MEM_RUBY_STRUCTURES_BANKEDARRAY_HH__
 
+#include <cstdint>
 #include <vector>
 
 #include "mem/ruby/common/TypeDefines.hh"
 #include "mem/ruby/system/RubySystem.hh"
+#include <algorithm>
 
 namespace gem5
 {
@@ -79,6 +81,11 @@ class BankedArray
     void reserve(int64_t idx, Cycles accessLatency);
 
     // Cycles getLatency() const { return accessLatency; }
+
+    Tick getBankEndTime(int64_t idx) {
+        unsigned int bank = mapIndexToBank(idx);
+        return busyBanks[bank].endAccess;
+    }
 
     void setClockPeriod(Tick _clockPeriod) { clockPeriod = _clockPeriod; }
 };

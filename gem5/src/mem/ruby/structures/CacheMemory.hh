@@ -42,8 +42,11 @@
 #ifndef __MEM_RUBY_STRUCTURES_CACHEMEMORY_HH__
 #define __MEM_RUBY_STRUCTURES_CACHEMEMORY_HH__
 
+#include <array>
+#include <cstddef>
 #include <cstdint>
 #include <iostream>
+#include <iterator>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -169,6 +172,11 @@ class CacheMemory : public SimObject
     // Get latency of the current set
     Cycles getRetentionLatency(CacheRequestType requestType, Addr address);
 
+  public:
+    static constexpr std::size_t m_num_of_retention_zones {4};
+    static constexpr std::size_t m_num_of_latency_types {2};
+
+
   private:
     // convert a Address to its location in the cache
     int64_t addressToCacheSet(Addr address) const;
@@ -216,15 +224,18 @@ class CacheMemory : public SimObject
     
     double m_percentage_of_low_retention_sets;
 
-    Cycles m_low_retention_data_read_latency;
-    Cycles m_low_retention_tag_read_latency;
-    Cycles m_low_retention_data_write_latency;
-    Cycles m_low_retention_tag_write_latency;
+    struct AccessLatency {
+        Cycles read_latency;
+        Cycles write_latency;
+    };
 
-    Cycles m_high_retention_data_read_latency;
-    Cycles m_high_retention_tag_read_latency;
-    Cycles m_high_retention_data_write_latency;
-    Cycles m_high_retention_tag_write_latency;
+    struct LatencyType {
+        AccessLatency data;
+        AccessLatency tag;
+    };
+
+    LatencyType m_low_retention;
+    LatencyType m_high_retention;
 
     /**
      * We store all the ReplacementData in a 2-dimensional array. By doing

@@ -5,4 +5,6 @@ gem5_run*
 parsec-2.1-alpha-files.zip
 x86-system.zip
 gem5-v25-0.sif
-
+PARSEC
+PARSEC_BENCHMARKS
+X86_SYSTEM
