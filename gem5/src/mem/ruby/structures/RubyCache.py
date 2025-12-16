@@ -61,6 +61,9 @@ class RubyCache(SimObject):
     percentage_of_low_retention_sets = Param.Float(
             0, "percentage of low retention sets")
 
+    num_of_retention_zones = Param.Int(
+            1, "num_of_retention_zones")
+
     low_retention_data_read_latency = Param.Cycles(
             1, "cycles read access for low retention for data array")
     low_retention_tag_read_latency  = Param.Cycles(
@@ -69,6 +72,24 @@ class RubyCache(SimObject):
             1, "cycles write access for low retention for data array")
     low_retention_tag_write_latency = Param.Cycles(
             1, "cycles write access for low retention for tag array")
+
+    mediumlow_retention_data_read_latency = Param.Cycles(
+            1, "cycles read access for mediumlow retention for data array")
+    mediumlow_retention_tag_read_latency  = Param.Cycles(
+            1, "cycles read access for mediumlow retention for tag array")
+    mediumlow_retention_data_write_latency = Param.Cycles(
+            1, "cycles write access for mediumlow retention for data array")
+    mediumlow_retention_tag_write_latency = Param.Cycles(
+            1, "cycles write access for mediumlow retention for tag array")
+
+    mediumhigh_retention_data_read_latency = Param.Cycles(
+            1, "cycles read access for mediumhigh retention for data array")
+    mediumhigh_retention_tag_read_latency  = Param.Cycles(
+            1, "cycles read access for mediumhigh retention for tag array")
+    mediumhigh_retention_data_write_latency = Param.Cycles(
+            1, "cycles write access for mediumhigh retention for data array")
+    mediumhigh_retention_tag_write_latency = Param.Cycles(
+            1, "cycles write access for mediumhigh retention for tag array")
 
     high_retention_data_read_latency = Param.Cycles(
             1, "cycles read access for write retention for data array")

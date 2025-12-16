@@ -1,0 +1,58 @@
+warn: root.system already has parent not resetting parent.
+	Note: system is not a parameter of Root
+warn: (Previously declared as root.system
+Global frequency set at 1000000000000 ticks per second
+warn: board.workload.acpi_description_table_pointer.rsdt adopting orphan SimObject param 'entries'
+src/mem/dram_interface.cc:690: warn: DRAM device capacity (16384 Mbytes) does not match the address range assigned (4096 Mbytes)
+src/sim/kernel_workload.cc:46: info: kernel located at: /x86/x86-system/binaries/vmlinux
+src/base/statistics.hh:279: warn: One of the stats is a legacy stat. Legacy stat is a stat that does not belong to any statistics::Group. Legacy stat is deprecated.
+      0: board.pc.south_bridge.cmos.rtc: Real-time clock set to Sun Jan  1 00:00:00 2012
+src/dev/serial/terminal.cc:174: warn: Sockets disabled, not accepting terminal connections
+src/base/statistics.hh:279: warn: One of the stats is a legacy stat. Legacy stat is a stat that does not belong to any statistics::Group. Legacy stat is deprecated.
+src/dev/intel_8254_timer.cc:128: warn: Reading current count from inactive timer.
+src/base/remote_gdb.cc:418: warn: Sockets disabled, not accepting gdb connections
+gem5 Simulator System.  https://www.gem5.org
+gem5 is copyrighted software; use the --copyright option for details.
+
+gem5 version 25.0.0.1
+gem5 compiled Nov 26 2025 22:10:29
+gem5 started Dec 12 2025 14:04:11
+gem5 executing on cn057.ham8.dur.ac.uk, pid 610617
+command line: /gem5/build/X86/gem5.opt --outdir=/gem5/configs/PARSEC/8MiB_SRAM_ISO_AREA/swaptions /gem5/configs/PARSEC/hardware_config.py --benchmark=swaptions --input=swaptions_16c_simmedium.rcS --hardware=8MiB_SRAM_ISO_AREA
+
+info: Standard input is not a terminal, disabling listeners.
+Reusing existing Root object.
+src/mem/ruby/system/Sequencer.cc:705: warn: Replacement policy updates recently became the responsibility of SLICC state machines. Make sure to setMRU() near callbacks in .sm files!
+build/X86/arch/x86/generated/exec-ns.cc.inc:27: warn: instruction 'wbinvd' unimplemented
+board.cache_hierarchy
+Dump at 500000000000
+src/sim/power_state.cc:105: warn: PowerState: Already in the requested power state, request ignored
+build/X86/arch/x86/generated/exec-ns.cc.inc:27: warn: instruction 'wbinvd' unimplemented
+build/X86/arch/x86/generated/exec-ns.cc.inc:27: warn: instruction 'wbinvd' unimplemented
+build/X86/arch/x86/generated/exec-ns.cc.inc:27: warn: instruction 'wbinvd' unimplemented
+build/X86/arch/x86/generated/exec-ns.cc.inc:27: warn: instruction 'wbinvd' unimplemented
+build/X86/arch/x86/generated/exec-ns.cc.inc:27: warn: instruction 'wbinvd' unimplemented
+build/X86/arch/x86/generated/exec-ns.cc.inc:27: warn: instruction 'wbinvd' unimplemented
+src/arch/x86/interrupts.cc:530: hack: Assuming logical destinations are 1 << id.
+src/dev/x86/pc.cc:117: warn: Don't know what interrupt to clear for console.
+board.cache_hierarchy
+Dump at 1000000000000
+board.cache_hierarchy
+Dump at 1500000000000
+board.cache_hierarchy
+Dump at 2000000000000
+board.cache_hierarchy
+Dump at 2500000000000
+board.cache_hierarchy
+Dump at 3000000000000
+board.cache_hierarchy
+Dump at 3500000000000
+board.cache_hierarchy
+Dump at 4000000000000
+board.cache_hierarchy
+Dump at 4500000000000
+src/dev/x86/i8042.cc:290: warn: Write to unknown i8042 (keyboard controller) command port.
+src/dev/ps2/mouse.cc:153: warn: Unknown mouse command 0xe1.
+board.cache_hierarchy
+Dump at 5000000000000
+Exiting: m5_exit instruction encountered

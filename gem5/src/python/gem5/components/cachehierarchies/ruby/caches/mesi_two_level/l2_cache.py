@@ -50,10 +50,23 @@ class L2Cache(MESI_Two_Level_L2Cache_Controller):
         num_l2Caches,
         cache_line_size,
         percentage_of_low_retention_sets,
+        num_of_retention_zones,
+
         low_retention_data_read_latency,
         low_retention_tag_read_latency,
         low_retention_data_write_latency,
         low_retention_tag_write_latency,
+
+        mediumlow_retention_data_read_latency,
+        mediumlow_retention_tag_read_latency,
+        mediumlow_retention_data_write_latency,
+        mediumlow_retention_tag_write_latency,
+
+        mediumhigh_retention_data_read_latency,
+        mediumhigh_retention_tag_read_latency,
+        mediumhigh_retention_data_write_latency,
+        mediumhigh_retention_tag_write_latency,
+
         high_retention_data_read_latency,
         high_retention_tag_read_latency,
         high_retention_data_write_latency,
@@ -75,10 +88,23 @@ class L2Cache(MESI_Two_Level_L2Cache_Controller):
             start_index_bit=self.getIndexBit(num_l2Caches),
             resourceStalls=True,
             percentage_of_low_retention_sets=percentage_of_low_retention_sets,
+            num_of_retention_zones=num_of_retention_zones,
+
             low_retention_data_read_latency=low_retention_data_read_latency,
             low_retention_tag_read_latency=low_retention_tag_read_latency,
             low_retention_data_write_latency=low_retention_data_write_latency,
             low_retention_tag_write_latency=low_retention_tag_write_latency,
+
+            mediumlow_retention_data_read_latency = mediumlow_retention_data_read_latency,
+            mediumlow_retention_tag_read_latency = mediumlow_retention_tag_read_latency,
+            mediumlow_retention_data_write_latency = mediumlow_retention_data_write_latency,
+            mediumlow_retention_tag_write_latency = mediumlow_retention_tag_write_latency,
+
+            mediumhigh_retention_data_read_latency = mediumhigh_retention_data_read_latency,
+            mediumhigh_retention_tag_read_latency = mediumhigh_retention_tag_read_latency,
+            mediumhigh_retention_data_write_latency = mediumhigh_retention_data_write_latency,
+            mediumhigh_retention_tag_write_latency = mediumhigh_retention_tag_write_latency,
+
             high_retention_data_read_latency=high_retention_data_read_latency,
             high_retention_tag_read_latency=high_retention_tag_read_latency,
             high_retention_data_write_latency=high_retention_data_write_latency,

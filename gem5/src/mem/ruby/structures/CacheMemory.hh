@@ -172,10 +172,7 @@ class CacheMemory : public SimObject
     // Get latency of the current set
     Cycles getRetentionLatency(CacheRequestType requestType, Addr address);
 
-  public:
-    static constexpr std::size_t m_num_of_retention_zones {4};
-    static constexpr std::size_t m_num_of_latency_types {2};
-
+    int getRetentionZone(int64_t cacheSet) const; 
 
   private:
     // convert a Address to its location in the cache
@@ -218,11 +215,13 @@ class CacheMemory : public SimObject
     int m_start_index_bit;
     bool m_resource_stalls;
     int m_block_size;
-
+    std::string m_cache_level_call;
 
     // Latency
-    
     double m_percentage_of_low_retention_sets;
+    int m_num_of_retention_zones;
+    std::vector<int> m_thresholds;
+
 
     struct AccessLatency {
         Cycles read_latency;
@@ -235,7 +234,11 @@ class CacheMemory : public SimObject
     };
 
     LatencyType m_low_retention;
+    LatencyType m_mediumlow_retention;
+    LatencyType m_mediumhigh_retention;
     LatencyType m_high_retention;
+
+    std::vector<LatencyType> m_retention_table;
 
     /**
      * We store all the ReplacementData in a 2-dimensional array. By doing
