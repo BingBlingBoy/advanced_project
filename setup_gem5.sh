@@ -3,11 +3,14 @@
 #SBATCH --job-name=gem5_sim
 #SBATCH --nodes=1
 #SBATCH --time=00:59:00
-#SBATCH --output=gem5_compilation_%j.out
+#SBATCH --output=OUTPUT/gem5_compilation_%j.out
 #SBATCH --cpus-per-task=52
 #SBATCH --mem=64GB
 
 set -e
+
+OUTPUT_DIR=OUTPUT
+mkdir -p $OUTPUT_DIR
 
 GEM5_DIR=./gem5
 PARSEC_BENCHMARKS_DIR=./PARSEC_BENCHMARKS
@@ -29,5 +32,4 @@ singularity exec \
     --bind $GEM5_DIR:/gem5 \
     --bind $PARSEC_BENCHMARKS_DIR:/parsec \
     $SIF_PATH \
-    bash -c "cd /gem5 && scons build/$ISA/compile_commands.json -j52"
-
+    bash -c "cd /gem5 &&  scons build/$ISA/compile_commands.json -j52"

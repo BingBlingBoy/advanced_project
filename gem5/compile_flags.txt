@@ -1,0 +1,7 @@
+-I/nobackup/gfbz98/ADV_PROJ/gem5/src
+-I/nobackup/gfbz98/ADV_PROJ/gem5/include
+-I/nobackup/gfbz98/ADV_PROJ/gem5/build/X86
+-I/nobackup/gfbz98/ADV_PROJ/gem5/ext/pybind11/include
+-I/nobackup/gfbz98/ADV_PROJ/gem5/ext/systemc/ext/systemc_home/include
+-std=c++17
+-Wno-unknown-warning-option

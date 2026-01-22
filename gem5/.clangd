@@ -1,7 +1,0 @@
-CompileFlags:
-  CompilationDatabase: build/X86
-  Add:
-    - -Isrc
-    - -Iinclude
-    - -Iutil/m5/src
-    - -Ibuild/X86
