@@ -20,11 +20,11 @@ VARIANT=opt
 # - 4MiB_STTRAM
 # - 8MiB_SRAM_ISO_CAP
 # - 8MiB_STTRAM
-HARDWARE=4MiB_SRAM_ISO_AREA
+HARDWARE=4MiB_STTRAM
 
 BENCHMARK=blackscholes
-# INPUT=${BENCHMARK}_16c_simmedium.rcS
-INPUT=${BENCHMARK}_16c_simsmall.rcS
+INPUT=${BENCHMARK}_16c_simmedium.rcS
+# INPUT=${BENCHMARK}_16c_simsmall.rcS
 
 module load gcc
 

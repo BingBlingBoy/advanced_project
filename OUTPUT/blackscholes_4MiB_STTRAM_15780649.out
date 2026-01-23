@@ -1,0 +1,857 @@
+warn: root.system already has parent not resetting parent.
+	Note: system is not a parameter of Root
+warn: (Previously declared as root.system
+Global frequency set at 1000000000000 ticks per second
+warn: board.workload.acpi_description_table_pointer.rsdt adopting orphan SimObject param 'entries'
+src/mem/dram_interface.cc:690: warn: DRAM device capacity (16384 Mbytes) does not match the address range assigned (4096 Mbytes)
+src/sim/kernel_workload.cc:46: info: kernel located at: /x86/x86-system/binaries/vmlinux
+Cache Level Call: L1CacheMemory
+Low retention data read latency: 1
+Low retention tag read latency: 1
+Low retention data write latency: 1
+Low retention tag write latency: 1
+Mediumlow retention data read latency: 1
+Mediumlow retention tag read latency: 1
+Mediumlow retention data write latency: 1
+Mediumlow retention tag write latency: 1
+Mediumhigh retention data read latency: 1
+Mediumhigh retention tag read latency: 1
+Mediumhigh retention data write latency: 1
+Mediumhigh retention tag write latency: 1
+High retention data read latency: 1
+High retention tag read latency: 1
+High retention data write latency: 1
+High retention tag write latency: 1
+Cache Level Call: L1CacheMemory
+Low retention data read latency: 1
+Low retention tag read latency: 1
+Low retention data write latency: 1
+Low retention tag write latency: 1
+Mediumlow retention data read latency: 1
+Mediumlow retention tag read latency: 1
+Mediumlow retention data write latency: 1
+Mediumlow retention tag write latency: 1
+Mediumhigh retention data read latency: 1
+Mediumhigh retention tag read latency: 1
+Mediumhigh retention data write latency: 1
+Mediumhigh retention tag write latency: 1
+High retention data read latency: 1
+High retention tag read latency: 1
+High retention data write latency: 1
+High retention tag write latency: 1
+src/base/statistics.hh:279: warn: One of the stats is a legacy stat. Legacy stat is a stat that does not belong to any statistics::Group. Legacy stat is deprecated.
+Cache Level Call: L1CacheMemory
+Low retention data read latency: 1
+Low retention tag read latency: 1
+Low retention data write latency: 1
+Low retention tag write latency: 1
+Mediumlow retention data read latency: 1
+Mediumlow retention tag read latency: 1
+Mediumlow retention data write latency: 1
+Mediumlow retention tag write latency: 1
+Mediumhigh retention data read latency: 1
+Mediumhigh retention tag read latency: 1
+Mediumhigh retention data write latency: 1
+Mediumhigh retention tag write latency: 1
+High retention data read latency: 1
+High retention tag read latency: 1
+High retention data write latency: 1
+High retention tag write latency: 1
+Cache Level Call: L1CacheMemory
+Low retention data read latency: 1
+Low retention tag read latency: 1
+Low retention data write latency: 1
+Low retention tag write latency: 1
+Mediumlow retention data read latency: 1
+Mediumlow retention tag read latency: 1
+Mediumlow retention data write latency: 1
+Mediumlow retention tag write latency: 1
+Mediumhigh retention data read latency: 1
+Mediumhigh retention tag read latency: 1
+Mediumhigh retention data write latency: 1
+Mediumhigh retention tag write latency: 1
+High retention data read latency: 1
+High retention tag read latency: 1
+High retention data write latency: 1
+High retention tag write latency: 1
+Cache Level Call: L1CacheMemory
+Low retention data read latency: 1
+Low retention tag read latency: 1
+Low retention data write latency: 1
+Low retention tag write latency: 1
+Mediumlow retention data read latency: 1
+Mediumlow retention tag read latency: 1
+Mediumlow retention data write latency: 1
+Mediumlow retention tag write latency: 1
+Mediumhigh retention data read latency: 1
+Mediumhigh retention tag read latency: 1
+Mediumhigh retention data write latency: 1
+Mediumhigh retention tag write latency: 1
+High retention data read latency: 1
+High retention tag read latency: 1
+High retention data write latency: 1
+High retention tag write latency: 1
+Cache Level Call: L1CacheMemory
+Low retention data read latency: 1
+Low retention tag read latency: 1
+Low retention data write latency: 1
+Low retention tag write latency: 1
+Mediumlow retention data read latency: 1
+Mediumlow retention tag read latency: 1
+Mediumlow retention data write latency: 1
+Mediumlow retention tag write latency: 1
+Mediumhigh retention data read latency: 1
+Mediumhigh retention tag read latency: 1
+Mediumhigh retention data write latency: 1
+Mediumhigh retention tag write latency: 1
+High retention data read latency: 1
+High retention tag read latency: 1
+High retention data write latency: 1
+High retention tag write latency: 1
+Cache Level Call: L1CacheMemory
+Low retention data read latency: 1
+Low retention tag read latency: 1
+Low retention data write latency: 1
+Low retention tag write latency: 1
+Mediumlow retention data read latency: 1
+Mediumlow retention tag read latency: 1
+Mediumlow retention data write latency: 1
+Mediumlow retention tag write latency: 1
+Mediumhigh retention data read latency: 1
+Mediumhigh retention tag read latency: 1
+Mediumhigh retention data write latency: 1
+Mediumhigh retention tag write latency: 1
+High retention data read latency: 1
+High retention tag read latency: 1
+High retention data write latency: 1
+High retention tag write latency: 1
+Cache Level Call: L1CacheMemory
+Low retention data read latency: 1
+Low retention tag read latency: 1
+Low retention data write latency: 1
+Low retention tag write latency: 1
+Mediumlow retention data read latency: 1
+Mediumlow retention tag read latency: 1
+Mediumlow retention data write latency: 1
+Mediumlow retention tag write latency: 1
+Mediumhigh retention data read latency: 1
+Mediumhigh retention tag read latency: 1
+Mediumhigh retention data write latency: 1
+Mediumhigh retention tag write latency: 1
+High retention data read latency: 1
+High retention tag read latency: 1
+High retention data write latency: 1
+High retention tag write latency: 1
+Cache Level Call: L2CacheMemory
+Low retention data read latency: 15
+Low retention tag read latency: 15
+Low retention data write latency: 20
+Low retention tag write latency: 20
+Mediumlow retention data read latency: 1
+Mediumlow retention tag read latency: 1
+Mediumlow retention data write latency: 1
+Mediumlow retention tag write latency: 1
+Mediumhigh retention data read latency: 1
+Mediumhigh retention tag read latency: 1
+Mediumhigh retention data write latency: 1
+Mediumhigh retention tag write latency: 1
+High retention data read latency: 15
+High retention tag read latency: 15
+High retention data write latency: 40
+High retention tag write latency: 40
+Cache Level Call: L2CacheMemory
+Low retention data read latency: 15
+Low retention tag read latency: 15
+Low retention data write latency: 20
+Low retention tag write latency: 20
+Mediumlow retention data read latency: 1
+Mediumlow retention tag read latency: 1
+Mediumlow retention data write latency: 1
+Mediumlow retention tag write latency: 1
+Mediumhigh retention data read latency: 1
+Mediumhigh retention tag read latency: 1
+Mediumhigh retention data write latency: 1
+Mediumhigh retention tag write latency: 1
+High retention data read latency: 15
+High retention tag read latency: 15
+High retention data write latency: 40
+High retention tag write latency: 40
+Cache Level Call: L2CacheMemory
+Low retention data read latency: 15
+Low retention tag read latency: 15
+Low retention data write latency: 20
+Low retention tag write latency: 20
+Mediumlow retention data read latency: 1
+Mediumlow retention tag read latency: 1
+Mediumlow retention data write latency: 1
+Mediumlow retention tag write latency: 1
+Mediumhigh retention data read latency: 1
+Mediumhigh retention tag read latency: 1
+Mediumhigh retention data write latency: 1
+Mediumhigh retention tag write latency: 1
+High retention data read latency: 15
+High retention tag read latency: 15
+High retention data write latency: 40
+High retention tag write latency: 40
+Cache Level Call: L2CacheMemory
+Low retention data read latency: 15
+Low retention tag read latency: 15
+Low retention data write latency: 20
+Low retention tag write latency: 20
+Mediumlow retention data read latency: 1
+Mediumlow retention tag read latency: 1
+Mediumlow retention data write latency: 1
+Mediumlow retention tag write latency: 1
+Mediumhigh retention data read latency: 1
+Mediumhigh retention tag read latency: 1
+Mediumhigh retention data write latency: 1
+Mediumhigh retention tag write latency: 1
+High retention data read latency: 15
+High retention tag read latency: 15
+High retention data write latency: 40
+High retention tag write latency: 40
+      0: board.pc.south_bridge.cmos.rtc: Real-time clock set to Sun Jan  1 00:00:00 2012
+src/dev/serial/terminal.cc:174: warn: Sockets disabled, not accepting terminal connections
+src/base/statistics.hh:279: warn: One of the stats is a legacy stat. Legacy stat is a stat that does not belong to any statistics::Group. Legacy stat is deprecated.
+Cache Level Call: L1CacheMemory
+Total cache sets: 256
+Number of retention zones: 1
+m_threshold entry: 256
+Cache Level Call: L1CacheMemory
+Total cache sets: 256
+Number of retention zones: 1
+m_threshold entry: 256
+Cache Level Call: L1CacheMemory
+Total cache sets: 256
+Number of retention zones: 1
+m_threshold entry: 256
+Cache Level Call: L1CacheMemory
+Total cache sets: 256
+Number of retention zones: 1
+m_threshold entry: 256
+Cache Level Call: L1CacheMemory
+Total cache sets: 256
+Number of retention zones: 1
+m_threshold entry: 256
+Cache Level Call: L1CacheMemory
+Total cache sets: 256
+Number of retention zones: 1
+m_threshold entry: 256
+Cache Level Call: L1CacheMemory
+Total cache sets: 256
+Number of retention zones: 1
+m_threshold entry: 256
+Cache Level Call: L1CacheMemory
+Total cache sets: 256
+Number of retention zones: 1
+m_threshold entry: 256
+Cache Level Call: L2CacheMemory
+Total cache sets: 4096
+Number of retention zones: 2
+m_threshold entry: 2048
+m_threshold entry: 4096
+Cache Level Call: L2CacheMemory
+Total cache sets: 4096
+Number of retention zones: 2
+m_threshold entry: 2048
+m_threshold entry: 4096
+Cache Level Call: L2CacheMemory
+Total cache sets: 4096
+Number of retention zones: 2
+m_threshold entry: 2048
+m_threshold entry: 4096
+Cache Level Call: L2CacheMemory
+Total cache sets: 4096
+Number of retention zones: 2
+m_threshold entry: 2048
+m_threshold entry: 4096
+src/dev/intel_8254_timer.cc:128: warn: Reading current count from inactive timer.
+src/base/remote_gdb.cc:418: warn: Sockets disabled, not accepting gdb connections
+gem5 Simulator System.  https://www.gem5.org
+gem5 is copyrighted software; use the --copyright option for details.
+
+gem5 version 25.0.0.1
+gem5 compiled Jan 20 2026 21:18:25
+gem5 started Jan 23 2026 00:10:02
+gem5 executing on cn059.ham8.dur.ac.uk, pid 87338
+command line: /gem5/build/X86/gem5.opt --outdir=/gem5/configs/PARSEC/4MiB_STTRAM/blackscholes /gem5/configs/PARSEC/hardware_config.py --benchmark=blackscholes --input=blackscholes_16c_simmedium.rcS --hardware=4MiB_STTRAM
+
+info: Standard input is not a terminal, disabling listeners.
+Tracking IPC log in: /gem5/configs/PARSEC/4MiB_STTRAM/blackscholes/ipc_log.csv.gz
+Tracking Set Accesses in: /gem5/configs/PARSEC/4MiB_STTRAM/blackscholes/set_access_log.csv.gz
+DEBUG: Found 4 L2 Cache Banks
+Beginning simulation! (Logging starts at 0.0s)
+src/mem/ruby/system/Sequencer.cc:705: warn: Replacement policy updates recently became the responsibility of SLICC state machines. Make sure to setMRU() near callbacks in .sm files!
+build/X86/arch/x86/generated/exec-ns.cc.inc:27: warn: instruction 'wbinvd' unimplemented
+[0.01s] Insts: 2380086 | Cycles: 30030029 | Active Sets: 4096
+[0.02s] Insts: 16467110 | Cycles: 30030031 | Active Sets: 3752
+[0.03s] Insts: 8743626 | Cycles: 30030030 | Active Sets: 4096
+[0.04s] Insts: 698584 | Cycles: 30029935 | Active Sets: 4096
+[0.05s] Insts: 0 | Cycles: 30030124 | Active Sets: 4096
+[0.06s] Insts: 0 | Cycles: 30029847 | Active Sets: 4096
+[0.07s] Insts: 0 | Cycles: 30030214 | Active Sets: 4096
+[0.08s] Insts: 0 | Cycles: 30029961 | Active Sets: 4096
+[0.09s] Insts: 0 | Cycles: 30030098 | Active Sets: 4096
+[0.10s] Insts: 0 | Cycles: 30029926 | Active Sets: 4096
+[0.11s] Insts: 0 | Cycles: 30030134 | Active Sets: 4096
+[0.12s] Insts: 0 | Cycles: 30029898 | Active Sets: 4096
+[0.13s] Insts: 12333594 | Cycles: 30030163 | Active Sets: 4096
+[0.14s] Insts: 11162582 | Cycles: 30030029 | Active Sets: 4096
+[0.15s] Insts: 8799455 | Cycles: 30029889 | Active Sets: 4096
+[0.16s] Insts: 8845466 | Cycles: 30030000 | Active Sets: 4096
+[0.17s] Insts: 8846876 | Cycles: 30030190 | Active Sets: 4096
+[0.18s] Insts: 8850407 | Cycles: 30030042 | Active Sets: 4096
+[0.19s] Insts: 8848455 | Cycles: 30029645 | Active Sets: 4096
+[0.20s] Insts: 8848416 | Cycles: 30030349 | Active Sets: 4096
+[0.21s] Insts: 8812829 | Cycles: 30029320 | Active Sets: 4096
+[0.22s] Insts: 8803391 | Cycles: 30030758 | Active Sets: 4096
+[0.23s] Insts: 8849343 | Cycles: 30030078 | Active Sets: 4096
+[0.24s] Insts: 7206542 | Cycles: 30029977 | Active Sets: 4096
+[0.25s] Insts: 310126 | Cycles: 30030014 | Active Sets: 4096
+[0.26s] Insts: 9689596 | Cycles: 30030099 | Active Sets: 4096
+[0.27s] Insts: 12100500 | Cycles: 30030030 | Active Sets: 4096
+[0.28s] Insts: 6679499 | Cycles: 30030023 | Active Sets: 4096
+[0.29s] Insts: 6671000 | Cycles: 30030023 | Active Sets: 4096
+[0.30s] Insts: 6658879 | Cycles: 30030043 | Active Sets: 4096
+[0.31s] Insts: 6662308 | Cycles: 30030031 | Active Sets: 4096
+[0.32s] Insts: 6665423 | Cycles: 30029894 | Active Sets: 4096
+[0.33s] Insts: 6664544 | Cycles: 30030083 | Active Sets: 4096
+[0.34s] Insts: 6665252 | Cycles: 30029782 | Active Sets: 4096
+[0.35s] Insts: 6666889 | Cycles: 30030361 | Active Sets: 4096
+[0.36s] Insts: 5723137 | Cycles: 30029985 | Active Sets: 4096
+[0.37s] Insts: 23108127 | Cycles: 30030076 | Active Sets: 350
+[0.38s] Insts: 23336652 | Cycles: 30030030 | Active Sets: 160
+[0.39s] Insts: 21204410 | Cycles: 30030030 | Active Sets: 242
+[0.40s] Insts: 17156154 | Cycles: 30030030 | Active Sets: 63
+[0.41s] Insts: 17154236 | Cycles: 30030029 | Active Sets: 63
+[0.42s] Insts: 17156162 | Cycles: 30030030 | Active Sets: 63
+[0.43s] Insts: 17154236 | Cycles: 30030031 | Active Sets: 63
+[0.44s] Insts: 17156164 | Cycles: 30030030 | Active Sets: 63
+[0.45s] Insts: 17154232 | Cycles: 30030029 | Active Sets: 63
+[0.46s] Insts: 17156162 | Cycles: 30030030 | Active Sets: 63
+[0.47s] Insts: 17154238 | Cycles: 30030031 | Active Sets: 63
+[0.48s] Insts: 17156162 | Cycles: 30030030 | Active Sets: 63
+[0.49s] Insts: 17154236 | Cycles: 30030029 | Active Sets: 63
+[0.50s] Insts: 19222236 | Cycles: 30030031 | Active Sets: 173
+[0.51s] Insts: 19992782 | Cycles: 30030029 | Active Sets: 166
+[0.52s] Insts: 20001882 | Cycles: 30030030 | Active Sets: 166
+[0.53s] Insts: 19992846 | Cycles: 30030031 | Active Sets: 165
+[0.54s] Insts: 20001868 | Cycles: 30030030 | Active Sets: 166
+[0.55s] Insts: 19992740 | Cycles: 30030029 | Active Sets: 165
+[0.56s] Insts: 20001894 | Cycles: 30030030 | Active Sets: 165
+[0.57s] Insts: 19992810 | Cycles: 30030031 | Active Sets: 166
+[0.58s] Insts: 20001860 | Cycles: 30030030 | Active Sets: 166
+[0.59s] Insts: 19992780 | Cycles: 30030029 | Active Sets: 166
+[0.60s] Insts: 20001860 | Cycles: 30030030 | Active Sets: 166
+src/sim/power_state.cc:105: warn: PowerState: Already in the requested power state, request ignored
+build/X86/arch/x86/generated/exec-ns.cc.inc:27: warn: instruction 'wbinvd' unimplemented
+[0.61s] Insts: 22202218 | Cycles: 1829477167 | Active Sets: 1943
+build/X86/arch/x86/generated/exec-ns.cc.inc:27: warn: instruction 'wbinvd' unimplemented
+[0.62s] Insts: 24123751 | Cycles: 1852391093 | Active Sets: 1183
+build/X86/arch/x86/generated/exec-ns.cc.inc:27: warn: instruction 'wbinvd' unimplemented
+build/X86/arch/x86/generated/exec-ns.cc.inc:27: warn: instruction 'wbinvd' unimplemented
+build/X86/arch/x86/generated/exec-ns.cc.inc:27: warn: instruction 'wbinvd' unimplemented
+build/X86/arch/x86/generated/exec-ns.cc.inc:27: warn: instruction 'wbinvd' unimplemented
+src/arch/x86/interrupts.cc:530: hack: Assuming logical destinations are 1 << id.
+[0.63s] Insts: 16330735 | Cycles: 39362790 | Active Sets: 3033
+[0.64s] Insts: 8892771 | Cycles: 35264330 | Active Sets: 3196
+[0.65s] Insts: 6949242 | Cycles: 30029977 | Active Sets: 3974
+[0.66s] Insts: 9689227 | Cycles: 31649652 | Active Sets: 3361
+[0.67s] Insts: 14318788 | Cycles: 30649322 | Active Sets: 902
+[0.68s] Insts: 6365133 | Cycles: 30029379 | Active Sets: 4096
+[0.69s] Insts: 10702865 | Cycles: 36067876 | Active Sets: 4096
+[0.70s] Insts: 17129718 | Cycles: 30030030 | Active Sets: 1391
+[0.71s] Insts: 17240759 | Cycles: 36029946 | Active Sets: 1527
+[0.72s] Insts: 17564705 | Cycles: 30030005 | Active Sets: 1451
+[0.73s] Insts: 17358240 | Cycles: 36029989 | Active Sets: 1083
+[0.74s] Insts: 17153486 | Cycles: 30030030 | Active Sets: 1440
+[0.75s] Insts: 13132218 | Cycles: 39342275 | Active Sets: 3313
+[0.76s] Insts: 8546239 | Cycles: 30111295 | Active Sets: 3065
+[0.77s] Insts: 8801377 | Cycles: 36029967 | Active Sets: 3216
+[0.78s] Insts: 8903078 | Cycles: 30030007 | Active Sets: 3325
+[0.79s] Insts: 8911392 | Cycles: 36029765 | Active Sets: 3222
+src/dev/x86/pc.cc:117: warn: Don't know what interrupt to clear for console.
+[0.80s] Insts: 8977278 | Cycles: 30030031 | Active Sets: 3456
+[0.81s] Insts: 606186 | Cycles: 36029946 | Active Sets: 1901
+[0.82s] Insts: 279206 | Cycles: 24755836 | Active Sets: 1370
+[0.83s] Insts: 49856 | Cycles: 36029842 | Active Sets: 212
+[0.84s] Insts: 60216 | Cycles: 24019922 | Active Sets: 341
+[0.85s] Insts: 48536 | Cycles: 36029960 | Active Sets: 313
+[0.86s] Insts: 27720 | Cycles: 24020976 | Active Sets: 188
+[0.87s] Insts: 41586 | Cycles: 36029956 | Active Sets: 187
+[0.88s] Insts: 30494 | Cycles: 24030849 | Active Sets: 220
+[0.89s] Insts: 49896 | Cycles: 36029948 | Active Sets: 218
+[0.90s] Insts: 33268 | Cycles: 24019968 | Active Sets: 218
+[0.91s] Insts: 49908 | Cycles: 36029966 | Active Sets: 218
+[0.92s] Insts: 33268 | Cycles: 24019968 | Active Sets: 218
+[0.93s] Insts: 49896 | Cycles: 36029952 | Active Sets: 218
+[0.94s] Insts: 33268 | Cycles: 24019996 | Active Sets: 219
+[0.95s] Insts: 49908 | Cycles: 36029990 | Active Sets: 218
+[0.96s] Insts: 33268 | Cycles: 24019992 | Active Sets: 218
+[0.97s] Insts: 49960 | Cycles: 36030099 | Active Sets: 218
+[0.98s] Insts: 33268 | Cycles: 24019968 | Active Sets: 218
+[0.99s] Insts: 49908 | Cycles: 36030014 | Active Sets: 219
+[1.00s] Insts: 33268 | Cycles: 24019972 | Active Sets: 218
+[1.01s] Insts: 49896 | Cycles: 36029976 | Active Sets: 220
+[1.02s] Insts: 33268 | Cycles: 24019992 | Active Sets: 218
+[1.03s] Insts: 49908 | Cycles: 36029990 | Active Sets: 218
+[1.04s] Insts: 33268 | Cycles: 24020177 | Active Sets: 218
+[1.05s] Insts: 49896 | Cycles: 36029952 | Active Sets: 219
+[1.06s] Insts: 33268 | Cycles: 24019972 | Active Sets: 218
+[1.07s] Insts: 49908 | Cycles: 36030189 | Active Sets: 221
+[1.08s] Insts: 33268 | Cycles: 24019968 | Active Sets: 218
+[1.09s] Insts: 49896 | Cycles: 36029938 | Active Sets: 218
+[1.10s] Insts: 33268 | Cycles: 24019968 | Active Sets: 218
+[1.11s] Insts: 49908 | Cycles: 36029990 | Active Sets: 218
+[1.12s] Insts: 33268 | Cycles: 24019992 | Active Sets: 218
+[1.13s] Insts: 49896 | Cycles: 36030189 | Active Sets: 219
+[1.14s] Insts: 33268 | Cycles: 24019992 | Active Sets: 218
+[1.15s] Insts: 49908 | Cycles: 36030014 | Active Sets: 218
+[1.16s] Insts: 33268 | Cycles: 24019968 | Active Sets: 218
+[1.17s] Insts: 49896 | Cycles: 36029952 | Active Sets: 218
+[1.18s] Insts: 33268 | Cycles: 24020173 | Active Sets: 219
+[1.19s] Insts: 97774 | Cycles: 36031947 | Active Sets: 661
+[1.20s] Insts: 42304 | Cycles: 24020710 | Active Sets: 322
+[1.21s] Insts: 56538 | Cycles: 36029952 | Active Sets: 241
+[1.22s] Insts: 33268 | Cycles: 24019135 | Active Sets: 217
+[1.23s] Insts: 49908 | Cycles: 36029966 | Active Sets: 217
+[1.24s] Insts: 33268 | Cycles: 24019968 | Active Sets: 217
+[1.25s] Insts: 49896 | Cycles: 36029952 | Active Sets: 217
+[1.26s] Insts: 33268 | Cycles: 24019996 | Active Sets: 218
+[1.27s] Insts: 49908 | Cycles: 36029990 | Active Sets: 218
+[1.28s] Insts: 33268 | Cycles: 24020153 | Active Sets: 218
+[1.29s] Insts: 49896 | Cycles: 36030161 | Active Sets: 218
+[1.30s] Insts: 33268 | Cycles: 24019968 | Active Sets: 218
+[1.31s] Insts: 49908 | Cycles: 36030157 | Active Sets: 219
+[1.32s] Insts: 33268 | Cycles: 24019972 | Active Sets: 218
+[1.33s] Insts: 49896 | Cycles: 36029976 | Active Sets: 220
+[1.34s] Insts: 33268 | Cycles: 24019992 | Active Sets: 218
+[1.35s] Insts: 49908 | Cycles: 36029990 | Active Sets: 218
+[1.36s] Insts: 33268 | Cycles: 24020177 | Active Sets: 218
+[1.37s] Insts: 49896 | Cycles: 36029952 | Active Sets: 219
+[1.38s] Insts: 33268 | Cycles: 24019972 | Active Sets: 218
+[1.39s] Insts: 49908 | Cycles: 36030253 | Active Sets: 221
+[1.40s] Insts: 33268 | Cycles: 24019968 | Active Sets: 218
+[1.41s] Insts: 49896 | Cycles: 36029938 | Active Sets: 218
+[1.42s] Insts: 33268 | Cycles: 24019968 | Active Sets: 218
+[1.43s] Insts: 49908 | Cycles: 36029990 | Active Sets: 218
+[1.44s] Insts: 33966 | Cycles: 36019224 | Active Sets: 218
+[1.45s] Insts: 49198 | Cycles: 36029980 | Active Sets: 219
+[1.46s] Insts: 36684 | Cycles: 36029364 | Active Sets: 229
+[1.47s] Insts: 47442 | Cycles: 36029958 | Active Sets: 225
+[1.48s] Insts: 36530 | Cycles: 36029922 | Active Sets: 214
+[1.49s] Insts: 46634 | Cycles: 36029952 | Active Sets: 214
+[1.50s] Insts: 36530 | Cycles: 36029948 | Active Sets: 215
+[1.51s] Insts: 46646 | Cycles: 36029990 | Active Sets: 215
+[1.52s] Insts: 36530 | Cycles: 36029976 | Active Sets: 218
+[1.53s] Insts: 46634 | Cycles: 36029948 | Active Sets: 218
+[1.54s] Insts: 36530 | Cycles: 36029928 | Active Sets: 218
+[1.55s] Insts: 46646 | Cycles: 36029966 | Active Sets: 218
+[1.56s] Insts: 36530 | Cycles: 36029952 | Active Sets: 218
+[1.57s] Insts: 46634 | Cycles: 36029952 | Active Sets: 218
+[1.58s] Insts: 36530 | Cycles: 36029980 | Active Sets: 220
+[1.59s] Insts: 46646 | Cycles: 36029990 | Active Sets: 218
+[1.60s] Insts: 36530 | Cycles: 36029928 | Active Sets: 218
+[1.61s] Insts: 49408 | Cycles: 36040779 | Active Sets: 222
+[1.62s] Insts: 44852 | Cycles: 36029952 | Active Sets: 222
+[1.63s] Insts: 68846 | Cycles: 36030014 | Active Sets: 227
+[1.64s] Insts: 55948 | Cycles: 36029942 | Active Sets: 223
+[1.65s] Insts: 68826 | Cycles: 36030000 | Active Sets: 224
+[1.66s] Insts: 55948 | Cycles: 36029904 | Active Sets: 223
+[1.67s] Insts: 68838 | Cycles: 36029990 | Active Sets: 223
+[1.68s] Insts: 55948 | Cycles: 36029976 | Active Sets: 223
+[1.69s] Insts: 68826 | Cycles: 36029952 | Active Sets: 224
+[1.70s] Insts: 55948 | Cycles: 36029928 | Active Sets: 223
+[1.71s] Insts: 68838 | Cycles: 36030000 | Active Sets: 226
+[1.72s] Insts: 55948 | Cycles: 36029952 | Active Sets: 223
+[1.73s] Insts: 68826 | Cycles: 36029938 | Active Sets: 223
+[1.74s] Insts: 55948 | Cycles: 36029976 | Active Sets: 223
+[1.75s] Insts: 68838 | Cycles: 36029990 | Active Sets: 223
+[1.76s] Insts: 55948 | Cycles: 36029928 | Active Sets: 223
+[1.77s] Insts: 68826 | Cycles: 36030000 | Active Sets: 224
+[1.78s] Insts: 55948 | Cycles: 36030000 | Active Sets: 223
+[1.79s] Insts: 68838 | Cycles: 36030014 | Active Sets: 223
+[1.80s] Insts: 55948 | Cycles: 36029952 | Active Sets: 223
+[1.81s] Insts: 68826 | Cycles: 36029976 | Active Sets: 223
+[1.82s] Insts: 55948 | Cycles: 36029928 | Active Sets: 224
+[1.83s] Insts: 68838 | Cycles: 36029990 | Active Sets: 223
+[1.84s] Insts: 55948 | Cycles: 36030000 | Active Sets: 225
+[1.85s] Insts: 68826 | Cycles: 36029952 | Active Sets: 223
+[1.86s] Insts: 55948 | Cycles: 36029904 | Active Sets: 223
+[1.87s] Insts: 68838 | Cycles: 36029976 | Active Sets: 223
+[1.88s] Insts: 55948 | Cycles: 36029952 | Active Sets: 223
+[1.89s] Insts: 68826 | Cycles: 36029938 | Active Sets: 223
+[1.90s] Insts: 55948 | Cycles: 36030000 | Active Sets: 225
+[1.91s] Insts: 68838 | Cycles: 36030000 | Active Sets: 223
+[1.92s] Insts: 55948 | Cycles: 36029904 | Active Sets: 223
+[1.93s] Insts: 68826 | Cycles: 36029976 | Active Sets: 223
+[1.94s] Insts: 55948 | Cycles: 36029976 | Active Sets: 223
+[1.95s] Insts: 68838 | Cycles: 36030014 | Active Sets: 224
+[1.96s] Insts: 55948 | Cycles: 36029952 | Active Sets: 223
+[1.97s] Insts: 68890 | Cycles: 36030030 | Active Sets: 224
+[1.98s] Insts: 55948 | Cycles: 36029874 | Active Sets: 223
+[1.99s] Insts: 68838 | Cycles: 36029990 | Active Sets: 223
+[2.00s] Insts: 55948 | Cycles: 36029976 | Active Sets: 223
+[2.01s] Insts: 68826 | Cycles: 36029952 | Active Sets: 224
+[2.02s] Insts: 55948 | Cycles: 36029928 | Active Sets: 223
+[2.03s] Insts: 68838 | Cycles: 36030000 | Active Sets: 226
+[2.04s] Insts: 55948 | Cycles: 36029952 | Active Sets: 223
+[2.05s] Insts: 68826 | Cycles: 36029938 | Active Sets: 223
+[2.06s] Insts: 55948 | Cycles: 36029976 | Active Sets: 223
+[2.07s] Insts: 68838 | Cycles: 36029990 | Active Sets: 223
+[2.08s] Insts: 55948 | Cycles: 36029928 | Active Sets: 223
+[2.09s] Insts: 68826 | Cycles: 36030000 | Active Sets: 224
+[2.10s] Insts: 55948 | Cycles: 36030000 | Active Sets: 223
+[2.11s] Insts: 68838 | Cycles: 36030014 | Active Sets: 223
+[2.12s] Insts: 55948 | Cycles: 36029952 | Active Sets: 223
+[2.13s] Insts: 68826 | Cycles: 36029976 | Active Sets: 223
+[2.14s] Insts: 55948 | Cycles: 36029928 | Active Sets: 224
+[2.15s] Insts: 68838 | Cycles: 36029990 | Active Sets: 223
+[2.16s] Insts: 55948 | Cycles: 36030000 | Active Sets: 225
+[2.17s] Insts: 68826 | Cycles: 36029952 | Active Sets: 223
+[2.18s] Insts: 55948 | Cycles: 36029904 | Active Sets: 223
+[2.19s] Insts: 68838 | Cycles: 36029976 | Active Sets: 223
+[2.20s] Insts: 55948 | Cycles: 36029952 | Active Sets: 223
+[2.21s] Insts: 68826 | Cycles: 36029938 | Active Sets: 223
+[2.22s] Insts: 55948 | Cycles: 36030000 | Active Sets: 224
+[2.23s] Insts: 68838 | Cycles: 36030000 | Active Sets: 222
+[2.24s] Insts: 55948 | Cycles: 36029904 | Active Sets: 222
+[2.25s] Insts: 128896 | Cycles: 36029976 | Active Sets: 878
+[2.26s] Insts: 55948 | Cycles: 35802275 | Active Sets: 222
+[2.27s] Insts: 181744 | Cycles: 36596768 | Active Sets: 1067
+[2.28s] Insts: 55948 | Cycles: 36029952 | Active Sets: 222
+[2.29s] Insts: 85254 | Cycles: 36030000 | Active Sets: 615
+[2.30s] Insts: 55948 | Cycles: 36029904 | Active Sets: 223
+[2.31s] Insts: 68838 | Cycles: 36029990 | Active Sets: 223
+[2.32s] Insts: 55948 | Cycles: 36029976 | Active Sets: 223
+[2.33s] Insts: 68826 | Cycles: 36029952 | Active Sets: 224
+[2.34s] Insts: 55948 | Cycles: 36029928 | Active Sets: 223
+[2.35s] Insts: 68838 | Cycles: 36030000 | Active Sets: 226
+[2.36s] Insts: 55948 | Cycles: 36029952 | Active Sets: 223
+[2.37s] Insts: 68826 | Cycles: 36029938 | Active Sets: 223
+[2.38s] Insts: 55948 | Cycles: 36029976 | Active Sets: 223
+[2.39s] Insts: 68838 | Cycles: 36029990 | Active Sets: 223
+[2.40s] Insts: 55948 | Cycles: 36029928 | Active Sets: 223
+[2.41s] Insts: 68826 | Cycles: 36030000 | Active Sets: 224
+[2.42s] Insts: 55948 | Cycles: 36030000 | Active Sets: 223
+[2.43s] Insts: 68838 | Cycles: 36030014 | Active Sets: 223
+[2.44s] Insts: 55948 | Cycles: 36029952 | Active Sets: 223
+[2.45s] Insts: 68826 | Cycles: 36029976 | Active Sets: 223
+[2.46s] Insts: 55948 | Cycles: 36029928 | Active Sets: 224
+[2.47s] Insts: 69060 | Cycles: 36029990 | Active Sets: 228
+[2.48s] Insts: 55948 | Cycles: 36029970 | Active Sets: 225
+[2.49s] Insts: 69114 | Cycles: 36029938 | Active Sets: 226
+[2.50s] Insts: 55948 | Cycles: 36029980 | Active Sets: 219
+[2.51s] Insts: 68838 | Cycles: 36029976 | Active Sets: 219
+[2.52s] Insts: 55948 | Cycles: 36029952 | Active Sets: 219
+[2.53s] Insts: 68826 | Cycles: 36029938 | Active Sets: 220
+[2.54s] Insts: 55948 | Cycles: 36030000 | Active Sets: 222
+[2.55s] Insts: 68838 | Cycles: 36030000 | Active Sets: 223
+[2.56s] Insts: 55948 | Cycles: 36029904 | Active Sets: 223
+[2.57s] Insts: 68826 | Cycles: 36029976 | Active Sets: 223
+[2.58s] Insts: 55948 | Cycles: 36029976 | Active Sets: 223
+[2.59s] Insts: 68838 | Cycles: 36030014 | Active Sets: 224
+[2.60s] Insts: 55948 | Cycles: 36029952 | Active Sets: 223
+[2.61s] Insts: 68826 | Cycles: 36030000 | Active Sets: 224
+[2.62s] Insts: 55948 | Cycles: 36029904 | Active Sets: 223
+[2.63s] Insts: 68838 | Cycles: 36029990 | Active Sets: 223
+[2.64s] Insts: 55948 | Cycles: 36029976 | Active Sets: 223
+[2.65s] Insts: 68826 | Cycles: 36029952 | Active Sets: 224
+[2.66s] Insts: 55948 | Cycles: 36029928 | Active Sets: 223
+[2.67s] Insts: 68838 | Cycles: 36030000 | Active Sets: 226
+[2.68s] Insts: 55948 | Cycles: 36029952 | Active Sets: 223
+[2.69s] Insts: 68826 | Cycles: 36029938 | Active Sets: 223
+[2.70s] Insts: 55948 | Cycles: 36029976 | Active Sets: 223
+[2.71s] Insts: 68838 | Cycles: 36029990 | Active Sets: 223
+[2.72s] Insts: 55948 | Cycles: 36029928 | Active Sets: 223
+[2.73s] Insts: 68826 | Cycles: 36030000 | Active Sets: 224
+[2.74s] Insts: 55948 | Cycles: 36030000 | Active Sets: 223
+[2.75s] Insts: 68838 | Cycles: 36030014 | Active Sets: 223
+[2.76s] Insts: 55948 | Cycles: 36029952 | Active Sets: 223
+[2.77s] Insts: 68826 | Cycles: 36029976 | Active Sets: 223
+[2.78s] Insts: 55948 | Cycles: 36029928 | Active Sets: 224
+[2.79s] Insts: 68838 | Cycles: 36029990 | Active Sets: 223
+[2.80s] Insts: 55948 | Cycles: 36030000 | Active Sets: 225
+[2.81s] Insts: 68826 | Cycles: 36029952 | Active Sets: 223
+[2.82s] Insts: 55948 | Cycles: 36029904 | Active Sets: 223
+[2.83s] Insts: 68838 | Cycles: 36029976 | Active Sets: 223
+[2.84s] Insts: 55948 | Cycles: 36029952 | Active Sets: 223
+[2.85s] Insts: 68826 | Cycles: 36029938 | Active Sets: 223
+[2.86s] Insts: 55948 | Cycles: 36030000 | Active Sets: 225
+[2.87s] Insts: 68838 | Cycles: 36030000 | Active Sets: 223
+[2.88s] Insts: 55948 | Cycles: 36029904 | Active Sets: 223
+[2.89s] Insts: 68826 | Cycles: 36029976 | Active Sets: 223
+[2.90s] Insts: 55948 | Cycles: 36029976 | Active Sets: 223
+[2.91s] Insts: 68838 | Cycles: 36030014 | Active Sets: 224
+[2.92s] Insts: 55948 | Cycles: 36029952 | Active Sets: 223
+[2.93s] Insts: 68826 | Cycles: 36030000 | Active Sets: 224
+[2.94s] Insts: 55948 | Cycles: 36029904 | Active Sets: 223
+[2.95s] Insts: 68838 | Cycles: 36029990 | Active Sets: 223
+[2.96s] Insts: 55948 | Cycles: 36029976 | Active Sets: 223
+[2.97s] Insts: 68890 | Cycles: 36029982 | Active Sets: 224
+[2.98s] Insts: 55948 | Cycles: 36029898 | Active Sets: 223
+[2.99s] Insts: 68838 | Cycles: 36030000 | Active Sets: 226
+[3.00s] Insts: 55948 | Cycles: 36029952 | Active Sets: 223
+[3.01s] Insts: 68826 | Cycles: 36029938 | Active Sets: 223
+[3.02s] Insts: 55948 | Cycles: 36029976 | Active Sets: 223
+[3.03s] Insts: 68838 | Cycles: 36029990 | Active Sets: 223
+[3.04s] Insts: 55948 | Cycles: 36029928 | Active Sets: 223
+[3.05s] Insts: 68826 | Cycles: 36030000 | Active Sets: 224
+[3.06s] Insts: 55948 | Cycles: 36030000 | Active Sets: 223
+[3.07s] Insts: 68838 | Cycles: 36030014 | Active Sets: 223
+[3.08s] Insts: 55948 | Cycles: 36029952 | Active Sets: 223
+[3.09s] Insts: 68826 | Cycles: 36029976 | Active Sets: 223
+[3.10s] Insts: 55948 | Cycles: 36029928 | Active Sets: 224
+[3.11s] Insts: 68838 | Cycles: 36029990 | Active Sets: 223
+[3.12s] Insts: 55948 | Cycles: 36030000 | Active Sets: 225
+[3.13s] Insts: 68826 | Cycles: 36029952 | Active Sets: 223
+[3.14s] Insts: 55948 | Cycles: 36029904 | Active Sets: 223
+[3.15s] Insts: 68838 | Cycles: 36029976 | Active Sets: 223
+[3.16s] Insts: 55948 | Cycles: 36029952 | Active Sets: 223
+[3.17s] Insts: 68826 | Cycles: 36029938 | Active Sets: 223
+[3.18s] Insts: 55948 | Cycles: 36030000 | Active Sets: 225
+[3.19s] Insts: 68838 | Cycles: 36030000 | Active Sets: 223
+[3.20s] Insts: 55948 | Cycles: 36029904 | Active Sets: 223
+[3.21s] Insts: 68826 | Cycles: 36029976 | Active Sets: 223
+[3.22s] Insts: 55948 | Cycles: 36029976 | Active Sets: 223
+[3.23s] Insts: 68838 | Cycles: 36030014 | Active Sets: 224
+[3.24s] Insts: 55948 | Cycles: 36029952 | Active Sets: 223
+[3.25s] Insts: 77034 | Cycles: 36030000 | Active Sets: 346
+[3.26s] Insts: 55948 | Cycles: 35996238 | Active Sets: 222
+[3.27s] Insts: 85254 | Cycles: 36063650 | Active Sets: 374
+[3.28s] Insts: 55948 | Cycles: 36029976 | Active Sets: 222
+[3.29s] Insts: 77034 | Cycles: 36029952 | Active Sets: 347
+[3.30s] Insts: 55948 | Cycles: 36029928 | Active Sets: 222
+[3.31s] Insts: 68838 | Cycles: 36030000 | Active Sets: 225
+[3.32s] Insts: 55948 | Cycles: 36029952 | Active Sets: 223
+[3.33s] Insts: 68826 | Cycles: 36029938 | Active Sets: 223
+[3.34s] Insts: 55948 | Cycles: 36029976 | Active Sets: 223
+[3.35s] Insts: 68838 | Cycles: 36029990 | Active Sets: 223
+[3.36s] Insts: 55948 | Cycles: 36029928 | Active Sets: 223
+[3.37s] Insts: 68826 | Cycles: 36030000 | Active Sets: 224
+[3.38s] Insts: 55948 | Cycles: 36030000 | Active Sets: 223
+[3.39s] Insts: 68838 | Cycles: 36030014 | Active Sets: 223
+[3.40s] Insts: 55948 | Cycles: 36029952 | Active Sets: 223
+[3.41s] Insts: 68826 | Cycles: 36029976 | Active Sets: 223
+[3.42s] Insts: 55948 | Cycles: 36029928 | Active Sets: 224
+[3.43s] Insts: 68838 | Cycles: 36029990 | Active Sets: 223
+[3.44s] Insts: 55948 | Cycles: 36030000 | Active Sets: 225
+[3.45s] Insts: 68826 | Cycles: 36029952 | Active Sets: 223
+[3.46s] Insts: 55948 | Cycles: 36029904 | Active Sets: 223
+[3.47s] Insts: 69060 | Cycles: 36030006 | Active Sets: 228
+[3.48s] Insts: 55948 | Cycles: 36029922 | Active Sets: 223
+[3.49s] Insts: 68826 | Cycles: 36029938 | Active Sets: 223
+[3.50s] Insts: 55948 | Cycles: 36030000 | Active Sets: 225
+[3.51s] Insts: 69404 | Cycles: 36030500 | Active Sets: 236
+[3.52s] Insts: 55948 | Cycles: 36029404 | Active Sets: 219
+[3.53s] Insts: 68826 | Cycles: 36029976 | Active Sets: 219
+[3.54s] Insts: 55948 | Cycles: 36029976 | Active Sets: 219
+[3.55s] Insts: 68838 | Cycles: 36030014 | Active Sets: 220
+[3.56s] Insts: 55948 | Cycles: 36029952 | Active Sets: 220
+[3.57s] Insts: 68826 | Cycles: 36030000 | Active Sets: 223
+[3.58s] Insts: 55948 | Cycles: 36029904 | Active Sets: 223
+[3.59s] Insts: 68838 | Cycles: 36029990 | Active Sets: 223
+[3.60s] Insts: 55948 | Cycles: 36029976 | Active Sets: 223
+[3.61s] Insts: 68826 | Cycles: 36029952 | Active Sets: 224
+[3.62s] Insts: 56537 | Cycles: 36029928 | Active Sets: 223
+[3.63s] Insts: 68249 | Cycles: 36030000 | Active Sets: 226
+[3.64s] Insts: 58892 | Cycles: 36029952 | Active Sets: 223
+[3.65s] Insts: 65882 | Cycles: 36029938 | Active Sets: 223
+[3.66s] Insts: 61580 | Cycles: 36029976 | Active Sets: 223
+[3.67s] Insts: 63206 | Cycles: 36029990 | Active Sets: 223
+[3.68s] Insts: 61984 | Cycles: 36029928 | Active Sets: 223
+[3.69s] Insts: 62790 | Cycles: 36030000 | Active Sets: 224
+[3.70s] Insts: 61984 | Cycles: 36030000 | Active Sets: 223
+[3.71s] Insts: 62802 | Cycles: 36030014 | Active Sets: 223
+[3.72s] Insts: 61984 | Cycles: 36029952 | Active Sets: 223
+[3.73s] Insts: 62790 | Cycles: 36029976 | Active Sets: 223
+[3.74s] Insts: 61984 | Cycles: 36029928 | Active Sets: 224
+[3.75s] Insts: 62802 | Cycles: 36029990 | Active Sets: 223
+[3.76s] Insts: 61984 | Cycles: 36030000 | Active Sets: 225
+[3.77s] Insts: 62790 | Cycles: 36029938 | Active Sets: 223
+[3.78s] Insts: 61984 | Cycles: 36029904 | Active Sets: 223
+[3.79s] Insts: 62802 | Cycles: 36029976 | Active Sets: 223
+[3.80s] Insts: 61984 | Cycles: 36029952 | Active Sets: 223
+[3.81s] Insts: 62790 | Cycles: 36029938 | Active Sets: 223
+[3.82s] Insts: 3996654 | Cycles: 36032239 | Active Sets: 2206
+[3.83s] Insts: 16686932 | Cycles: 30030031 | Active Sets: 2551
+[3.84s] Insts: 2068554 | Cycles: 36030004 | Active Sets: 675
+[3.85s] Insts: 134980 | Cycles: 36046372 | Active Sets: 748
+[3.86s] Insts: 68024 | Cycles: 36029684 | Active Sets: 281
+[3.87s] Insts: 55022 | Cycles: 36027246 | Active Sets: 230
+[3.88s] Insts: 56436 | Cycles: 36029952 | Active Sets: 222
+[3.89s] Insts: 60770 | Cycles: 36030000 | Active Sets: 309
+[3.90s] Insts: 56436 | Cycles: 36029904 | Active Sets: 222
+[3.91s] Insts: 54480 | Cycles: 36029990 | Active Sets: 222
+[3.92s] Insts: 56436 | Cycles: 36029976 | Active Sets: 222
+[3.93s] Insts: 54468 | Cycles: 36029994 | Active Sets: 223
+[3.94s] Insts: 56436 | Cycles: 36029928 | Active Sets: 222
+[3.95s] Insts: 60942 | Cycles: 36030000 | Active Sets: 314
+[3.96s] Insts: 56436 | Cycles: 36029952 | Active Sets: 222
+[3.97s] Insts: 54532 | Cycles: 36029914 | Active Sets: 222
+[3.98s] Insts: 56436 | Cycles: 36029946 | Active Sets: 222
+[3.99s] Insts: 54480 | Cycles: 36029994 | Active Sets: 222
+[4.00s] Insts: 62836 | Cycles: 36029928 | Active Sets: 310
+[4.01s] Insts: 54468 | Cycles: 36029994 | Active Sets: 223
+[4.02s] Insts: 56436 | Cycles: 36030000 | Active Sets: 222
+[4.03s] Insts: 54480 | Cycles: 36029990 | Active Sets: 222
+[4.04s] Insts: 56436 | Cycles: 36029952 | Active Sets: 222
+[4.05s] Insts: 54468 | Cycles: 36029976 | Active Sets: 222
+[4.06s] Insts: 62760 | Cycles: 36029928 | Active Sets: 308
+[4.07s] Insts: 54480 | Cycles: 36029952 | Active Sets: 222
+[4.08s] Insts: 61984 | Cycles: 36030000 | Active Sets: 225
+[4.09s] Insts: 62790 | Cycles: 36029938 | Active Sets: 223
+[4.10s] Insts: 61984 | Cycles: 36029904 | Active Sets: 223
+[4.11s] Insts: 81286 | Cycles: 36139212 | Active Sets: 372
+[4.12s] Insts: 61984 | Cycles: 36029952 | Active Sets: 223
+[4.13s] Insts: 62790 | Cycles: 36029938 | Active Sets: 223
+[4.14s] Insts: 61984 | Cycles: 36030000 | Active Sets: 226
+[4.15s] Insts: 62802 | Cycles: 36029990 | Active Sets: 223
+[4.16s] Insts: 61984 | Cycles: 36029904 | Active Sets: 223
+[4.17s] Insts: 68880 | Cycles: 36029976 | Active Sets: 309
+[4.18s] Insts: 61984 | Cycles: 36029976 | Active Sets: 223
+[4.19s] Insts: 62802 | Cycles: 36030014 | Active Sets: 224
+[4.20s] Insts: 61984 | Cycles: 36029952 | Active Sets: 223
+[4.21s] Insts: 62790 | Cycles: 36030000 | Active Sets: 223
+[4.22s] Insts: 61984 | Cycles: 36029904 | Active Sets: 223
+[4.23s] Insts: 68992 | Cycles: 36029990 | Active Sets: 312
+[4.24s] Insts: 61984 | Cycles: 36029976 | Active Sets: 223
+[4.25s] Insts: 70998 | Cycles: 36029938 | Active Sets: 346
+[4.26s] Insts: 84778 | Cycles: 36063544 | Active Sets: 628
+[4.27s] Insts: 97540 | Cycles: 36063932 | Active Sets: 705
+[4.28s] Insts: 101004 | Cycles: 36029952 | Active Sets: 717
+[4.29s] Insts: 97150 | Cycles: 36029890 | Active Sets: 662
+[4.30s] Insts: 61984 | Cycles: 36029976 | Active Sets: 222
+[4.31s] Insts: 62802 | Cycles: 36029990 | Active Sets: 222
+[4.32s] Insts: 61984 | Cycles: 36029928 | Active Sets: 222
+[4.33s] Insts: 62790 | Cycles: 36030000 | Active Sets: 223
+[4.34s] Insts: 68074 | Cycles: 36030000 | Active Sets: 309
+[4.35s] Insts: 62802 | Cycles: 36029955 | Active Sets: 223
+[4.36s] Insts: 61984 | Cycles: 36029952 | Active Sets: 223
+[4.37s] Insts: 62790 | Cycles: 36029976 | Active Sets: 223
+[4.38s] Insts: 61984 | Cycles: 36029928 | Active Sets: 224
+[4.39s] Insts: 68992 | Cycles: 36058095 | Active Sets: 312
+[4.40s] Insts: 61984 | Cycles: 36030000 | Active Sets: 225
+[4.41s] Insts: 62790 | Cycles: 36029938 | Active Sets: 223
+[4.42s] Insts: 61984 | Cycles: 36029904 | Active Sets: 223
+[4.43s] Insts: 62802 | Cycles: 36029976 | Active Sets: 223
+[4.44s] Insts: 61984 | Cycles: 36029952 | Active Sets: 223
+[4.45s] Insts: 13645982 | Cycles: 41765232 | Active Sets: 1015
+[4.46s] Insts: 492646 | Cycles: 36030092 | Active Sets: 387
+[4.47s] Insts: 60044 | Cycles: 36029990 | Active Sets: 252
+[4.48s] Insts: 56436 | Cycles: 36028080 | Active Sets: 222
+[4.49s] Insts: 54468 | Cycles: 36029976 | Active Sets: 222
+[4.50s] Insts: 56436 | Cycles: 36029976 | Active Sets: 222
+[4.51s] Insts: 60782 | Cycles: 36030129 | Active Sets: 309
+[4.52s] Insts: 56436 | Cycles: 36029952 | Active Sets: 222
+[4.53s] Insts: 54612 | Cycles: 36030234 | Active Sets: 226
+[4.54s] Insts: 56580 | Cycles: 36029904 | Active Sets: 222
+[4.55s] Insts: 54480 | Cycles: 36029990 | Active Sets: 218
+[4.56s] Insts: 56436 | Cycles: 36029976 | Active Sets: 218
+[4.57s] Insts: 60910 | Cycles: 36029994 | Active Sets: 307
+[4.58s] Insts: 56436 | Cycles: 36029928 | Active Sets: 219
+[4.59s] Insts: 54480 | Cycles: 36030000 | Active Sets: 222
+[4.60s] Insts: 56436 | Cycles: 36029952 | Active Sets: 222
+[4.61s] Insts: 54468 | Cycles: 36029914 | Active Sets: 222
+[4.62s] Insts: 62738 | Cycles: 36029976 | Active Sets: 309
+[4.63s] Insts: 54480 | Cycles: 36029946 | Active Sets: 222
+[4.64s] Insts: 56436 | Cycles: 36029928 | Active Sets: 222
+[4.65s] Insts: 54468 | Cycles: 36030000 | Active Sets: 223
+[4.66s] Insts: 56436 | Cycles: 36030000 | Active Sets: 222
+[4.67s] Insts: 54480 | Cycles: 36029990 | Active Sets: 222
+[4.68s] Insts: 62904 | Cycles: 36029952 | Active Sets: 313
+[4.69s] Insts: 54468 | Cycles: 36029976 | Active Sets: 222
+[4.70s] Insts: 56436 | Cycles: 36029928 | Active Sets: 223
+[4.71s] Insts: 62802 | Cycles: 36040188 | Active Sets: 223
+[4.72s] Insts: 61984 | Cycles: 36030000 | Active Sets: 225
+[4.73s] Insts: 68880 | Cycles: 36057533 | Active Sets: 309
+[4.74s] Insts: 61984 | Cycles: 36029904 | Active Sets: 223
+[4.75s] Insts: 62802 | Cycles: 36029976 | Active Sets: 223
+[4.76s] Insts: 61984 | Cycles: 36029952 | Active Sets: 223
+[4.77s] Insts: 62790 | Cycles: 36029938 | Active Sets: 223
+[4.78s] Insts: 61984 | Cycles: 36030000 | Active Sets: 226
+[4.79s] Insts: 68992 | Cycles: 36030049 | Active Sets: 312
+[4.80s] Insts: 61984 | Cycles: 36029904 | Active Sets: 223
+[4.81s] Insts: 62790 | Cycles: 36029976 | Active Sets: 223
+[4.82s] Insts: 61984 | Cycles: 36029976 | Active Sets: 223
+[4.83s] Insts: 62802 | Cycles: 36030014 | Active Sets: 224
+[4.84s] Insts: 61984 | Cycles: 36029952 | Active Sets: 223
+[4.85s] Insts: 68922 | Cycles: 36030000 | Active Sets: 309
+[4.86s] Insts: 61984 | Cycles: 36029904 | Active Sets: 223
+[4.87s] Insts: 62802 | Cycles: 36029990 | Active Sets: 223
+[4.88s] Insts: 61984 | Cycles: 36029976 | Active Sets: 223
+[4.89s] Insts: 62790 | Cycles: 36029938 | Active Sets: 224
+[4.90s] Insts: 68074 | Cycles: 36029928 | Active Sets: 309
+[4.91s] Insts: 62802 | Cycles: 36029994 | Active Sets: 226
+[4.92s] Insts: 61984 | Cycles: 36029952 | Active Sets: 223
+[4.93s] Insts: 62790 | Cycles: 36029938 | Active Sets: 223
+[4.94s] Insts: 63435 | Cycles: 36029976 | Active Sets: 223
+[4.95s] Insts: 61351 | Cycles: 36029952 | Active Sets: 223
+[4.96s] Insts: 72066 | Cycles: 36029928 | Active Sets: 311
+[4.97s] Insts: 58962 | Cycles: 36030000 | Active Sets: 224
+[4.98s] Insts: 68541 | Cycles: 36029970 | Active Sets: 223
+[4.99s] Insts: 56245 | Cycles: 36029904 | Active Sets: 223
+[5.00s] Insts: 68826 | Cycles: 36029952 | Active Sets: 223
+[5.01s] Insts: 1023736 | Cycles: 38227784 | Active Sets: 1950
+[5.02s] Insts: 117518 | Cycles: 36075553 | Active Sets: 565
+src/dev/x86/i8042.cc:290: warn: Write to unknown i8042 (keyboard controller) command port.
+src/dev/ps2/mouse.cc:153: warn: Unknown mouse command 0xe1.
+[5.03s] Insts: 11163514 | Cycles: 41571439 | Active Sets: 3776
+[5.04s] Insts: 123018 | Cycles: 30819815 | Active Sets: 806
+[5.05s] Insts: 505780 | Cycles: 36858728 | Active Sets: 2007
+[5.06s] Insts: 80856 | Cycles: 34757074 | Active Sets: 376
+[5.07s] Insts: 1493636 | Cycles: 41055670 | Active Sets: 2795
+[5.08s] Insts: 6632312 | Cycles: 31150262 | Active Sets: 3490
+[5.09s] Insts: 3273084 | Cycles: 25786069 | Active Sets: 3343
+[5.10s] Insts: 3578290 | Cycles: 35198108 | Active Sets: 2184
+[5.11s] Insts: 8681758 | Cycles: 33378641 | Active Sets: 1219
+[5.12s] Insts: 8687160 | Cycles: 36032086 | Active Sets: 1097
+[5.13s] Insts: 8657917 | Cycles: 36025577 | Active Sets: 647
+[5.14s] Insts: 8678329 | Cycles: 36029908 | Active Sets: 1056
+[5.15s] Insts: 8650646 | Cycles: 36029835 | Active Sets: 602
+[5.16s] Insts: 8672292 | Cycles: 36040129 | Active Sets: 636
+[5.17s] Insts: 8658212 | Cycles: 36029979 | Active Sets: 637
+[5.18s] Insts: 8660037 | Cycles: 36029999 | Active Sets: 1035
+[5.19s] Insts: 8664805 | Cycles: 36029955 | Active Sets: 669
+[5.20s] Insts: 8664083 | Cycles: 36030046 | Active Sets: 637
+[5.21s] Insts: 8666561 | Cycles: 36029831 | Active Sets: 622
+[5.22s] Insts: 8681148 | Cycles: 36030067 | Active Sets: 1029
+[5.23s] Insts: 8671280 | Cycles: 36029969 | Active Sets: 641
+[5.24s] Insts: 8660766 | Cycles: 36029932 | Active Sets: 640
+[5.25s] Insts: 8683088 | Cycles: 36030003 | Active Sets: 751
+[5.26s] Insts: 8680590 | Cycles: 36065071 | Active Sets: 1100
+[5.27s] Insts: 8681704 | Cycles: 36065994 | Active Sets: 735
+[5.28s] Insts: 8661222 | Cycles: 36029990 | Active Sets: 758
+[5.29s] Insts: 8676136 | Cycles: 36030002 | Active Sets: 626
+[5.30s] Insts: 8685318 | Cycles: 36029901 | Active Sets: 1051
+[5.31s] Insts: 8678200 | Cycles: 36030064 | Active Sets: 669
+[5.32s] Insts: 8671968 | Cycles: 36029974 | Active Sets: 672
+[5.33s] Insts: 8679442 | Cycles: 36030097 | Active Sets: 668
+[5.34s] Insts: 8681218 | Cycles: 36030012 | Active Sets: 1039
+[5.35s] Insts: 8682824 | Cycles: 36029927 | Active Sets: 637
+[5.36s] Insts: 8676884 | Cycles: 36029865 | Active Sets: 659
+[5.37s] Insts: 8680782 | Cycles: 36029745 | Active Sets: 638
+[5.38s] Insts: 8687728 | Cycles: 36029951 | Active Sets: 1013
+[5.39s] Insts: 8681410 | Cycles: 36030041 | Active Sets: 639
+[5.40s] Insts: 8676251 | Cycles: 36030094 | Active Sets: 668
+[5.41s] Insts: 8677997 | Cycles: 36029940 | Active Sets: 607
+[5.42s] Insts: 22645779 | Cycles: 21882473 | Active Sets: 3580
+[5.43s] Insts: 37781363 | Cycles: 30030038 | Active Sets: 1301
+[5.44s] Insts: 37782759 | Cycles: 30030045 | Active Sets: 1337
+[5.45s] Insts: 37787596 | Cycles: 30030028 | Active Sets: 1235
+[5.46s] Insts: 37790847 | Cycles: 30030043 | Active Sets: 1203
+[5.47s] Insts: 37790976 | Cycles: 30030050 | Active Sets: 1171
+[5.48s] Insts: 37787471 | Cycles: 30030030 | Active Sets: 1279
+[5.49s] Insts: 37793485 | Cycles: 30030041 | Active Sets: 1188
+[5.50s] Insts: 37793849 | Cycles: 30030031 | Active Sets: 1207
+[5.51s] Insts: 37787484 | Cycles: 30030032 | Active Sets: 1199
+[5.52s] Insts: 37785287 | Cycles: 30030049 | Active Sets: 1287
+[5.53s] Insts: 37792844 | Cycles: 30030046 | Active Sets: 1190
+[5.54s] Insts: 37789444 | Cycles: 30030050 | Active Sets: 1204
+[5.55s] Insts: 37791668 | Cycles: 30030052 | Active Sets: 1227
+[5.56s] Insts: 37792014 | Cycles: 30030050 | Active Sets: 1297
+[5.57s] Insts: 37796308 | Cycles: 30030055 | Active Sets: 1177
+[5.58s] Insts: 37785289 | Cycles: 30030053 | Active Sets: 1206
+[5.59s] Insts: 37790252 | Cycles: 30030028 | Active Sets: 1209
+Exiting: m5_exit instruction encountered
+Closing log files...
