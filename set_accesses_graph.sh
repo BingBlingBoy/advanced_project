@@ -5,6 +5,8 @@
 #SBATCH --output=OUTPUT/graph.out
 #SBATCH --cpus-per-task=8
 
+set -e
+
 module load python
 
 # HARDWARE choices
@@ -12,8 +14,9 @@ module load python
 # - 4MiB_STTRAM
 # - 8MiB_SRAM_ISO_CAP
 # - 8MiB_STTRAM
-HARDWARE=4MiB_STTRAM
-BENCHMARK=blackscholes
-FILEPATH=./gem5/configs/PARSEC/${HARDWARE}/${BENCHMARK}/set_access_log.csv.gz
+for HARDWARE in "4MiB_SRAM_ISO_AREA" "4MiB_STTRAM" "8MiB_SRAM_ISO_CAP" "8MiB_STTRAM"; do
+    BENCHMARK=$1
+    FILEPATH=./gem5/configs/PARSEC/${HARDWARE}/${BENCHMARK}/set_access_log.csv.gz
 
-./gem5/configs/PARSEC/set_accesses_graph.py --benchmark ${BENCHMARK} --hardware ${HARDWARE} --file ${FILEPATH}
+    ./gem5/configs/PARSEC/set_accesses_graph.py --benchmark ${BENCHMARK} --hardware ${HARDWARE} --file ${FILEPATH}
+done

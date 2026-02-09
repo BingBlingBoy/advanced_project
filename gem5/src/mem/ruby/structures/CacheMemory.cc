@@ -218,6 +218,7 @@ void CacheMemory::init() {
                  std::vector<AbstractCacheEntry *>(m_cache_assoc, nullptr));
   replacement_data.resize(m_cache_num_sets,
                           std::vector<ReplData>(m_cache_assoc, nullptr));
+
   // instantiate all the replacement_data here
   for (int i = 0; i < m_cache_num_sets; i++) {
     for (int j = 0; j < m_cache_assoc; j++) {
@@ -289,6 +290,7 @@ Cycles CacheMemory::getRetentionLatency(CacheRequestType requestType,
   Tick currTick = curTick();
 
   if (bankFreeTick > currTick) {
+    cacheMemoryStats.m_data_array_stalls++;
     return m_ruby_system->ticksToCycles(bankFreeTick - currTick);
   } else {
     return basic_latency;
@@ -505,6 +507,9 @@ void CacheMemory::regStats() {
   // 2. Initialize the vector size
   // At this point, init() has run, so m_cache_num_sets is valid!
   cacheMemoryStats.m_accesses_per_set.init(m_cache_num_sets);
+
+  cacheMemoryStats.m_data_array_stalls.name(name() + ".data_array_stalls")
+      .desc("Number of times a request stalled due to bank contention");
 }
 
 // looks an address up in the cache

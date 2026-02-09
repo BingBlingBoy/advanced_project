@@ -14,10 +14,9 @@ module load python
 # - 4MiB_STTRAM
 # - 8MiB_SRAM_ISO_CAP
 # - 8MiB_STTRAM
-
 for HARDWARE in "4MiB_SRAM_ISO_AREA" "4MiB_STTRAM" "8MiB_SRAM_ISO_CAP" "8MiB_STTRAM"; do
     BENCHMARK=$1
-    FILEPATH=./gem5/configs/PARSEC/${HARDWARE}/${BENCHMARK}/ipc_log.csv.gz
+    FILEPATH=./gem5/configs/PARSEC/${HARDWARE}/${BENCHMARK}/l2_stats_log.csv.gz
 
-    ./gem5/configs/PARSEC/ipc_graph.py --benchmark ${BENCHMARK} --hardware ${HARDWARE} --file ${FILEPATH}
+    ./gem5/configs/PARSEC/plot_l2_stats.py --benchmark ${BENCHMARK} --hardware ${HARDWARE} --file ${FILEPATH}
 done

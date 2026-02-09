@@ -683,7 +683,7 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
 
   action(m_writeDataToCache, "m", desc="Write data from response queue to cache") {
       L2cache.recordRequestType(CacheRequestType:TagArrayRead, address);
-      L2cache.recordRequestType(CacheRequestType:DataArrayRead, address);
+      L2cache.recordRequestType(CacheRequestType:DataArrayWrite, address);
       peek(responseL2Network_in, ResponseMsg) {
           enqueue(responseL2Network_out, RequestMsg, L2cache.getRetentionLatency(CacheRequestType:DataArrayWrite, address)) {
               assert(is_valid(cache_entry));

@@ -279,6 +279,7 @@ private:
     statistics::Vector m_accessModeType;
 
     statistics::Vector m_accesses_per_set;
+    statistics::Scalar m_data_array_stalls;
   } cacheMemoryStats;
 
 public:
