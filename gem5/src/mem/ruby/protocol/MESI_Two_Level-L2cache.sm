@@ -144,6 +144,7 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
     MachineID Exclusive,          desc="Exclusive holder of block";
     DataBlock DataBlk,       desc="data for the block";
     bool Dirty, default="false", desc="data is dirty";
+    bool m_is_expired, default="false", desc="Physical retention expiration";
   }
 
   // TBE fields
@@ -375,39 +376,88 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
   }
 
   // L1 Request
+  //in_port(L1RequestL2Network_in, RequestMsg, L1RequestToL2Cache, rank = 0) {
+  //  if(L1RequestL2Network_in.isReady(clockEdge())) {
+  //    peek(L1RequestL2Network_in,  RequestMsg) {
+  //      Entry cache_entry := getCacheEntry(in_msg.addr);
+  //      TBE tbe := TBEs[in_msg.addr];
+
+  //      DPRINTF(RubySlicc, "Addr: %#x State: %s Req: %s Type: %s Dest: %s\n",
+  //              in_msg.addr, getState(tbe, cache_entry, in_msg.addr),
+  //              in_msg.Requestor, in_msg.Type, in_msg.Destination);
+
+  //      assert(machineIDToMachineType(in_msg.Requestor) == MachineType:L1Cache);
+  //      assert(in_msg.Destination.isElement(machineID));
+
+  //      if (is_valid(cache_entry)) {
+  //        // The L2 contains the block, so proceeded with handling the request
+  //        trigger(L1Cache_request_type_to_event(in_msg.Type, in_msg.addr,
+  //                                              in_msg.Requestor, cache_entry),
+  //                in_msg.addr, cache_entry, tbe);
+  //      } else {
+  //        if (L2cache.cacheAvail(in_msg.addr)) {
+  //          // L2 does't have the line, but we have space for it in the L2
+  //          trigger(L1Cache_request_type_to_event(in_msg.Type, in_msg.addr,
+  //                                                in_msg.Requestor, cache_entry),
+  //                  in_msg.addr, cache_entry, tbe);
+  //        } else {
+  //          // No room in the L2, so we need to make room before handling the request
+  //          Addr victim := L2cache.cacheProbe(in_msg.addr);
+  //          Entry L2cache_entry := getCacheEntry(victim);
+  //          if (isDirty(L2cache_entry)) {
+  //            trigger(Event:L2_Replacement, victim, L2cache_entry, TBEs[victim]);
+  //          } else {
+  //            trigger(Event:L2_Replacement_clean,
+  //                    victim, L2cache_entry, TBEs[victim]);
+  //          }
+  //        }
+  //      }
+  //    }
+  //  }
+  //}
+
+  // L1 Request Port
   in_port(L1RequestL2Network_in, RequestMsg, L1RequestToL2Cache, rank = 0) {
     if(L1RequestL2Network_in.isReady(clockEdge())) {
       peek(L1RequestL2Network_in,  RequestMsg) {
         Entry cache_entry := getCacheEntry(in_msg.addr);
         TBE tbe := TBEs[in_msg.addr];
 
-        DPRINTF(RubySlicc, "Addr: %#x State: %s Req: %s Type: %s Dest: %s\n",
+        DPRINTF(RubySlicc, "Addr: %#x State: %s Req: %s Type: %s\n",
                 in_msg.addr, getState(tbe, cache_entry, in_msg.addr),
-                in_msg.Requestor, in_msg.Type, in_msg.Destination);
+                in_msg.Requestor, in_msg.Type);
 
         assert(machineIDToMachineType(in_msg.Requestor) == MachineType:L1Cache);
         assert(in_msg.Destination.isElement(machineID));
 
-        if (is_valid(cache_entry)) {
-          // The L2 contains the block, so proceeded with handling the request
+        // 1. Expired Block: Must be formally evicted before processing the request
+        if (is_valid(cache_entry) && cache_entry.m_is_expired) {
+          if (isDirty(cache_entry)) {
+            trigger(Event:L2_Replacement, in_msg.addr, cache_entry, tbe);
+          } else {
+            trigger(Event:L2_Replacement_clean, in_msg.addr, cache_entry, tbe);
+          }
+        } 
+        // 2. Normal Hit
+        else if (is_valid(cache_entry)) {
           trigger(L1Cache_request_type_to_event(in_msg.Type, in_msg.addr,
                                                 in_msg.Requestor, cache_entry),
                   in_msg.addr, cache_entry, tbe);
-        } else {
+        } 
+        // 3. True Miss
+        else {
           if (L2cache.cacheAvail(in_msg.addr)) {
-            // L2 does't have the line, but we have space for it in the L2
-            trigger(L1Cache_request_type_to_event(in_msg.Type, in_msg.addr,
-                                                  in_msg.Requestor, cache_entry),
+             trigger(L1Cache_request_type_to_event(in_msg.Type, in_msg.addr,
+                                                   in_msg.Requestor, cache_entry),
                     in_msg.addr, cache_entry, tbe);
           } else {
-            // No room in the L2, so we need to make room before handling the request
             Addr victim := L2cache.cacheProbe(in_msg.addr);
             Entry L2cache_entry := getCacheEntry(victim);
+            
             if (isDirty(L2cache_entry)) {
               trigger(Event:L2_Replacement, victim, L2cache_entry, TBEs[victim]);
             } else {
-              trigger(Event:L2_Replacement_clean,
-                      victim, L2cache_entry, TBEs[victim]);
+              trigger(Event:L2_Replacement_clean, victim, L2cache_entry, TBEs[victim]);
             }
           }
         }
@@ -417,6 +467,13 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
 
 
   // ACTIONS
+  action(z_recycleExpiredBlock, "z", desc="Physically purge an expired block to pass Tick 333") {
+    if (is_valid(cache_entry) && cache_entry.m_is_expired) {
+       // This triggers the C++ deallocate, which clears the DataBlock m_alloc flag
+       L2cache.deallocate(address);
+       unset_cache_entry();
+    }
+  }
 
   action(a_issueFetchToMemory, "a", desc="fetch data from memory") {
     L2cache.recordRequestType(CacheRequestType:TagArrayRead, address);
@@ -650,16 +707,34 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
   }
 
   // OTHER ACTIONS
+  //action(i_allocateTBE, "i", desc="Allocate TBE for request") {
+  //  check_allocate(TBEs);
+  //  assert(is_valid(cache_entry));
+  //  TBEs.allocate(address);
+  //  set_tbe(TBEs[address]);
+  //  tbe.L1_GetS_IDs.clear();
+  //  tbe.DataBlk := cache_entry.DataBlk;
+  //  tbe.Dirty := cache_entry.Dirty;
+  //  tbe.pendingAcks := cache_entry.Sharers.count();
+  //}
+
   action(i_allocateTBE, "i", desc="Allocate TBE for request") {
     check_allocate(TBEs);
     assert(is_valid(cache_entry));
     TBEs.allocate(address);
     set_tbe(TBEs[address]);
     tbe.L1_GetS_IDs.clear();
-    tbe.DataBlk := cache_entry.DataBlk;
-    tbe.Dirty := cache_entry.Dirty;
+    
+    // --- PROTECTIVE CHECK ---
+    if (cache_entry.CacheState != State:NP && !cache_entry.m_is_expired) {
+        tbe.DataBlk := cache_entry.DataBlk;
+        tbe.Dirty := cache_entry.Dirty;
+    }
+    
     tbe.pendingAcks := cache_entry.Sharers.count();
   }
+
+
 
   action(s_deallocateTBE, "s", desc="Deallocate external TBE") {
     TBEs.deallocate(address);
@@ -870,14 +945,36 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
     zz_stallAndWaitL1RequestQueue;
   }
 
-  transition({IM, IS, ISS, SS_MB, MT_MB, MT_IIB, MT_IB, MT_SB}, MEM_Inv) {
+  //transition({IM, IS, ISS, SS_MB, MT_MB, MT_IIB, MT_IB, MT_SB}, MEM_Inv) {
+  //  zn_recycleResponseNetwork;
+  //}
+
+  //transition({I_I, S_I, M_I, MT_I, MCT_I, NP}, MEM_Inv) {
+  //  o_popIncomingResponseQueue;
+  //}
+
+  // 1. Blocked but hold valid data: Recycle to process later
+  // (Notice IM, IS, and ISS are removed from this list!)
+  transition({SS_MB, MT_MB, MT_IIB, MT_IB, MT_SB}, MEM_Inv) {
     zn_recycleResponseNetwork;
   }
 
-  transition({I_I, S_I, M_I, MT_I, MCT_I, NP}, MEM_Inv) {
+  // 2. Deadlock Fix: We don't have the data (or are waiting for it). 
+  // We MUST send an ACK to unblock the Directory.
+  transition({NP, IM, IS, ISS}, MEM_Inv) {
+    c_exclusiveCleanReplacement; // Acts as a fast ACK to the Directory
     o_popIncomingResponseQueue;
   }
 
+  // 3. Actively evicting: Our outgoing eviction message acts as the ACK.
+  // We can safely drop the duplicate invalidation.
+  transition({I_I, S_I, M_I, MT_I, MCT_I}, MEM_Inv) {
+    o_popIncomingResponseQueue;
+  }
+
+  transition({NP, IM, IS, ISS}, Mem_Ack) {
+    o_popIncomingResponseQueue;
+  }
 
   transition({SS_MB, MT_MB, MT_IIB, MT_IB, MT_SB}, {L1_GETS, L1_GET_INSTR, L1_GETX, L1_UPGRADE}) {
     zz_stallAndWaitL1RequestQueue;

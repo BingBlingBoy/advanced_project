@@ -3,7 +3,7 @@
 #SBATCH --job-name=gem5_sim
 #SBATCH --nodes=1
 #SBATCH --time=00:59:00
-#SBATCH --output=OUTPUT/gem5_compilation_%j.out
+#SBATCH --output=OUTPUT/gem5_compilation.out
 #SBATCH --cpus-per-task=52
 #SBATCH --mem=64GB
 

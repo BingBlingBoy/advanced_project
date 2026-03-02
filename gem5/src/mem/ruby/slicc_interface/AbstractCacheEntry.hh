@@ -53,88 +53,87 @@
 #include "mem/ruby/common/DataBlock.hh"
 #include "mem/ruby/protocol/AccessPermission.hh"
 
-namespace gem5
-{
+namespace gem5 {
 
-namespace ruby
-{
+namespace ruby {
 
 class RubySystem;
 
-class AbstractCacheEntry : public ReplaceableEntry
-{
-  private:
-    // The last access tick for the cache entry.
-    Tick m_last_touch_tick;
+class AbstractCacheEntry : public ReplaceableEntry {
+private:
+  // The last access tick for the cache entry.
+  Tick m_last_touch_tick;
 
-  public:
-    AbstractCacheEntry();
-    virtual ~AbstractCacheEntry() = 0;
+public:
+  AbstractCacheEntry();
+  virtual ~AbstractCacheEntry() = 0;
 
-    // Get/Set permission of the entry
-    AccessPermission getPermission() const;
-    void changePermission(AccessPermission new_perm);
+  virtual bool isExpired() const { return m_is_expired; }
+  virtual void setExpired(bool val) { m_is_expired = val; }
 
-    using ReplaceableEntry::print;
-    virtual void print(std::ostream& out) const = 0;
+  // Get/Set permission of the entry
+  AccessPermission getPermission() const;
+  void changePermission(AccessPermission new_perm);
 
-    // The methods below are those called by ruby runtime, add when it
-    // is absolutely necessary and should all be virtual function.
-    [[noreturn]] virtual DataBlock&
-    getDataBlk()
-    {
-        panic("getDataBlk() not implemented!");
-    }
+  using ReplaceableEntry::print;
+  virtual void print(std::ostream &out) const = 0;
 
-    virtual void initBlockSize(int block_size) { };
-    virtual void setRubySystem(RubySystem *rs) { };
+  // The methods below are those called by ruby runtime, add when it
+  // is absolutely necessary and should all be virtual function.
+  [[noreturn]] virtual DataBlock &getDataBlk() {
+    panic("getDataBlk() not implemented!");
+  }
 
-    int validBlocks;
-    virtual int& getNumValidBlocks()
-    {
-        return validBlocks;
-    }
+  virtual void initBlockSize(int block_size) {};
+  virtual void setRubySystem(RubySystem *rs) {};
 
-    // Functions for locking and unlocking the cache entry.  These are required
-    // for supporting atomic memory accesses.
-    void setLocked(int context);
-    void clearLocked();
-    bool isLocked(int context) const;
+  int validBlocks;
+  virtual int &getNumValidBlocks() { return validBlocks; }
 
-    // Address of this block, required by CacheMemory
-    Addr m_Address;
-    // Holds info whether the address is locked.
-    // Required for implementing LL/SC operations.
-    int m_locked;
+  // Functions for locking and unlocking the cache entry.  These are required
+  // for supporting atomic memory accesses.
+  void setLocked(int context);
+  void clearLocked();
+  bool isLocked(int context) const;
 
-    AccessPermission m_Permission; // Access permission for this
-                                   // block, required by CacheMemory
+  // Address of this block, required by CacheMemory
+  Addr m_Address;
+  // Holds info whether the address is locked.
+  // Required for implementing LL/SC operations.
+  int m_locked;
 
-    // Get the last access Tick.
-    Tick getLastAccess() { return m_last_touch_tick; }
+  AccessPermission m_Permission; // Access permission for this
+                                 // block, required by CacheMemory
 
-    // Set the last access Tick.
-    void setLastAccess(Tick tick) { m_last_touch_tick = tick; }
+  // Get the last access Tick.
+  Tick getLastAccess() { return m_last_touch_tick; }
 
-    // hardware transactional memory
-    void setInHtmReadSet(bool val);
-    void setInHtmWriteSet(bool val);
-    bool getInHtmReadSet() const;
-    bool getInHtmWriteSet() const;
-    virtual void invalidateEntry() {}
+  // Set the last access Tick.
+  void setLastAccess(Tick tick) { m_last_touch_tick = tick; }
 
-  private:
-    // hardware transactional memory
-    bool m_htmInReadSet;
-    bool m_htmInWriteSet;
+  // hardware transactional memory
+  void setInHtmReadSet(bool val);
+  void setInHtmWriteSet(bool val);
+  bool getInHtmReadSet() const;
+  bool getInHtmWriteSet() const;
+  virtual void invalidateEntry() {}
+
+  Tick m_last_refresh_tick;
+  Tick m_retention_limit;
+  bool m_is_expired = false;
+  int zone_id;
+
+private:
+  // hardware transactional memory
+  bool m_htmInReadSet;
+  bool m_htmInWriteSet;
 };
 
-inline std::ostream&
-operator<<(std::ostream& out, const AbstractCacheEntry& obj)
-{
-    obj.print(out);
-    out << std::flush;
-    return out;
+inline std::ostream &operator<<(std::ostream &out,
+                                const AbstractCacheEntry &obj) {
+  obj.print(out);
+  out << std::flush;
+  return out;
 }
 
 } // namespace ruby

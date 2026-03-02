@@ -158,6 +158,7 @@ machine(MachineType:L1Cache, "MESI Directory L1 Cache CMP")
     DataBlock DataBlk,       desc="data for the block";
     bool Dirty, default="false",   desc="data is dirty";
     bool isPrefetch, desc="Set if this block was prefetched and not yet accessed";
+    bool m_is_expired, default="false", desc="Physical retention expiration";
   }
 
   // TBE fields
@@ -493,80 +494,144 @@ machine(MachineType:L1Cache, "MESI Directory L1 Cache CMP")
   }
 
   // Mandatory Queue betweens Node's CPU and it's L1 caches
+  // in_port(mandatoryQueue_in, RubyRequest, mandatoryQueue, desc="...", rank = 0) {
+  //   if (mandatoryQueue_in.isReady(clockEdge())) {
+  //     peek(mandatoryQueue_in, RubyRequest, block_on="LineAddress") {
+
+  //       // Check for data access to blocks in I-cache and ifetchs to blocks in D-cache
+
+  //       if (in_msg.Type == RubyRequestType:IFETCH) {
+  //         // ** INSTRUCTION ACCESS ***
+
+  //         Entry L1Icache_entry := getL1ICacheEntry(in_msg.LineAddress);
+  //         if (is_valid(L1Icache_entry)) {
+  //           // The tag matches for the L1, so the L1 asks the L2 for it.
+  //           trigger(mandatory_request_type_to_event(in_msg.Type), in_msg.LineAddress,
+  //                   L1Icache_entry, TBEs[in_msg.LineAddress]);
+  //         } else {
+
+  //           // Check to see if it is in the OTHER L1
+  //           Entry L1Dcache_entry := getL1DCacheEntry(in_msg.LineAddress);
+  //           if (is_valid(L1Dcache_entry)) {
+  //             // The block is in the wrong L1, put the request on the queue to the shared L2
+  //             trigger(Event:L1_Replacement, in_msg.LineAddress,
+  //                     L1Dcache_entry, TBEs[in_msg.LineAddress]);
+  //           }
+
+  //           if (L1Icache.cacheAvail(in_msg.LineAddress)) {
+  //             // L1 does't have the line, but we have space for it
+  //             // in the L1 so let's see if the L2 has it.
+  //             trigger(mandatory_request_type_to_event(in_msg.Type), in_msg.LineAddress,
+  //                     L1Icache_entry, TBEs[in_msg.LineAddress]);
+  //           } else {
+  //             // No room in the L1, so we need to make room in the L1
+
+  //             // Check if the line we want to evict is not locked
+  //             Addr addr := L1Icache.cacheProbe(in_msg.LineAddress);
+  //             check_on_cache_probe(mandatoryQueue_in, addr);
+
+  //             trigger(Event:L1_Replacement, addr,
+  //                     getL1ICacheEntry(addr),
+  //                     TBEs[addr]);
+  //           }
+  //         }
+  //       } else {
+
+  //         // *** DATA ACCESS ***
+  //         Entry L1Dcache_entry := getL1DCacheEntry(in_msg.LineAddress);
+  //         if (is_valid(L1Dcache_entry)) {
+  //           // The tag matches for the L1, so the L1 ask the L2 for it
+  //           trigger(mandatory_request_type_to_event(in_msg.Type), in_msg.LineAddress,
+  //                   L1Dcache_entry, TBEs[in_msg.LineAddress]);
+  //         } else {
+
+  //           // Check to see if it is in the OTHER L1
+  //           Entry L1Icache_entry := getL1ICacheEntry(in_msg.LineAddress);
+  //           if (is_valid(L1Icache_entry)) {
+  //             // The block is in the wrong L1, put the request on the queue to the shared L2
+  //             trigger(Event:L1_Replacement, in_msg.LineAddress,
+  //                     L1Icache_entry, TBEs[in_msg.LineAddress]);
+  //           }
+
+  //           if (L1Dcache.cacheAvail(in_msg.LineAddress)) {
+  //             // L1 does't have the line, but we have space for it
+  //             // in the L1 let's see if the L2 has it.
+  //             trigger(mandatory_request_type_to_event(in_msg.Type), in_msg.LineAddress,
+  //                     L1Dcache_entry, TBEs[in_msg.LineAddress]);
+  //           } else {
+  //             // No room in the L1, so we need to make room in the L1
+
+  //             // Check if the line we want to evict is not locked
+  //             Addr addr := L1Dcache.cacheProbe(in_msg.LineAddress);
+  //             check_on_cache_probe(mandatoryQueue_in, addr);
+
+  //             trigger(Event:L1_Replacement, addr,
+  //                     getL1DCacheEntry(addr),
+  //                     TBEs[addr]);
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
+
+// Mandatory Queue - requests from the CPU
   in_port(mandatoryQueue_in, RubyRequest, mandatoryQueue, desc="...", rank = 0) {
     if (mandatoryQueue_in.isReady(clockEdge())) {
       peek(mandatoryQueue_in, RubyRequest, block_on="LineAddress") {
 
-        // Check for data access to blocks in I-cache and ifetchs to blocks in D-cache
-
         if (in_msg.Type == RubyRequestType:IFETCH) {
-          // ** INSTRUCTION ACCESS ***
-
+          // --- INSTRUCTION FETCH PATH ---
           Entry L1Icache_entry := getL1ICacheEntry(in_msg.LineAddress);
+          
           if (is_valid(L1Icache_entry)) {
-            // The tag matches for the L1, so the L1 asks the L2 for it.
-            trigger(mandatory_request_type_to_event(in_msg.Type), in_msg.LineAddress,
-                    L1Icache_entry, TBEs[in_msg.LineAddress]);
+            if (L1Icache_entry.m_is_expired) {
+              // Target is a Zombie. Force replacement to notify L2.
+              trigger(Event:L1_Replacement, in_msg.LineAddress, L1Icache_entry, TBEs[in_msg.LineAddress]);
+            } else {
+              // Normal Hit
+              trigger(mandatory_request_type_to_event(in_msg.Type), in_msg.LineAddress, L1Icache_entry, TBEs[in_msg.LineAddress]);
+            }
           } else {
-
-            // Check to see if it is in the OTHER L1
+            // True Miss. Check cross-contamination: is it in the D-cache?
             Entry L1Dcache_entry := getL1DCacheEntry(in_msg.LineAddress);
             if (is_valid(L1Dcache_entry)) {
-              // The block is in the wrong L1, put the request on the queue to the shared L2
-              trigger(Event:L1_Replacement, in_msg.LineAddress,
-                      L1Dcache_entry, TBEs[in_msg.LineAddress]);
+              trigger(Event:L1_Replacement, in_msg.LineAddress, L1Dcache_entry, TBEs[in_msg.LineAddress]);
             }
 
             if (L1Icache.cacheAvail(in_msg.LineAddress)) {
-              // L1 does't have the line, but we have space for it
-              // in the L1 so let's see if the L2 has it.
-              trigger(mandatory_request_type_to_event(in_msg.Type), in_msg.LineAddress,
-                      L1Icache_entry, TBEs[in_msg.LineAddress]);
+              trigger(mandatory_request_type_to_event(in_msg.Type), in_msg.LineAddress, L1Icache_entry, TBEs[in_msg.LineAddress]);
             } else {
-              // No room in the L1, so we need to make room in the L1
-
-              // Check if the line we want to evict is not locked
               Addr addr := L1Icache.cacheProbe(in_msg.LineAddress);
               check_on_cache_probe(mandatoryQueue_in, addr);
-
-              trigger(Event:L1_Replacement, addr,
-                      getL1ICacheEntry(addr),
-                      TBEs[addr]);
+              trigger(Event:L1_Replacement, addr, getL1ICacheEntry(addr), TBEs[addr]);
             }
           }
         } else {
-
-          // *** DATA ACCESS ***
+          // --- DATA ACCESS PATH ---
           Entry L1Dcache_entry := getL1DCacheEntry(in_msg.LineAddress);
-          if (is_valid(L1Dcache_entry)) {
-            // The tag matches for the L1, so the L1 ask the L2 for it
-            trigger(mandatory_request_type_to_event(in_msg.Type), in_msg.LineAddress,
-                    L1Dcache_entry, TBEs[in_msg.LineAddress]);
-          } else {
 
-            // Check to see if it is in the OTHER L1
+          if (is_valid(L1Dcache_entry)) {
+            if (L1Dcache_entry.m_is_expired) {
+              // Target is a Zombie. Force replacement to notify L2.
+              trigger(Event:L1_Replacement, in_msg.LineAddress, L1Dcache_entry, TBEs[in_msg.LineAddress]);
+            } else {
+              // Normal Hit
+              trigger(mandatory_request_type_to_event(in_msg.Type), in_msg.LineAddress, L1Dcache_entry, TBEs[in_msg.LineAddress]);
+            }
+          } else {
+            // True Miss. Check cross-contamination: is it in the I-cache?
             Entry L1Icache_entry := getL1ICacheEntry(in_msg.LineAddress);
             if (is_valid(L1Icache_entry)) {
-              // The block is in the wrong L1, put the request on the queue to the shared L2
-              trigger(Event:L1_Replacement, in_msg.LineAddress,
-                      L1Icache_entry, TBEs[in_msg.LineAddress]);
+              trigger(Event:L1_Replacement, in_msg.LineAddress, L1Icache_entry, TBEs[in_msg.LineAddress]);
             }
 
             if (L1Dcache.cacheAvail(in_msg.LineAddress)) {
-              // L1 does't have the line, but we have space for it
-              // in the L1 let's see if the L2 has it.
-              trigger(mandatory_request_type_to_event(in_msg.Type), in_msg.LineAddress,
-                      L1Dcache_entry, TBEs[in_msg.LineAddress]);
+              trigger(mandatory_request_type_to_event(in_msg.Type), in_msg.LineAddress, L1Dcache_entry, TBEs[in_msg.LineAddress]);
             } else {
-              // No room in the L1, so we need to make room in the L1
-
-              // Check if the line we want to evict is not locked
               Addr addr := L1Dcache.cacheProbe(in_msg.LineAddress);
               check_on_cache_probe(mandatoryQueue_in, addr);
-
-              trigger(Event:L1_Replacement, addr,
-                      getL1DCacheEntry(addr),
-                      TBEs[addr]);
+              trigger(Event:L1_Replacement, addr, getL1DCacheEntry(addr), TBEs[addr]);
             }
           }
         }
@@ -915,14 +980,33 @@ machine(MachineType:L1Cache, "MESI Directory L1 Cache CMP")
     cache_entry.Dirty := true;
   }
 
-  action(i_allocateTBE, "i", desc="Allocate TBE (isPrefetch=0, number of invalidates=0)") {
-    check_allocate(TBEs);
-    assert(is_valid(cache_entry));
-    TBEs.allocate(address);
-    set_tbe(TBEs[address]);
-    tbe.isPrefetch := false;
-    tbe.Dirty := cache_entry.Dirty;
-    tbe.DataBlk := cache_entry.DataBlk;
+  // action(i_allocateTBE, "i", desc="Allocate TBE (isPrefetch=0, number of invalidates=0)") {
+  //   check_allocate(TBEs);
+  //   assert(is_valid(cache_entry));
+  //   TBEs.allocate(address);
+  //   set_tbe(TBEs[address]);
+  //   tbe.isPrefetch := false;
+  //   tbe.Dirty := cache_entry.Dirty;
+  //   tbe.DataBlk := cache_entry.DataBlk;
+  // }
+
+  action(i_allocateTBE, "i", desc="Allocate TBE") {
+      check_allocate(TBEs);
+      TBEs.allocate(address);
+      set_tbe(TBEs[address]);
+      tbe.isPrefetch := false;
+
+      // --- PROTECTIVE CHECK ---
+      // Only copy DataBlk if the cache_entry is valid AND holds real data.
+      // If it is I, NP, or Expired, the DataBlock contains stale garbage.
+      if (is_valid(cache_entry)) {
+          if (cache_entry.CacheState != State:I && 
+              cache_entry.CacheState != State:NP && 
+              !cache_entry.m_is_expired) {
+              tbe.DataBlk := cache_entry.DataBlk;
+              tbe.Dirty := cache_entry.Dirty;
+          }
+      }
   }
 
   action(k_popMandatoryQueue, "k", desc="Pop mandatory queue.") {
@@ -964,12 +1048,22 @@ machine(MachineType:L1Cache, "MESI Directory L1 Cache CMP")
     }
   }
 
-  action(ff_deallocateL1CacheBlock, "\f", desc="Deallocate L1 cache block.  Sets the cache to not present, allowing a replacement in parallel with a fetch.") {
-    if (L1Dcache.isTagPresent(address)) {
-      L1Dcache.deallocate(address);
-    } else {
-      L1Icache.deallocate(address);
-    }
+  //action(ff_deallocateL1CacheBlock, "\f", desc="Deallocate L1 cache block.  Sets the cache to not present, allowing a replacement in parallel with a fetch.") {
+  //  if (L1Dcache.isTagPresent(address)) {
+  //    L1Dcache.deallocate(address);
+  //  } else {
+  //    L1Icache.deallocate(address);
+  //  }
+  //  unset_cache_entry();
+  //}
+
+  action(ff_deallocateL1CacheBlock, "\f", desc="Deallocate L1 cache block. Sets the cache to not present, allowing a replacement in parallel with a fetch.") {
+    // Because expired blocks return false for isTagPresent(), we bypass the
+    // if/else check and safely attempt deallocation on both caches.
+    // The updated C++ CacheMemory::deallocate() will gracefully ignore misses.
+    L1Dcache.deallocate(address);
+    L1Icache.deallocate(address);
+    
     unset_cache_entry();
   }
 
@@ -1062,6 +1156,12 @@ machine(MachineType:L1Cache, "MESI Directory L1 Cache CMP")
   action(ll_markLoadLinked, "llm", desc="Set the isLoadLinked flag.") {
       assert(is_valid(tbe));
       tbe.isLoadLinked := true;
+  }
+
+  // NEW
+  action(ze_clearExpiration, "ze", desc="Clear expiration flag on new allocation") {
+    assert(is_valid(cache_entry));
+    cache_entry.m_is_expired := false;
   }
 
   //*****************************************************

@@ -155,8 +155,10 @@ CacheMemory::CacheMemory(const Params &p, const std::string &cache_level_call)
   // Retention Zone Table tests
   if (m_num_of_retention_zones == 1) {
     m_retention_table.push_back(m_low_retention);
+    m_low_retention_zone_type = p.low_retention_type;
   } else if (m_num_of_retention_zones == 2) {
     m_retention_table.push_back(m_low_retention);
+    m_low_retention_zone_type = p.low_retention_type;
     m_retention_table.push_back(m_high_retention);
   } else {
     m_retention_table.push_back(m_low_retention);
@@ -224,6 +226,12 @@ void CacheMemory::init() {
     for (int j = 0; j < m_cache_assoc; j++) {
       replacement_data[i][j] = m_replacementPolicy_ptr->instantiateEntry();
     }
+  }
+
+  int num_chunks = m_cache_num_sets / 4;
+  m_chunk.resize(num_chunks);
+  for (int i = 0; i < num_chunks; i++) {
+    m_chunk[i] = {0, 0};
   }
 }
 
@@ -412,19 +420,12 @@ bool CacheMemory::isTagPresent(Addr address) const {
 //   a) a tag match on this address or there is
 //   b) an unused line in the same cache "way"
 bool CacheMemory::cacheAvail(Addr address) const {
-  assert(address == makeLineAddress(address));
-
   int64_t cacheSet = addressToCacheSet(address);
-
   for (int i = 0; i < m_cache_assoc; i++) {
     AbstractCacheEntry *entry = m_cache[cacheSet][i];
-    if (entry != NULL) {
-      if (entry->m_Address == address ||
-          entry->m_Permission == AccessPermission_NotPresent) {
-        // Already in the cache or we found an empty entry
-        return true;
-      }
-    } else {
+    // Expired lines must NOT be treated as available slots until SLICC replaces
+    // them.
+    if (entry == NULL || entry->m_Permission == AccessPermission_NotPresent) {
       return true;
     }
   }
@@ -433,56 +434,64 @@ bool CacheMemory::cacheAvail(Addr address) const {
 
 AbstractCacheEntry *CacheMemory::allocate(Addr address,
                                           AbstractCacheEntry *entry) {
-  assert(address == makeLineAddress(address));
-  assert(!isTagPresent(address));
-  assert(cacheAvail(address));
-  DPRINTF(RubyCache, "allocating address: %#x\n", address);
-
-  entry->initBlockSize(m_block_size);
-  entry->setRubySystem(m_ruby_system);
-
-  // Find the first open slot
   int64_t cacheSet = addressToCacheSet(address);
   std::vector<AbstractCacheEntry *> &set = m_cache[cacheSet];
+
   for (int i = 0; i < m_cache_assoc; i++) {
-    if (!set[i] || set[i]->m_Permission == AccessPermission_NotPresent) {
-      if (set[i] && (set[i] != entry)) {
-        warn_once("This protocol contains a cache entry handling bug: "
-                  "Entries in the cache should never be NotPresent! If\n"
-                  "this entry (%#x) is not tracked elsewhere, it will memory "
-                  "leak here. Fix your protocol to eliminate these!",
-                  address);
+    // Find an empty, NotPresent, or Expired slot
+    if (!set[i] || set[i]->m_is_expired ||
+        set[i]->m_Permission == AccessPermission_NotPresent) {
+
+      if (set[i] != nullptr) {
+        // 1. Remove the OLD address from the tag index before overwriting
+        m_tag_index.erase(set[i]->m_Address);
+
+        // NOTE: We DO NOT reset getDataBlk() here anymore.
+        // Destroying the DataBlock breaks gem5's memory management.
+
+        // 2. Cleanup the new entry pointer provided by SLICC since we reuse
+        // set[i]
+        if (set[i] != entry) {
+          delete entry;
+        }
+      } else {
+        set[i] = entry;
+        set[i]->replacementData = replacement_data[cacheSet][i];
       }
-      set[i] = entry; // Init entry
+
+      // Initialize the "new" entry
       set[i]->m_Address = address;
+      set[i]->m_is_expired = false;
       set[i]->m_Permission = AccessPermission_Invalid;
-      DPRINTF(RubyCache, "Allocate clearing lock for addr: 0x%x\n", address);
-      set[i]->m_locked = -1;
       m_tag_index[address] = i;
-      set[i]->setPosition(cacheSet, i);
-      set[i]->replacementData = replacement_data[cacheSet][i];
+
       set[i]->setLastAccess(curTick());
+      set[i]->m_last_refresh_tick = curTick();
+      m_replacementPolicy_ptr->reset(set[i]->replacementData);
 
-      // Call reset function here to set initial value for different
-      // replacement policies.
-      m_replacementPolicy_ptr->reset(entry->replacementData);
-
-      return entry;
+      return set[i];
     }
   }
-  panic("Allocate didn't find an available entry");
+  panic("Set %d is full. No expired or invalid blocks to evict.", cacheSet);
 }
 
 void CacheMemory::deallocate(Addr address) {
   DPRINTF(RubyCache, "deallocating address: %#x\n", address);
-  AbstractCacheEntry *entry = lookup(address);
-  assert(entry != nullptr);
-  m_replacementPolicy_ptr->invalidate(entry->replacementData);
-  uint32_t cache_set = entry->getSet();
-  uint32_t way = entry->getWay();
-  delete entry;
-  m_cache[cache_set][way] = NULL;
-  m_tag_index.erase(address);
+  int64_t cacheSet = addressToCacheSet(address);
+
+  // Find the block physically, ignoring whether it is a "Zombie"
+  // (Expired/NotPresent)
+  int loc = findTagInSetIgnorePermissions(cacheSet, address);
+
+  // Safely deallocate if found, otherwise do nothing
+  if (loc != -1) {
+    AbstractCacheEntry *entry = m_cache[cacheSet][loc];
+    m_replacementPolicy_ptr->invalidate(entry->replacementData);
+
+    delete entry;
+    m_cache[cacheSet][loc] = NULL;
+    m_tag_index.erase(address);
+  }
 }
 
 // Returns with the physical address of the conflicting cache line
@@ -510,28 +519,50 @@ void CacheMemory::regStats() {
 
   cacheMemoryStats.m_data_array_stalls.name(name() + ".data_array_stalls")
       .desc("Number of times a request stalled due to bank contention");
+
+  int num_chunks = m_cache_num_sets / 4;
+  cacheMemoryStats.m_chunk_reads.init(num_chunks);
+  cacheMemoryStats.m_chunk_writes.init(num_chunks);
 }
 
-// looks an address up in the cache
 AbstractCacheEntry *CacheMemory::lookup(Addr address) {
-  // std::cout << "CacheMemory::lookup() called for address: "
-  //           << std::hex << address << std::dec << '\n';
-  assert(address == makeLineAddress(address));
   int64_t cacheSet = addressToCacheSet(address);
   int loc = findTagInSet(cacheSet, address);
   if (loc == -1)
     return NULL;
-  return m_cache[cacheSet][loc];
+
+  AbstractCacheEntry *entry = m_cache[cacheSet][loc];
+  if (entry != NULL) {
+    if (entry->m_retention_limit > 0 && !entry->m_is_expired) {
+      if (curTick() > (entry->m_last_refresh_tick + entry->m_retention_limit)) {
+        entry->m_is_expired = true;
+        // DO NOT change m_Permission here. Let SLICC handle the eviction.
+      }
+    }
+    // DO NOT return NULL if expired. SLICC needs the pointer to run the
+    // replacement.
+  }
+  return entry;
 }
 
-// looks an address up in the cache
 const AbstractCacheEntry *CacheMemory::lookup(Addr address) const {
   assert(address == makeLineAddress(address));
   int64_t cacheSet = addressToCacheSet(address);
   int loc = findTagInSet(cacheSet, address);
+
   if (loc == -1)
     return NULL;
-  return m_cache[cacheSet][loc];
+
+  const AbstractCacheEntry *entry = m_cache[cacheSet][loc];
+  if (entry != NULL) {
+    // Passive check for expiry
+    if (entry->m_retention_limit > 0 &&
+        curTick() > (entry->m_last_refresh_tick + entry->m_retention_limit)) {
+      // Return the entry anyway so SLICC knows what state it was in
+      return entry;
+    }
+  }
+  return entry;
 }
 
 // Sets the most recently used bit for a cache block
@@ -697,7 +728,9 @@ CacheMemory::CacheMemoryStats::CacheMemoryStats(statistics::Group *parent)
                m_prefetch_hits + m_prefetch_misses),
       ADD_STAT(m_accessModeType, ""),
       ADD_STAT(m_accesses_per_set,
-               "Number of accesses per individual set index") {
+               "Number of accesses per individual set index"),
+      ADD_STAT(m_chunk_reads, "Number of accesses per individual set index"),
+      ADD_STAT(m_chunk_writes, "Number of accesses per individual set index") {
   numDataArrayReads.flags(statistics::nozero);
 
   numDataArrayWrites.flags(statistics::nozero);
@@ -753,25 +786,62 @@ void CacheMemory::recordRequestType(CacheRequestType requestType, Addr addr) {
   cacheMemoryStats.m_accesses_per_set[cacheSet]++;
 
   int retention_threshold = getRetentionZone(cacheSet);
+  int chunkID = getChunkId(cacheSet);
+
+  // --- CHANGE 1: Find entry even if it is a Zombie ---
+  // Standard lookup() returns NULL for zombies. We need the actual pointer
+  // to "resurrect" it if this is a Write.
+  int loc = findTagInSetIgnorePermissions(cacheSet, addr);
+  AbstractCacheEntry *entry = (loc != -1) ? m_cache[cacheSet][loc] : nullptr;
+
+  // CRITICAL: Update the last access time regardless of the request type.
+  if (entry != nullptr) {
+    entry->setLastAccess(curTick());
+  }
 
   switch (requestType) {
   case CacheRequestType_DataArrayRead:
     if (m_resource_stalls) {
       Cycles accessLatency =
           m_retention_table[retention_threshold].data.read_latency;
-
       dataArray.reserve(addressToCacheSet(addr), accessLatency);
     }
     cacheMemoryStats.numDataArrayReads++;
+    m_chunk[chunkID].reads++;
+    cacheMemoryStats.m_chunk_reads[chunkID]++;
     return;
 
   case CacheRequestType_DataArrayWrite:
+    if (entry != nullptr) {
+      // Physical Magnet Reset
+      entry->m_last_refresh_tick = curTick();
+
+      // --- CHANGE 2: Resurrect the Zombie ---
+      // A write physically re-magnetizes the cell. It is no longer expired.
+      entry->m_is_expired = false;
+      // Also restore permission so the protocol knows it's valid again
+      entry->m_Permission = AccessPermission_Read_Write;
+
+      if (retention_threshold == 0)
+        entry->m_retention_limit = m_RETENTION_ZONE_1;
+      else if (retention_threshold == 1)
+        entry->m_retention_limit = m_RETENTION_ZONE_2;
+      else if (retention_threshold == 2)
+        entry->m_retention_limit = m_RETENTION_ZONE_3;
+      else
+        entry->m_retention_limit = m_RETENTION_ZONE_4;
+
+      DPRINTF(RubyCache, "RETENTION_RESET: Addr %#x refreshed to tick %lld\n",
+              addr, entry->m_last_refresh_tick);
+    }
     if (m_resource_stalls) {
       Cycles accessLatency =
           m_retention_table[retention_threshold].data.write_latency;
       dataArray.reserve(addressToCacheSet(addr), accessLatency);
     }
     cacheMemoryStats.numDataArrayWrites++;
+    m_chunk[chunkID].writes++;
+    cacheMemoryStats.m_chunk_writes[chunkID]++;
     return;
 
   case CacheRequestType_TagArrayRead:
@@ -781,15 +851,42 @@ void CacheMemory::recordRequestType(CacheRequestType requestType, Addr addr) {
       tagArray.reserve(addressToCacheSet(addr), accessLatency);
     }
     cacheMemoryStats.numTagArrayReads++;
+    m_chunk[chunkID].reads++;
+    cacheMemoryStats.m_chunk_reads[chunkID]++;
     return;
 
   case CacheRequestType_TagArrayWrite:
+    if (entry != nullptr) {
+      // Physical Magnet Reset
+      entry->m_last_refresh_tick = curTick();
+
+      // --- CHANGE 3: Resurrect the Zombie ---
+      entry->m_is_expired = false;
+      // Tag writes usually happen during state transitions; restore stability
+      if (entry->m_Permission == AccessPermission_NotPresent) {
+        entry->m_Permission = AccessPermission_Invalid;
+      }
+
+      if (retention_threshold == 0)
+        entry->m_retention_limit = m_RETENTION_ZONE_1;
+      else if (retention_threshold == 1)
+        entry->m_retention_limit = m_RETENTION_ZONE_2;
+      else if (retention_threshold == 2)
+        entry->m_retention_limit = m_RETENTION_ZONE_3;
+      else
+        entry->m_retention_limit = m_RETENTION_ZONE_4;
+
+      DPRINTF(RubyCache, "RETENTION_RESET: Addr %#x refreshed to tick %lld\n",
+              addr, entry->m_last_refresh_tick);
+    }
     if (m_resource_stalls) {
       Cycles accessLatency =
           m_retention_table[retention_threshold].tag.write_latency;
       tagArray.reserve(addressToCacheSet(addr), accessLatency);
     }
     cacheMemoryStats.numTagArrayWrites++;
+    m_chunk[chunkID].writes++;
+    cacheMemoryStats.m_chunk_writes[chunkID]++;
     return;
 
   case CacheRequestType_AtomicALUOperation:

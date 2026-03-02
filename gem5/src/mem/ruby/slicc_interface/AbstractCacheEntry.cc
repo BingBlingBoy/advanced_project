@@ -43,88 +43,61 @@
 #include "base/trace.hh"
 #include "debug/RubyCache.hh"
 
-namespace gem5
-{
+namespace gem5 {
 
-namespace ruby
-{
+namespace ruby {
 
-AbstractCacheEntry::AbstractCacheEntry() : ReplaceableEntry()
-{
-    m_Permission = AccessPermission_NotPresent;
-    m_Address = 0;
-    m_locked = -1;
-    m_last_touch_tick = 0;
-    m_htmInReadSet = false;
-    m_htmInWriteSet = false;
+AbstractCacheEntry::AbstractCacheEntry() : ReplaceableEntry() {
+  m_Permission = AccessPermission_NotPresent;
+  m_Address = 0;
+  m_locked = -1;
+  m_last_touch_tick = 0;
+  m_htmInReadSet = false;
+  m_htmInWriteSet = false;
+
+  m_is_expired = false;
+  m_last_refresh_tick = curTick();      // Set to current time on birth
+  m_retention_limit = 2000000000000ULL; // Default to 2 seconds
 }
 
-AbstractCacheEntry::~AbstractCacheEntry()
-{
-}
+AbstractCacheEntry::~AbstractCacheEntry() {}
 
 // Get cache permission
-AccessPermission
-AbstractCacheEntry::getPermission() const
-{
-    return m_Permission;
+AccessPermission AbstractCacheEntry::getPermission() const {
+  return m_Permission;
 }
 
-void
-AbstractCacheEntry::changePermission(AccessPermission new_perm)
-{
-    m_Permission = new_perm;
-    if ((new_perm == AccessPermission_Invalid) ||
-        (new_perm == AccessPermission_NotPresent)) {
-        m_locked = -1;
-    }
-}
-
-void
-AbstractCacheEntry::setLocked(int context)
-{
-    DPRINTF(RubyCache, "Setting Lock for addr: %#x to %d\n", m_Address, context);
-    m_locked = context;
-}
-
-void
-AbstractCacheEntry::clearLocked()
-{
-    DPRINTF(RubyCache, "Clear Lock for addr: %#x\n", m_Address);
+void AbstractCacheEntry::changePermission(AccessPermission new_perm) {
+  m_Permission = new_perm;
+  if ((new_perm == AccessPermission_Invalid) ||
+      (new_perm == AccessPermission_NotPresent)) {
     m_locked = -1;
+  }
 }
 
-bool
-AbstractCacheEntry::isLocked(int context) const
-{
-    DPRINTF(RubyCache, "Testing Lock for addr: %#llx cur %d con %d\n",
-            m_Address, m_locked, context);
-    return m_locked == context;
+void AbstractCacheEntry::setLocked(int context) {
+  DPRINTF(RubyCache, "Setting Lock for addr: %#x to %d\n", m_Address, context);
+  m_locked = context;
 }
 
-void
-AbstractCacheEntry::setInHtmReadSet(bool val)
-{
-    m_htmInReadSet = val;
+void AbstractCacheEntry::clearLocked() {
+  DPRINTF(RubyCache, "Clear Lock for addr: %#x\n", m_Address);
+  m_locked = -1;
 }
 
-void
-AbstractCacheEntry::setInHtmWriteSet(bool val)
-{
-    m_htmInWriteSet = val;
+bool AbstractCacheEntry::isLocked(int context) const {
+  DPRINTF(RubyCache, "Testing Lock for addr: %#llx cur %d con %d\n", m_Address,
+          m_locked, context);
+  return m_locked == context;
 }
 
-bool
-AbstractCacheEntry::getInHtmReadSet() const
-{
-    return m_htmInReadSet;
-}
+void AbstractCacheEntry::setInHtmReadSet(bool val) { m_htmInReadSet = val; }
 
-bool
-AbstractCacheEntry::getInHtmWriteSet() const
-{
-    return m_htmInWriteSet;
-}
+void AbstractCacheEntry::setInHtmWriteSet(bool val) { m_htmInWriteSet = val; }
+
+bool AbstractCacheEntry::getInHtmReadSet() const { return m_htmInReadSet; }
+
+bool AbstractCacheEntry::getInHtmWriteSet() const { return m_htmInWriteSet; }
 
 } // namespace ruby
 } // namespace gem5

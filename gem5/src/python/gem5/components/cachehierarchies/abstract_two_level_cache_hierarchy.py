@@ -46,6 +46,7 @@ class AbstractTwoLevelCacheHierarchy:
         low_retention_tag_read_latency: int,
         low_retention_data_write_latency: int,
         low_retention_tag_write_latency: int,
+        low_retention_type: int,
 
         mediumlow_retention_data_read_latency: int,
         mediumlow_retention_tag_read_latency: int,
@@ -88,6 +89,7 @@ class AbstractTwoLevelCacheHierarchy:
         self._low_retention_tag_read_latency = low_retention_tag_read_latency
         self._low_retention_data_write_latency = low_retention_data_write_latency
         self._low_retention_tag_write_latency = low_retention_tag_write_latency
+        self._low_retention_type = low_retention_type 
 
         self._mediumlow_retention_data_read_latency = mediumlow_retention_data_read_latency
         self._mediumlow_retention_tag_read_latency = mediumlow_retention_tag_read_latency

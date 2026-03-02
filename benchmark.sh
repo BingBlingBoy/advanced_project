@@ -2,7 +2,9 @@
 
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
+
 #SBATCH --time=71:59:00
+##SBATCH --time=03:00:00
 #SBATCH --mem=32GB
 
 ##SBATCH -p long
@@ -20,15 +22,20 @@ VARIANT=opt
 
 BENCHMARK=$1
 HARDWARE=$2
-INPUT=${BENCHMARK}_16c_simmedium.rcS
-# INPUT=${BENCHMARK}_16c_test.rcS
+INPUT=$3
 
 OUTPUT_LOG=OUTPUT/${BENCHMARK}
 mkdir -p ${OUTPUT_LOG}
 
 module load gcc
 
+if [ ! -f ${PARSEC_BENCHMARKS_DIR}/parsec-2.1-alpha-files/${INPUT} ]; then
+    echo "${INPUT} not found"
+    exit 2
+fi
+
 # LOG_FILE="${OUTPUT_LOG}/${HARDWARE}.log"
+# --debug-flags=RubyCache,RubyGenerated,RubySlicc --debug-start=1515900000 \
 
 singularity exec \
     --bind $GEM5_DIR:/gem5 \

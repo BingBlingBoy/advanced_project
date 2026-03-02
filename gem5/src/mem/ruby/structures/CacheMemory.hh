@@ -160,6 +160,8 @@ public:
   int getStartIndex() const { return m_start_index_bit; }
   int getBlockSize() const { return m_block_size; }
   int getNumBlocks() const { return m_cache_num_sets * m_cache_assoc; }
+  int getChunkId(int64_t cacheSet) const { return cacheSet / 4; };
+
   Addr getAddressAtIdx(int idx) const;
 
   // Get latency of the current set
@@ -209,6 +211,14 @@ private:
   // Latency
   int m_num_of_retention_zones;
   std::vector<int> m_thresholds;
+  const Tick m_RETENTION_ZONE_1 = 1000000000ULL;    // 0.001s (1ms)
+  const Tick m_RETENTION_ZONE_2 = 10000000000ULL;   // 0.01s  (10ms)
+  const Tick m_RETENTION_ZONE_3 = 100000000000ULL;  // 0.1s   (100ms)
+  const Tick m_RETENTION_ZONE_4 = 1000000000000ULL; // 1.0s   (1000ms)
+  int m_low_retention_zone_type;
+  int m_mediumlow_retention_zone_type;
+  int m_mediumhigh_retention_zone_type;
+  int m_high_retention_zone_type;
 
   struct AccessLatency {
     Cycles read_latency;
@@ -218,6 +228,7 @@ private:
   struct LatencyType {
     AccessLatency data;
     AccessLatency tag;
+    Tick retention_limit_ticks;
   };
 
   LatencyType m_low_retention;
@@ -226,6 +237,13 @@ private:
   LatencyType m_high_retention;
 
   std::vector<LatencyType> m_retention_table;
+
+  struct ChunkInfo {
+    long long reads;
+    long long writes;
+  };
+
+  std::vector<ChunkInfo> m_chunk;
 
   /**
    * We store all the ReplacementData in a 2-dimensional array. By doing
@@ -280,6 +298,9 @@ private:
 
     statistics::Vector m_accesses_per_set;
     statistics::Scalar m_data_array_stalls;
+
+    statistics::Vector m_chunk_reads;
+    statistics::Vector m_chunk_writes;
   } cacheMemoryStats;
 
 public:

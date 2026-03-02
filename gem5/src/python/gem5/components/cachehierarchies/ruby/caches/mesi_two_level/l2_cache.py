@@ -56,6 +56,7 @@ class L2Cache(MESI_Two_Level_L2Cache_Controller):
         low_retention_tag_read_latency,
         low_retention_data_write_latency,
         low_retention_tag_write_latency,
+        low_retention_type,
 
         mediumlow_retention_data_read_latency,
         mediumlow_retention_tag_read_latency,
@@ -94,6 +95,7 @@ class L2Cache(MESI_Two_Level_L2Cache_Controller):
             low_retention_tag_read_latency=low_retention_tag_read_latency,
             low_retention_data_write_latency=low_retention_data_write_latency,
             low_retention_tag_write_latency=low_retention_tag_write_latency,
+            low_retention_type=low_retention_type,
 
             mediumlow_retention_data_read_latency = mediumlow_retention_data_read_latency,
             mediumlow_retention_tag_read_latency = mediumlow_retention_tag_read_latency,

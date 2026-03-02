@@ -72,6 +72,8 @@ class RubyCache(SimObject):
             1, "cycles write access for low retention for data array")
     low_retention_tag_write_latency = Param.Cycles(
             1, "cycles write access for low retention for tag array")
+    low_retention_type = Param.Int(
+            1, "Type of retenzion zone")
 
     mediumlow_retention_data_read_latency = Param.Cycles(
             1, "cycles read access for mediumlow retention for data array")

@@ -1,52 +1,16 @@
-Reading data from ./gem5/configs/PARSEC/4MiB_SRAM_ISO_AREA/blackscholes/ipc_log.csv.gz...
-Graph saved successfully to: ./GRAPHS/blackscholes/blackscholes_4MiB_SRAM_ipc_graph.svg
-Reading data from ./gem5/configs/PARSEC/4MiB_SRAM_ISO_AREA/blackscholes/set_access_log.csv.gz...
-Constructing Data Matrix...
-Filtering data: Showing only Time > 5.0s
-Generating Heatmap...
-Color scale max set to: 35100.07999999996 hits
-Graph saved to: ./GRAPHS/blackscholes/blackscholes_4MiB_SRAM_set_accesses_graph.png
-Reading data from ./gem5/configs/PARSEC/4MiB_SRAM_ISO_AREA/blackscholes/l2_stats_log.csv.gz...
-Filtering data: Showing only Time > 5.0s
-Saved: ./GRAPHS/blackscholes/blackscholes_4MiB_SRAM_l2_writes.svg
-Saved: ./GRAPHS/blackscholes/blackscholes_4MiB_SRAM_l2_stalls.svg
-Saved: ./GRAPHS/blackscholes/blackscholes_4MiB_SRAM_l2_misses.svg
-Reading data from ./gem5/configs/PARSEC/4MiB_STTRAM/blackscholes/ipc_log.csv.gz...
-Graph saved successfully to: ./GRAPHS/blackscholes/blackscholes_4MiB_STTRAM_ipc_graph.svg
-Reading data from ./gem5/configs/PARSEC/4MiB_STTRAM/blackscholes/set_access_log.csv.gz...
-Constructing Data Matrix...
-Filtering data: Showing only Time > 5.0s
-Generating Heatmap...
-Color scale max set to: 33140.0 hits
-Graph saved to: ./GRAPHS/blackscholes/blackscholes_4MiB_STTRAM_set_accesses_graph.png
-Reading data from ./gem5/configs/PARSEC/4MiB_STTRAM/blackscholes/l2_stats_log.csv.gz...
-Filtering data: Showing only Time > 5.0s
-Saved: ./GRAPHS/blackscholes/blackscholes_4MiB_STTRAM_l2_writes.svg
-Saved: ./GRAPHS/blackscholes/blackscholes_4MiB_STTRAM_l2_stalls.svg
-Saved: ./GRAPHS/blackscholes/blackscholes_4MiB_STTRAM_l2_misses.svg
-Reading data from ./gem5/configs/PARSEC/8MiB_SRAM_ISO_CAP/blackscholes/ipc_log.csv.gz...
-Graph saved successfully to: ./GRAPHS/blackscholes/blackscholes_8MiB_SRAM_ipc_graph.svg
-Reading data from ./gem5/configs/PARSEC/8MiB_SRAM_ISO_CAP/blackscholes/set_access_log.csv.gz...
-Constructing Data Matrix...
-Filtering data: Showing only Time > 5.0s
-Generating Heatmap...
-Color scale max set to: 25525.879999999976 hits
-Graph saved to: ./GRAPHS/blackscholes/blackscholes_8MiB_SRAM_set_accesses_graph.png
-Reading data from ./gem5/configs/PARSEC/8MiB_SRAM_ISO_CAP/blackscholes/l2_stats_log.csv.gz...
-Filtering data: Showing only Time > 5.0s
-Saved: ./GRAPHS/blackscholes/blackscholes_8MiB_SRAM_l2_writes.svg
-Saved: ./GRAPHS/blackscholes/blackscholes_8MiB_SRAM_l2_stalls.svg
-Saved: ./GRAPHS/blackscholes/blackscholes_8MiB_SRAM_l2_misses.svg
-Reading data from ./gem5/configs/PARSEC/8MiB_STTRAM/blackscholes/ipc_log.csv.gz...
-Graph saved successfully to: ./GRAPHS/blackscholes/blackscholes_8MiB_STTRAM_ipc_graph.svg
-Reading data from ./gem5/configs/PARSEC/8MiB_STTRAM/blackscholes/set_access_log.csv.gz...
-Constructing Data Matrix...
-Filtering data: Showing only Time > 5.0s
-Generating Heatmap...
-Color scale max set to: 28934.0 hits
-Graph saved to: ./GRAPHS/blackscholes/blackscholes_8MiB_STTRAM_set_accesses_graph.png
-Reading data from ./gem5/configs/PARSEC/8MiB_STTRAM/blackscholes/l2_stats_log.csv.gz...
-Filtering data: Showing only Time > 5.0s
-Saved: ./GRAPHS/blackscholes/blackscholes_8MiB_STTRAM_l2_writes.svg
-Saved: ./GRAPHS/blackscholes/blackscholes_8MiB_STTRAM_l2_stalls.svg
-Saved: ./GRAPHS/blackscholes/blackscholes_8MiB_STTRAM_l2_misses.svg
+Parsing Chunk Data: ./gem5/configs/PARSEC/4MiB_SRAM/blackscholes/chunk.csv.gz (Filtering t > 5s)
+Graphs generated successfully for 4MiB_SRAM starting at 5s
+Parsing Chunk Data for Spatial Plot: ./gem5/configs/PARSEC/4MiB_SRAM/blackscholes/chunk.csv.gz
+Spatial bar plot saved to: OUTPUT/GRAPHS/blackscholes/spatial_bars_4MiB_SRAM_blackscholes.png
+Parsing Chunk Data: ./gem5/configs/PARSEC/4MiB_STTRAM/blackscholes/chunk.csv.gz (Filtering t > 5s)
+Graphs generated successfully for 4MiB_STTRAM starting at 5s
+Parsing Chunk Data for Spatial Plot: ./gem5/configs/PARSEC/4MiB_STTRAM/blackscholes/chunk.csv.gz
+Spatial bar plot saved to: OUTPUT/GRAPHS/blackscholes/spatial_bars_4MiB_STTRAM_blackscholes.png
+Parsing Chunk Data: ./gem5/configs/PARSEC/8MiB_SRAM/blackscholes/chunk.csv.gz (Filtering t > 5s)
+Graphs generated successfully for 8MiB_SRAM starting at 5s
+Parsing Chunk Data for Spatial Plot: ./gem5/configs/PARSEC/8MiB_SRAM/blackscholes/chunk.csv.gz
+Spatial bar plot saved to: OUTPUT/GRAPHS/blackscholes/spatial_bars_8MiB_SRAM_blackscholes.png
+Parsing Chunk Data: ./gem5/configs/PARSEC/8MiB_STTRAM/blackscholes/chunk.csv.gz (Filtering t > 5s)
+Graphs generated successfully for 8MiB_STTRAM starting at 5s
+Parsing Chunk Data for Spatial Plot: ./gem5/configs/PARSEC/8MiB_STTRAM/blackscholes/chunk.csv.gz
+Spatial bar plot saved to: OUTPUT/GRAPHS/blackscholes/spatial_bars_8MiB_STTRAM_blackscholes.png
