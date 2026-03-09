@@ -14,3 +14,5 @@ NVSim
 OUTPUT
 *GRAPHS
 gem5/configs/ARCHIVE_PARSEC/
+.venv
+.cache

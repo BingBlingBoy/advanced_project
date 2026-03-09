@@ -7,6 +7,11 @@
 
 set -e
 
+if [[ $# -eq 0 ]]; then
+    echo "Provide a benchmark"
+    exit 1
+fi
+
 BENCHMARK=$1
 RUN_SCRIPT=./benchmark.sh
 INPUT=${BENCHMARK}_16c_simmedium.rcS
@@ -17,6 +22,6 @@ mkdir -p ${OUTPUT_LOG}
 
 module load gcc
 
-for HARDWARE in "1MiB_SRAM" "1MiB_STTRAM"; do
+for HARDWARE in "4MiB_SRAM" "4MiB_1RET_STTRAM" "4MiB_2RET_STTRAM" "4MiB_3RET_STTRAM" "4MiB_4RET_STTRAM"; do
     sbatch --output=${OUTPUT_LOG}/${HARDWARE}.log -J ${BENCHMARK}_${HARDWARE} ${RUN_SCRIPT} ${BENCHMARK} ${HARDWARE} ${INPUT}
 done

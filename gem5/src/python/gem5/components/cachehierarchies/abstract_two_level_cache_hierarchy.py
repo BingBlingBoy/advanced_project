@@ -41,27 +41,31 @@ class AbstractTwoLevelCacheHierarchy:
         l2_assoc: int,
         percentage_of_low_retention_sets: float,
         num_of_retention_zones: int,
+        is_sttram: bool,
 
         low_retention_data_read_latency: int,
         low_retention_tag_read_latency: int,
         low_retention_data_write_latency: int,
         low_retention_tag_write_latency: int,
-        low_retention_type: int,
+        low_retention_limit: int,
 
         mediumlow_retention_data_read_latency: int,
         mediumlow_retention_tag_read_latency: int,
         mediumlow_retention_data_write_latency: int,
         mediumlow_retention_tag_write_latency: int,
+        mediumlow_retention_limit: int,
 
         mediumhigh_retention_data_read_latency: int,
         mediumhigh_retention_tag_read_latency: int,
         mediumhigh_retention_data_write_latency: int,
         mediumhigh_retention_tag_write_latency: int,
+        mediumhigh_retention_limit: int,
 
         high_retention_data_read_latency: int,
         high_retention_tag_read_latency: int,
         high_retention_data_write_latency: int,
         high_retention_tag_write_latency: int,
+        high_retention_limit: int,
     ):
         """
         :param l1i_size: The size of the L1 Instruction cache (e.g. "32KiB").
@@ -84,24 +88,28 @@ class AbstractTwoLevelCacheHierarchy:
         self._l2_assoc = l2_assoc
         self._percent_of_low_retention_sets = percentage_of_low_retention_sets
         self._num_of_retention_zones = num_of_retention_zones
+        self._is_sttram = is_sttram
 
         self._low_retention_data_read_latency = low_retention_data_read_latency
         self._low_retention_tag_read_latency = low_retention_tag_read_latency
         self._low_retention_data_write_latency = low_retention_data_write_latency
         self._low_retention_tag_write_latency = low_retention_tag_write_latency
-        self._low_retention_type = low_retention_type 
+        self._low_retention_limit = low_retention_limit
 
         self._mediumlow_retention_data_read_latency = mediumlow_retention_data_read_latency
         self._mediumlow_retention_tag_read_latency = mediumlow_retention_tag_read_latency
         self._mediumlow_retention_data_write_latency = mediumlow_retention_data_write_latency
         self._mediumlow_retention_tag_write_latency = mediumlow_retention_tag_write_latency
+        self._mediumlow_retention_limit = mediumlow_retention_limit
 
         self._mediumhigh_retention_data_read_latency = mediumhigh_retention_data_read_latency
         self._mediumhigh_retention_tag_read_latency = mediumhigh_retention_tag_read_latency
         self._mediumhigh_retention_data_write_latency = mediumhigh_retention_data_write_latency
         self._mediumhigh_retention_tag_write_latency = mediumhigh_retention_tag_write_latency
+        self._mediumhigh_retention_limit = mediumhigh_retention_limit
 
         self._high_retention_data_read_latency = high_retention_data_read_latency
         self._high_retention_tag_read_latency = high_retention_tag_read_latency
         self._high_retention_data_write_latency = high_retention_data_write_latency
         self._high_retention_tag_write_latency = high_retention_tag_write_latency
+        self._high_retention_limit = high_retention_limit

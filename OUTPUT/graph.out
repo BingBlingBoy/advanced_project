@@ -1,16 +1,61 @@
+Reading data from ./gem5/configs/PARSEC/4MiB_SRAM/blackscholes/ipc_log.csv.gz...
+Graph saved successfully to: OUTPUT/GRAPHS/blackscholes/blackscholes_4MiB_SRAM_ipc_graph.svg
 Parsing Chunk Data: ./gem5/configs/PARSEC/4MiB_SRAM/blackscholes/chunk.csv.gz (Filtering t > 5s)
 Graphs generated successfully for 4MiB_SRAM starting at 5s
 Parsing Chunk Data for Spatial Plot: ./gem5/configs/PARSEC/4MiB_SRAM/blackscholes/chunk.csv.gz
 Spatial bar plot saved to: OUTPUT/GRAPHS/blackscholes/spatial_bars_4MiB_SRAM_blackscholes.png
-Parsing Chunk Data: ./gem5/configs/PARSEC/4MiB_STTRAM/blackscholes/chunk.csv.gz (Filtering t > 5s)
-Graphs generated successfully for 4MiB_STTRAM starting at 5s
-Parsing Chunk Data for Spatial Plot: ./gem5/configs/PARSEC/4MiB_STTRAM/blackscholes/chunk.csv.gz
-Spatial bar plot saved to: OUTPUT/GRAPHS/blackscholes/spatial_bars_4MiB_STTRAM_blackscholes.png
+Reading data from ./gem5/configs/PARSEC/4MiB_1RET_STTRAM/blackscholes/ipc_log.csv.gz...
+Graph saved successfully to: OUTPUT/GRAPHS/blackscholes/blackscholes_4MiB_1RET_STTRAM_ipc_graph.svg
+Parsing Chunk Data: ./gem5/configs/PARSEC/4MiB_1RET_STTRAM/blackscholes/chunk.csv.gz (Filtering t > 5s)
+Graphs generated successfully for 4MiB_1RET_STTRAM starting at 5s
+Parsing Chunk Data for Spatial Plot: ./gem5/configs/PARSEC/4MiB_1RET_STTRAM/blackscholes/chunk.csv.gz
+Spatial bar plot saved to: OUTPUT/GRAPHS/blackscholes/spatial_bars_4MiB_1RET_STTRAM_blackscholes.png
+Reading data from ./gem5/configs/PARSEC/4MiB_2RET_STTRAM/blackscholes/ipc_log.csv.gz...
+Graph saved successfully to: OUTPUT/GRAPHS/blackscholes/blackscholes_4MiB_2RET_STTRAM_ipc_graph.svg
+Parsing Chunk Data: ./gem5/configs/PARSEC/4MiB_2RET_STTRAM/blackscholes/chunk.csv.gz (Filtering t > 5s)
+Graphs generated successfully for 4MiB_2RET_STTRAM starting at 5s
+Parsing Chunk Data for Spatial Plot: ./gem5/configs/PARSEC/4MiB_2RET_STTRAM/blackscholes/chunk.csv.gz
+Spatial bar plot saved to: OUTPUT/GRAPHS/blackscholes/spatial_bars_4MiB_2RET_STTRAM_blackscholes.png
+Reading data from ./gem5/configs/PARSEC/4MiB_3RET_STTRAM/blackscholes/ipc_log.csv.gz...
+Graph saved successfully to: OUTPUT/GRAPHS/blackscholes/blackscholes_4MiB_3RET_STTRAM_ipc_graph.svg
+Parsing Chunk Data: ./gem5/configs/PARSEC/4MiB_3RET_STTRAM/blackscholes/chunk.csv.gz (Filtering t > 5s)
+Graphs generated successfully for 4MiB_3RET_STTRAM starting at 5s
+Parsing Chunk Data for Spatial Plot: ./gem5/configs/PARSEC/4MiB_3RET_STTRAM/blackscholes/chunk.csv.gz
+Spatial bar plot saved to: OUTPUT/GRAPHS/blackscholes/spatial_bars_4MiB_3RET_STTRAM_blackscholes.png
+Reading data from ./gem5/configs/PARSEC/4MiB_4RET_STTRAM/blackscholes/ipc_log.csv.gz...
+Graph saved successfully to: OUTPUT/GRAPHS/blackscholes/blackscholes_4MiB_4RET_STTRAM_ipc_graph.svg
+Parsing Chunk Data: ./gem5/configs/PARSEC/4MiB_4RET_STTRAM/blackscholes/chunk.csv.gz (Filtering t > 5s)
+Graphs generated successfully for 4MiB_4RET_STTRAM starting at 5s
+Parsing Chunk Data for Spatial Plot: ./gem5/configs/PARSEC/4MiB_4RET_STTRAM/blackscholes/chunk.csv.gz
+Spatial bar plot saved to: OUTPUT/GRAPHS/blackscholes/spatial_bars_4MiB_4RET_STTRAM_blackscholes.png
+Reading data from ./gem5/configs/PARSEC/8MiB_SRAM/blackscholes/ipc_log.csv.gz...
+Graph saved successfully to: OUTPUT/GRAPHS/blackscholes/blackscholes_8MiB_SRAM_ipc_graph.svg
 Parsing Chunk Data: ./gem5/configs/PARSEC/8MiB_SRAM/blackscholes/chunk.csv.gz (Filtering t > 5s)
 Graphs generated successfully for 8MiB_SRAM starting at 5s
 Parsing Chunk Data for Spatial Plot: ./gem5/configs/PARSEC/8MiB_SRAM/blackscholes/chunk.csv.gz
 Spatial bar plot saved to: OUTPUT/GRAPHS/blackscholes/spatial_bars_8MiB_SRAM_blackscholes.png
-Parsing Chunk Data: ./gem5/configs/PARSEC/8MiB_STTRAM/blackscholes/chunk.csv.gz (Filtering t > 5s)
-Graphs generated successfully for 8MiB_STTRAM starting at 5s
-Parsing Chunk Data for Spatial Plot: ./gem5/configs/PARSEC/8MiB_STTRAM/blackscholes/chunk.csv.gz
-Spatial bar plot saved to: OUTPUT/GRAPHS/blackscholes/spatial_bars_8MiB_STTRAM_blackscholes.png
+Reading data from ./gem5/configs/PARSEC/8MiB_1RET_STTRAM/blackscholes/ipc_log.csv.gz...
+Graph saved successfully to: OUTPUT/GRAPHS/blackscholes/blackscholes_8MiB_1RET_STTRAM_ipc_graph.svg
+Parsing Chunk Data: ./gem5/configs/PARSEC/8MiB_1RET_STTRAM/blackscholes/chunk.csv.gz (Filtering t > 5s)
+Graphs generated successfully for 8MiB_1RET_STTRAM starting at 5s
+Parsing Chunk Data for Spatial Plot: ./gem5/configs/PARSEC/8MiB_1RET_STTRAM/blackscholes/chunk.csv.gz
+Spatial bar plot saved to: OUTPUT/GRAPHS/blackscholes/spatial_bars_8MiB_1RET_STTRAM_blackscholes.png
+Reading data from ./gem5/configs/PARSEC/8MiB_2RET_STTRAM/blackscholes/ipc_log.csv.gz...
+Graph saved successfully to: OUTPUT/GRAPHS/blackscholes/blackscholes_8MiB_2RET_STTRAM_ipc_graph.svg
+Parsing Chunk Data: ./gem5/configs/PARSEC/8MiB_2RET_STTRAM/blackscholes/chunk.csv.gz (Filtering t > 5s)
+Graphs generated successfully for 8MiB_2RET_STTRAM starting at 5s
+Parsing Chunk Data for Spatial Plot: ./gem5/configs/PARSEC/8MiB_2RET_STTRAM/blackscholes/chunk.csv.gz
+Spatial bar plot saved to: OUTPUT/GRAPHS/blackscholes/spatial_bars_8MiB_2RET_STTRAM_blackscholes.png
+Reading data from ./gem5/configs/PARSEC/8MiB_3RET_STTRAM/blackscholes/ipc_log.csv.gz...
+Graph saved successfully to: OUTPUT/GRAPHS/blackscholes/blackscholes_8MiB_3RET_STTRAM_ipc_graph.svg
+Parsing Chunk Data: ./gem5/configs/PARSEC/8MiB_3RET_STTRAM/blackscholes/chunk.csv.gz (Filtering t > 5s)
+Graphs generated successfully for 8MiB_3RET_STTRAM starting at 5s
+Parsing Chunk Data for Spatial Plot: ./gem5/configs/PARSEC/8MiB_3RET_STTRAM/blackscholes/chunk.csv.gz
+Spatial bar plot saved to: OUTPUT/GRAPHS/blackscholes/spatial_bars_8MiB_3RET_STTRAM_blackscholes.png
+Reading data from ./gem5/configs/PARSEC/8MiB_4RET_STTRAM/blackscholes/ipc_log.csv.gz...
+Graph saved successfully to: OUTPUT/GRAPHS/blackscholes/blackscholes_8MiB_4RET_STTRAM_ipc_graph.svg
+Parsing Chunk Data: ./gem5/configs/PARSEC/8MiB_4RET_STTRAM/blackscholes/chunk.csv.gz (Filtering t > 5s)
+Graphs generated successfully for 8MiB_4RET_STTRAM starting at 5s
+Parsing Chunk Data for Spatial Plot: ./gem5/configs/PARSEC/8MiB_4RET_STTRAM/blackscholes/chunk.csv.gz
+Spatial bar plot saved to: OUTPUT/GRAPHS/blackscholes/spatial_bars_8MiB_4RET_STTRAM_blackscholes.png
+DONE

@@ -64,6 +64,8 @@ class RubyCache(SimObject):
     num_of_retention_zones = Param.Int(
             1, "num_of_retention_zones")
 
+    is_sttram = Param.Bool(False, "if the cache is SRAM or STT-RAM")
+
     low_retention_data_read_latency = Param.Cycles(
             1, "cycles read access for low retention for data array")
     low_retention_tag_read_latency  = Param.Cycles(
@@ -72,8 +74,7 @@ class RubyCache(SimObject):
             1, "cycles write access for low retention for data array")
     low_retention_tag_write_latency = Param.Cycles(
             1, "cycles write access for low retention for tag array")
-    low_retention_type = Param.Int(
-            1, "Type of retenzion zone")
+    low_retention_limit = Param.Tick(0, "maximum retention zone limit")
 
     mediumlow_retention_data_read_latency = Param.Cycles(
             1, "cycles read access for mediumlow retention for data array")
@@ -83,6 +84,7 @@ class RubyCache(SimObject):
             1, "cycles write access for mediumlow retention for data array")
     mediumlow_retention_tag_write_latency = Param.Cycles(
             1, "cycles write access for mediumlow retention for tag array")
+    mediumlow_retention_limit = Param.Tick(0, "maximum retention zone limit")
 
     mediumhigh_retention_data_read_latency = Param.Cycles(
             1, "cycles read access for mediumhigh retention for data array")
@@ -92,6 +94,7 @@ class RubyCache(SimObject):
             1, "cycles write access for mediumhigh retention for data array")
     mediumhigh_retention_tag_write_latency = Param.Cycles(
             1, "cycles write access for mediumhigh retention for tag array")
+    mediumhigh_retention_limit = Param.Tick(0, "maximum retention zone limit")
 
     high_retention_data_read_latency = Param.Cycles(
             1, "cycles read access for write retention for data array")
@@ -101,6 +104,7 @@ class RubyCache(SimObject):
             1, "cycles write access for write retention for data array")
     high_retention_tag_write_latency = Param.Cycles(
             1, "cycles write access for write retention for tag array")
+    high_retention_limit = Param.Tick(0, "maximum retention zone limit")
 
 
 class L1CacheMemory(RubyCache):

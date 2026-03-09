@@ -44,6 +44,7 @@
 #include "base/compiler.hh"
 #include "base/intmath.hh"
 #include "base/logging.hh"
+#include "base/sat_counter.hh"
 #include "debug/HtmMem.hh"
 #include "debug/RubyCache.hh"
 #include "debug/RubyCacheTrace.hh"
@@ -70,7 +71,8 @@ CacheMemory::CacheMemory(const Params &p, const std::string &cache_level_call)
     : SimObject(p), m_ruby_system(p.ruby_system),
       dataArray(p.dataArrayBanks, p.start_index_bit),
       tagArray(p.tagArrayBanks, p.start_index_bit),
-      atomicALUArray(p.atomicALUs, p.atomicLatency), cacheMemoryStats(this) {
+      atomicALUArray(p.atomicALUs, p.atomicLatency), m_sat_counter(4, 0),
+      cacheMemoryStats(this) {
   m_cache_size = p.size;
   m_cache_assoc = p.assoc;
   m_replacementPolicy_ptr = p.replacement_policy;
@@ -83,8 +85,22 @@ CacheMemory::CacheMemory(const Params &p, const std::string &cache_level_call)
           ? true
           : false;
 
+  m_RETENTION_ZONE_1 = p.low_retention_limit;
+  m_RETENTION_ZONE_2 = p.mediumlow_retention_limit;
+  m_RETENTION_ZONE_3 = p.mediumhigh_retention_limit;
+  m_RETENTION_ZONE_4 = p.high_retention_limit;
+
   m_cache_level_call = cache_level_call;
   std::cout << "Cache Level Call: " << m_cache_level_call << '\n';
+
+  m_is_sttram = p.is_sttram; // Type of hardware
+  std::cout << "Is STT-RAM mode enabled: " << (m_is_sttram ? "True" : "False")
+            << '\n';
+
+  std::cout << "RETENTION_ZONE_1: " << m_RETENTION_ZONE_1 << '\n';
+  std::cout << "RETENTION_ZONE_2: " << m_RETENTION_ZONE_2 << '\n';
+  std::cout << "RETENTION_ZONE_3: " << m_RETENTION_ZONE_3 << '\n';
+  std::cout << "RETENTION_ZONE_4: " << m_RETENTION_ZONE_4 << '\n';
 
   m_num_of_retention_zones = p.num_of_retention_zones;
 
@@ -92,6 +108,7 @@ CacheMemory::CacheMemory(const Params &p, const std::string &cache_level_call)
   m_low_retention.tag.read_latency = p.low_retention_tag_read_latency;
   m_low_retention.data.write_latency = p.low_retention_data_write_latency;
   m_low_retention.tag.write_latency = p.low_retention_tag_write_latency;
+  m_low_retention.time = m_RETENTION_ZONE_1;
 
   std::cout << "Low retention data read latency: "
             << m_low_retention.data.read_latency << '\n';
@@ -101,6 +118,9 @@ CacheMemory::CacheMemory(const Params &p, const std::string &cache_level_call)
             << m_low_retention.data.write_latency << '\n';
   std::cout << "Low retention tag write latency: "
             << m_low_retention.tag.write_latency << '\n';
+  std::cout << "Low retention time: " << m_low_retention.time << '\n';
+
+  std::cout << '\n';
 
   m_mediumlow_retention.data.read_latency =
       p.mediumlow_retention_data_read_latency;
@@ -110,6 +130,7 @@ CacheMemory::CacheMemory(const Params &p, const std::string &cache_level_call)
       p.mediumlow_retention_data_write_latency;
   m_mediumlow_retention.tag.write_latency =
       p.mediumlow_retention_tag_write_latency;
+  m_mediumlow_retention.time = m_RETENTION_ZONE_2;
 
   std::cout << "Mediumlow retention data read latency: "
             << m_mediumlow_retention.data.read_latency << '\n';
@@ -119,6 +140,9 @@ CacheMemory::CacheMemory(const Params &p, const std::string &cache_level_call)
             << m_mediumlow_retention.data.write_latency << '\n';
   std::cout << "Mediumlow retention tag write latency: "
             << m_mediumlow_retention.tag.write_latency << '\n';
+  std::cout << "Mediumlow retention time: " << m_mediumlow_retention.time
+            << '\n';
+  std::cout << '\n';
 
   m_mediumhigh_retention.data.read_latency =
       p.mediumhigh_retention_data_read_latency;
@@ -128,6 +152,7 @@ CacheMemory::CacheMemory(const Params &p, const std::string &cache_level_call)
       p.mediumhigh_retention_data_write_latency;
   m_mediumhigh_retention.tag.write_latency =
       p.mediumhigh_retention_tag_write_latency;
+  m_mediumhigh_retention.time = m_RETENTION_ZONE_3;
 
   std::cout << "Mediumhigh retention data read latency: "
             << m_mediumhigh_retention.data.read_latency << '\n';
@@ -137,11 +162,15 @@ CacheMemory::CacheMemory(const Params &p, const std::string &cache_level_call)
             << m_mediumhigh_retention.data.write_latency << '\n';
   std::cout << "Mediumhigh retention tag write latency: "
             << m_mediumhigh_retention.tag.write_latency << '\n';
+  std::cout << "Mediumhigh retention time: " << m_mediumhigh_retention.time
+            << '\n';
+  std::cout << '\n';
 
   m_high_retention.data.read_latency = p.high_retention_data_read_latency;
   m_high_retention.tag.read_latency = p.high_retention_tag_read_latency;
   m_high_retention.data.write_latency = p.high_retention_data_write_latency;
   m_high_retention.tag.write_latency = p.high_retention_tag_write_latency;
+  m_high_retention.time = m_RETENTION_ZONE_4;
 
   std::cout << "High retention data read latency: "
             << m_high_retention.data.read_latency << '\n';
@@ -151,14 +180,18 @@ CacheMemory::CacheMemory(const Params &p, const std::string &cache_level_call)
             << m_high_retention.data.write_latency << '\n';
   std::cout << "High retention tag write latency: "
             << m_high_retention.tag.write_latency << '\n';
+  std::cout << "High retention time: " << m_high_retention.time << '\n';
+  std::cout << '\n';
 
   // Retention Zone Table tests
   if (m_num_of_retention_zones == 1) {
     m_retention_table.push_back(m_low_retention);
-    m_low_retention_zone_type = p.low_retention_type;
   } else if (m_num_of_retention_zones == 2) {
     m_retention_table.push_back(m_low_retention);
-    m_low_retention_zone_type = p.low_retention_type;
+    m_retention_table.push_back(m_high_retention);
+  } else if (m_num_of_retention_zones == 3) {
+    m_retention_table.push_back(m_low_retention);
+    m_retention_table.push_back(m_mediumlow_retention);
     m_retention_table.push_back(m_high_retention);
   } else {
     m_retention_table.push_back(m_low_retention);
@@ -233,6 +266,8 @@ void CacheMemory::init() {
   for (int i = 0; i < num_chunks; i++) {
     m_chunk[i] = {0, 0};
   }
+
+  m_chunk_counters.resize(num_chunks, SatCounter8(4, 0));
 }
 
 CacheMemory::~CacheMemory() {
@@ -251,7 +286,7 @@ int CacheMemory::getRetentionZone(int64_t cacheSet) const {
       return i;
     }
   }
-  return 0;
+  return m_num_of_retention_zones - 1;
 }
 
 Cycles CacheMemory::getRetentionLatency(CacheRequestType requestType,
@@ -438,18 +473,14 @@ AbstractCacheEntry *CacheMemory::allocate(Addr address,
   std::vector<AbstractCacheEntry *> &set = m_cache[cacheSet];
 
   for (int i = 0; i < m_cache_assoc; i++) {
-    // Find an empty, NotPresent, or Expired slot
-    if (!set[i] || set[i]->m_is_expired ||
-        set[i]->m_Permission == AccessPermission_NotPresent) {
 
+    // Find an empty or NotPresent slot
+    if (!set[i] || set[i]->m_Permission == AccessPermission_NotPresent) {
       if (set[i] != nullptr) {
-        // 1. Remove the OLD address from the tag index before overwriting
+        // Remove the OLD address from the tag index before overwriting
         m_tag_index.erase(set[i]->m_Address);
 
-        // NOTE: We DO NOT reset getDataBlk() here anymore.
-        // Destroying the DataBlock breaks gem5's memory management.
-
-        // 2. Cleanup the new entry pointer provided by SLICC since we reuse
+        // Cleanup the new entry pointer provided by SLICC since we reuse
         // set[i]
         if (set[i] != entry) {
           delete entry;
@@ -465,6 +496,18 @@ AbstractCacheEntry *CacheMemory::allocate(Addr address,
       set[i]->m_Permission = AccessPermission_Invalid;
       m_tag_index[address] = i;
 
+      if (!m_is_sttram) {
+        set[i]->m_retention_limit = 0;
+      } else {
+        int retention_threshold = getRetentionZone(cacheSet);
+        Tick total_retention_time = m_retention_table[retention_threshold].time;
+        set[i]->m_retention_limit = total_retention_time;
+        // std::cout << "Set retention limit: " << set[i]->m_retention_limit
+        //           << '\n';
+      }
+
+      DPRINTF(RubyCache, "ALLOCATE: Addr %#x assigned retention limit: %llu\n",
+              address, set[i]->m_retention_limit);
       set[i]->setLastAccess(curTick());
       set[i]->m_last_refresh_tick = curTick();
       m_replacementPolicy_ptr->reset(set[i]->replacementData);
@@ -500,6 +543,14 @@ Addr CacheMemory::cacheProbe(Addr address) const {
   assert(!cacheAvail(address));
 
   int64_t cacheSet = addressToCacheSet(address);
+
+  // If there is an expired block, evict it
+  for (int i = 0; i < m_cache_assoc; i++) {
+    if (m_cache[cacheSet][i] && m_cache[cacheSet][i]->m_is_expired) {
+      return m_cache[cacheSet][i]->m_Address;
+    }
+  }
+
   std::vector<ReplaceableEntry *> candidates;
   for (int i = 0; i < m_cache_assoc; i++) {
     candidates.push_back(static_cast<ReplaceableEntry *>(m_cache[cacheSet][i]));
@@ -536,11 +587,8 @@ AbstractCacheEntry *CacheMemory::lookup(Addr address) {
     if (entry->m_retention_limit > 0 && !entry->m_is_expired) {
       if (curTick() > (entry->m_last_refresh_tick + entry->m_retention_limit)) {
         entry->m_is_expired = true;
-        // DO NOT change m_Permission here. Let SLICC handle the eviction.
       }
     }
-    // DO NOT return NULL if expired. SLICC needs the pointer to run the
-    // replacement.
   }
   return entry;
 }
@@ -815,22 +863,19 @@ void CacheMemory::recordRequestType(CacheRequestType requestType, Addr addr) {
     if (entry != nullptr) {
       // Physical Magnet Reset
       entry->m_last_refresh_tick = curTick();
-
-      // --- CHANGE 2: Resurrect the Zombie ---
-      // A write physically re-magnetizes the cell. It is no longer expired.
       entry->m_is_expired = false;
-      // Also restore permission so the protocol knows it's valid again
-      entry->m_Permission = AccessPermission_Read_Write;
 
-      if (retention_threshold == 0)
-        entry->m_retention_limit = m_RETENTION_ZONE_1;
-      else if (retention_threshold == 1)
-        entry->m_retention_limit = m_RETENTION_ZONE_2;
-      else if (retention_threshold == 2)
-        entry->m_retention_limit = m_RETENTION_ZONE_3;
-      else
-        entry->m_retention_limit = m_RETENTION_ZONE_4;
+      // Acts as a reset, such that newly written data doesn't get expired
+      if (!m_is_sttram) {
+        entry->m_retention_limit = 0;
+      } else {
+        int retention_threshold = getRetentionZone(cacheSet);
+        Tick total_retention_time = m_retention_table[retention_threshold].time;
+        entry->m_retention_limit = total_retention_time;
+      }
 
+      DPRINTF(RubyCache, "ALLOCATE: Addr %#x assigned retention limit: %llu\n",
+              addr, entry->m_retention_limit);
       DPRINTF(RubyCache, "RETENTION_RESET: Addr %#x refreshed to tick %lld\n",
               addr, entry->m_last_refresh_tick);
     }
@@ -859,23 +904,19 @@ void CacheMemory::recordRequestType(CacheRequestType requestType, Addr addr) {
     if (entry != nullptr) {
       // Physical Magnet Reset
       entry->m_last_refresh_tick = curTick();
-
-      // --- CHANGE 3: Resurrect the Zombie ---
       entry->m_is_expired = false;
-      // Tag writes usually happen during state transitions; restore stability
-      if (entry->m_Permission == AccessPermission_NotPresent) {
-        entry->m_Permission = AccessPermission_Invalid;
+
+      // Acts as a reset, such that newly written data doesn't get expired
+      if (!m_is_sttram) {
+        entry->m_retention_limit = 0;
+      } else {
+        int retention_threshold = getRetentionZone(cacheSet);
+        Tick total_retention_time = m_retention_table[retention_threshold].time;
+        entry->m_retention_limit = total_retention_time;
       }
 
-      if (retention_threshold == 0)
-        entry->m_retention_limit = m_RETENTION_ZONE_1;
-      else if (retention_threshold == 1)
-        entry->m_retention_limit = m_RETENTION_ZONE_2;
-      else if (retention_threshold == 2)
-        entry->m_retention_limit = m_RETENTION_ZONE_3;
-      else
-        entry->m_retention_limit = m_RETENTION_ZONE_4;
-
+      DPRINTF(RubyCache, "ALLOCATE: Addr %#x assigned retention limit: %llu\n",
+              addr, entry->m_retention_limit);
       DPRINTF(RubyCache, "RETENTION_RESET: Addr %#x refreshed to tick %lld\n",
               addr, entry->m_last_refresh_tick);
     }

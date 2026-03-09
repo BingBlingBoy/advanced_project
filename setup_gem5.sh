@@ -33,3 +33,14 @@ singularity exec \
     --bind $PARSEC_BENCHMARKS_DIR:/parsec \
     $SIF_PATH \
     bash -c "cd /gem5 &&  scons build/$ISA/compile_commands.json -j52"
+
+echo "Applying Neovim LSP and SSHFS path fixes..."
+
+JSON_FILE="$GEM5_DIR/build/$ISA/compile_commands.json"
+
+sed -i.bak 's|"directory": "/gem5"|"directory": "/home/ckdbarnz/.ssh/sesh/gem5"|g' "$JSON_FILE"
+
+cd $GEM5_DIR
+ln -sf build/$ISA/compile_commands.json compile_commands.json
+
+echo "Compilation and path formatting complete. Ready for Neovim!"

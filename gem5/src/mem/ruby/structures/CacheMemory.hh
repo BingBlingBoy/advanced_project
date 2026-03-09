@@ -51,6 +51,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "base/sat_counter.hh"
 #include "base/statistics.hh"
 #include "mem/cache/replacement_policies/base.hh"
 #include "mem/cache/replacement_policies/replaceable_entry.hh"
@@ -183,6 +184,9 @@ private:
   CacheMemory &operator=(const CacheMemory &obj);
 
 private:
+  // Hardware type
+  bool m_is_sttram;
+
   // Data Members (m_prefix)
   bool m_is_instruction_only_cache;
 
@@ -211,14 +215,11 @@ private:
   // Latency
   int m_num_of_retention_zones;
   std::vector<int> m_thresholds;
-  const Tick m_RETENTION_ZONE_1 = 1000000000ULL;    // 0.001s (1ms)
-  const Tick m_RETENTION_ZONE_2 = 10000000000ULL;   // 0.01s  (10ms)
-  const Tick m_RETENTION_ZONE_3 = 100000000000ULL;  // 0.1s   (100ms)
-  const Tick m_RETENTION_ZONE_4 = 1000000000000ULL; // 1.0s   (1000ms)
-  int m_low_retention_zone_type;
-  int m_mediumlow_retention_zone_type;
-  int m_mediumhigh_retention_zone_type;
-  int m_high_retention_zone_type;
+
+  Tick m_RETENTION_ZONE_1; // 0.001s (1ms)
+  Tick m_RETENTION_ZONE_2; // 0.01s  (10ms)
+  Tick m_RETENTION_ZONE_3; // 0.1s   (100ms)
+  Tick m_RETENTION_ZONE_4; // 1.0s   (1000ms)
 
   struct AccessLatency {
     Cycles read_latency;
@@ -228,7 +229,7 @@ private:
   struct LatencyType {
     AccessLatency data;
     AccessLatency tag;
-    Tick retention_limit_ticks;
+    Tick time;
   };
 
   LatencyType m_low_retention;
@@ -244,6 +245,9 @@ private:
   };
 
   std::vector<ChunkInfo> m_chunk;
+
+  // Saturation Counter
+  std::vector<SatCounter8> m_chunk_counters;
 
   /**
    * We store all the ReplacementData in a 2-dimensional array. By doing

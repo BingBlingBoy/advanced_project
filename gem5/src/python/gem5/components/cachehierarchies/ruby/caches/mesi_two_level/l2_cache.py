@@ -51,27 +51,31 @@ class L2Cache(MESI_Two_Level_L2Cache_Controller):
         cache_line_size,
         percentage_of_low_retention_sets,
         num_of_retention_zones,
+        is_sttram,
 
         low_retention_data_read_latency,
         low_retention_tag_read_latency,
         low_retention_data_write_latency,
         low_retention_tag_write_latency,
-        low_retention_type,
+        low_retention_limit,
 
         mediumlow_retention_data_read_latency,
         mediumlow_retention_tag_read_latency,
         mediumlow_retention_data_write_latency,
         mediumlow_retention_tag_write_latency,
+        mediumlow_retention_limit,
 
         mediumhigh_retention_data_read_latency,
         mediumhigh_retention_tag_read_latency,
         mediumhigh_retention_data_write_latency,
         mediumhigh_retention_tag_write_latency,
+        mediumhigh_retention_limit,
 
         high_retention_data_read_latency,
         high_retention_tag_read_latency,
         high_retention_data_write_latency,
-        high_retention_tag_write_latency
+        high_retention_tag_write_latency,
+        high_retention_limit,
     ):
         super().__init__()
 
@@ -83,6 +87,8 @@ class L2Cache(MESI_Two_Level_L2Cache_Controller):
         #       percentage_of_low_retention_sets)
 
         # This is the cache memory object that stores the cache data and tags
+        print(f"PYTHON L2 cache Is STT-RAM: {is_sttram}")
+
         self.L2cache = L2CacheMemory(
             size=l2_size,
             assoc=l2_assoc,
@@ -90,27 +96,31 @@ class L2Cache(MESI_Two_Level_L2Cache_Controller):
             resourceStalls=True,
             percentage_of_low_retention_sets=percentage_of_low_retention_sets,
             num_of_retention_zones=num_of_retention_zones,
+            is_sttram=is_sttram,
 
             low_retention_data_read_latency=low_retention_data_read_latency,
             low_retention_tag_read_latency=low_retention_tag_read_latency,
             low_retention_data_write_latency=low_retention_data_write_latency,
             low_retention_tag_write_latency=low_retention_tag_write_latency,
-            low_retention_type=low_retention_type,
+            low_retention_limit=low_retention_limit,
 
             mediumlow_retention_data_read_latency = mediumlow_retention_data_read_latency,
             mediumlow_retention_tag_read_latency = mediumlow_retention_tag_read_latency,
             mediumlow_retention_data_write_latency = mediumlow_retention_data_write_latency,
             mediumlow_retention_tag_write_latency = mediumlow_retention_tag_write_latency,
+            mediumlow_retention_limit=mediumlow_retention_limit,
 
             mediumhigh_retention_data_read_latency = mediumhigh_retention_data_read_latency,
             mediumhigh_retention_tag_read_latency = mediumhigh_retention_tag_read_latency,
             mediumhigh_retention_data_write_latency = mediumhigh_retention_data_write_latency,
             mediumhigh_retention_tag_write_latency = mediumhigh_retention_tag_write_latency,
+            mediumhigh_retention_limit=mediumhigh_retention_limit,
 
             high_retention_data_read_latency=high_retention_data_read_latency,
             high_retention_tag_read_latency=high_retention_tag_read_latency,
             high_retention_data_write_latency=high_retention_data_write_latency,
             high_retention_tag_write_latency=high_retention_tag_write_latency,
+            high_retention_limit=high_retention_limit
         )
 
         self.transitions_per_cycle = 4
