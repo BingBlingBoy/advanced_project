@@ -34,8 +34,7 @@ By allowing L2 blocks to naturally expire and die, we were destroying the direct
 
 === Lookup
 ```
-  if (m_cache_level_call != "L2cache" &&
-      entry->m_Permission != AccessPermission_Busy) {
+  if (entry->m_Permission != AccessPermission_Busy) {
     if (curTick() > (entry->m_last_refresh_tick + entry->m_retention_limit)) {
       entry->m_is_expired = true;
     }
@@ -71,24 +70,37 @@ Strictly updating the math offset rather than trying to physically teleport poin
 === addressToCacheSet
 ```
 if (redir_it != m_chunk_redirection_table.end()) {
-    int max_lr_set = m_thresholds[1];
-    int64_t redirected_set = (default_set + redir_it->second) % max_lr_set;
 
-    auto tag_it = m_tag_index.find(address);
-    if (tag_it != m_tag_index.end()) {
-      int way = tag_it->second;
+  int64_t redirected_set = default_set;
 
-      // 1. The "Find the Dead Body" Check
-      if (m_cache[default_set][way] != nullptr &&
-          m_cache[default_set][way]->m_Address == address) {
-        return default_set;
-      }
-    }
-    // 2. The Clean Redirect
-    return redirected_set;
+  if (default_set >= m_thresholds[2]) {
+    // High retention to Medium low retention
+    redirected_set = m_thresholds[0] + redir_it->second;
+
+  } else if (default_set >= m_thresholds[1]) {
+    // Medium-high retention to low retention
+    redirected_set = redir_it->second;
+
+  } else {
+    // If ata low retention then, don't redirect
+    redirected_set = default_set;
   }
+
+  auto tag_it = m_tag_index.find(address);
+  if (tag_it != m_tag_index.end()) {
+    int way = tag_it->second;
+
+    if (m_cache[default_set][way] != nullptr &&
+        m_cache[default_set][way]->m_Address == address) {
+      return default_set; // Keep pointing to the zombie until it's evicted
+    }
+  }
+
+  return redirected_set;
+}
 ```
 What it does: If a page is marked for redirection, it checks the old High Retention (default_set). If the block is physically sitting there, it routes traffic to it. If the block is gone (evicted), it routes all new traffic to the redirected_set.
+If the block to be redirected is a high retention set then it will go to medium-low retention, if it is in medium-high then it will go to low retention.
 
 === findTagInSet
 ```
@@ -100,3 +112,19 @@ m_cache[cacheSet][way]->m_Address == tag) {
 What it does: Provides strict address verification. It ensures that the physical address inside the cache block actually matches the tag the CPU is looking for before returning the way-index. Crucially, it returns this location even if the block is expired.
 
 The Error it Prevents: The Tag Aliasing Bug. This prevents the panic: Invalid transition M, Exclusive_Unblock crash. Before this strict check, if the router pointed to the LR zone but the block hadn't been allocated there yet, this function would blindly return whatever random block was sitting in that index. It handed SLICC the wrong block, causing the state machine to panic.
+
+
+== Questions
+
+=== What if the redirected zones sets are full?
+Step 1: The Search for Empty Space (or Zombies)
+
+When SLICC needs to put a new hot block into the LR zone, it calls your allocate function.
+The function loops through the 8 or 16 "ways" (slots) in that specific cache set. It is desperately looking for two things:
+
++ A slot that is completely empty (AccessPermission_NotPresent).
++ A slot holding a dead body (a Zombie where m_is_expired = true).
+
+If it finds either of these, it overwrites it. No harm, no foul.
+
+Step 2: Fallback to standard LRU due to `cacheProbe`

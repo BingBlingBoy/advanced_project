@@ -371,27 +371,56 @@ int64_t CacheMemory::addressToCacheSet(Addr address) const {
 
   Addr addr_chunk_ID = address >> 12;
   auto redir_it = m_chunk_redirection_table.find(addr_chunk_ID);
-
   if (redir_it != m_chunk_redirection_table.end()) {
-    int max_lr_set = m_thresholds[1];
-    int64_t redirected_set = (default_set + redir_it->second) % max_lr_set;
+
+    int64_t redirected_set = default_set;
+
+    if (default_set >= m_thresholds[2]) {
+      // High retention to Medium low retention
+      redirected_set = m_thresholds[0] + redir_it->second;
+
+    } else if (default_set >= m_thresholds[1]) {
+      // Medium-high retention to low retention
+      redirected_set = redir_it->second;
+
+    } else {
+      // If ata low retention then, don't redirect
+      redirected_set = default_set;
+    }
 
     auto tag_it = m_tag_index.find(address);
     if (tag_it != m_tag_index.end()) {
       int way = tag_it->second;
 
-      // SLICC finds its dead blocks to properly process
-      // coherence snoops and officially evict them.
       if (m_cache[default_set][way] != nullptr &&
           m_cache[default_set][way]->m_Address == address) {
-        return default_set;
+        return default_set; // Keep pointing to the zombie until it's evicted
       }
     }
 
-    // The old block was officially evicted and erased from the tag index.
-    // Safely route future allocations to the new LR zone!
     return redirected_set;
   }
+
+  // if (redir_it != m_chunk_redirection_table.end()) {
+  //   int max_lr_set = m_thresholds[1];
+  //   int64_t redirected_set = (default_set + redir_it->second) % max_lr_set;
+  //
+  //   auto tag_it = m_tag_index.find(address);
+  //   if (tag_it != m_tag_index.end()) {
+  //     int way = tag_it->second;
+  //
+  //     // SLICC finds its dead blocks to properly process
+  //     // coherence snoops and officially evict them.
+  //     if (m_cache[default_set][way] != nullptr &&
+  //         m_cache[default_set][way]->m_Address == address) {
+  //       return default_set;
+  //     }
+  //   }
+  //
+  //   // The old block was officially evicted and erased from the tag index.
+  //   // Safely route future allocations to the new LR zone!
+  //   return redirected_set;
+  // }
 
   return default_set;
 }
