@@ -52,6 +52,7 @@ class L2Cache(MESI_Two_Level_L2Cache_Controller):
         percentage_of_low_retention_sets,
         num_of_retention_zones,
         is_sttram,
+        lazy_redirection_scheme,
 
         low_retention_data_read_latency,
         low_retention_tag_read_latency,
@@ -97,6 +98,7 @@ class L2Cache(MESI_Two_Level_L2Cache_Controller):
             percentage_of_low_retention_sets=percentage_of_low_retention_sets,
             num_of_retention_zones=num_of_retention_zones,
             is_sttram=is_sttram,
+            lazy_redirection_scheme=lazy_redirection_scheme,
 
             low_retention_data_read_latency=low_retention_data_read_latency,
             low_retention_tag_read_latency=low_retention_tag_read_latency,

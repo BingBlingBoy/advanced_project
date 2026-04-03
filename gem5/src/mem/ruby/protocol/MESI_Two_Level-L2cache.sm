@@ -1258,4 +1258,15 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
     o_popIncomingResponseQueue;
     kd_wakeUpDependents;
   }
+
+  // --- RACE CONDITION FIXES ---
+  // If an unblock receipt arrives after the STT-RAM block has already 
+  // naturally expired, safely discard the message.
+  transition(NP, Exclusive_Unblock) {
+    k_popUnblockQueue;
+  }
+
+  transition(NP, Unblock) {
+    k_popUnblockQueue;
+  }
 }

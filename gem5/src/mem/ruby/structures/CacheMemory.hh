@@ -187,6 +187,9 @@ private:
   // Hardware type
   bool m_is_sttram;
 
+  // Redirection scheme
+  bool m_lazy_redirection_scheme;
+
   // Data Members (m_prefix)
   bool m_is_instruction_only_cache;
 
@@ -246,8 +249,24 @@ private:
 
   std::vector<ChunkInfo> m_chunk;
 
-  // Saturation Counter
-  std::vector<SatCounter8> m_chunk_counters;
+  // Address to a 4 bit sat counter (max 15)
+  std::unordered_map<Addr, SatCounter8> m_chunk_counters;
+
+  // Address to a set offset in a low retention zone
+  std::unordered_map<Addr, int> m_chunk_redirection_table;
+
+  std::vector<SatCounter32> m_set_wear_counters;
+  std::vector<int> m_set_wear_offsets;
+
+  // The threshold before we consider a physical set "burnt out"
+  // (e.g., 16 bits = 65,535 writes)
+  const int WEAR_BIT_SIZE = 16;
+
+  // Default of addressToCacheSet
+  int64_t getDefaultSet(Addr address) const {
+    return bitSelect(address, m_start_index_bit,
+                     m_start_index_bit + m_cache_num_set_bits - 1);
+  }
 
   /**
    * We store all the ReplacementData in a 2-dimensional array. By doing

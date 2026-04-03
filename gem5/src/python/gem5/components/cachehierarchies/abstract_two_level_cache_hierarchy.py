@@ -42,6 +42,7 @@ class AbstractTwoLevelCacheHierarchy:
         percentage_of_low_retention_sets: float,
         num_of_retention_zones: int,
         is_sttram: bool,
+        lazy_redirection_scheme: bool,
 
         low_retention_data_read_latency: int,
         low_retention_tag_read_latency: int,
@@ -89,6 +90,7 @@ class AbstractTwoLevelCacheHierarchy:
         self._percent_of_low_retention_sets = percentage_of_low_retention_sets
         self._num_of_retention_zones = num_of_retention_zones
         self._is_sttram = is_sttram
+        self._lazy_redirection_scheme = lazy_redirection_scheme
 
         self._low_retention_data_read_latency = low_retention_data_read_latency
         self._low_retention_tag_read_latency = low_retention_tag_read_latency

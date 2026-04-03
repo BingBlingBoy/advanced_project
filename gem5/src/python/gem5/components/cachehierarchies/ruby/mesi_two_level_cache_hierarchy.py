@@ -73,6 +73,7 @@ class MESITwoLevelCacheHierarchy(
         percentage_of_low_retention_sets: float = 0,
         num_of_retention_zones: int = 1,
         is_sttram: bool = False,
+        lazy_redirection_scheme: bool = False,
 
         low_retention_data_read_latency: int = 1,
         low_retention_tag_read_latency: int = 1,
@@ -111,6 +112,7 @@ class MESITwoLevelCacheHierarchy(
             percentage_of_low_retention_sets=percentage_of_low_retention_sets,
             num_of_retention_zones=num_of_retention_zones,
             is_sttram=is_sttram,
+            lazy_redirection_scheme=lazy_redirection_scheme,
 
             low_retention_data_read_latency=low_retention_data_read_latency,
             low_retention_tag_read_latency=low_retention_tag_read_latency,
@@ -211,6 +213,7 @@ class MESITwoLevelCacheHierarchy(
                 self._percent_of_low_retention_sets,
                 self._num_of_retention_zones,
                 self._is_sttram,
+                self._lazy_redirection_scheme,
 
                 self._low_retention_data_read_latency,
                 self._low_retention_tag_read_latency,

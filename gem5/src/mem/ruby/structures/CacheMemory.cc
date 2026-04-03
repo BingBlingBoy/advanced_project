@@ -53,6 +53,7 @@
 #include "mem/cache/replacement_policies/weighted_lru_rp.hh"
 #include "mem/ruby/protocol/AccessPermission.hh"
 #include "mem/ruby/system/RubySystem.hh"
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
@@ -71,8 +72,7 @@ CacheMemory::CacheMemory(const Params &p, const std::string &cache_level_call)
     : SimObject(p), m_ruby_system(p.ruby_system),
       dataArray(p.dataArrayBanks, p.start_index_bit),
       tagArray(p.tagArrayBanks, p.start_index_bit),
-      atomicALUArray(p.atomicALUs, p.atomicLatency), m_sat_counter(4, 0),
-      cacheMemoryStats(this) {
+      atomicALUArray(p.atomicALUs, p.atomicLatency), cacheMemoryStats(this) {
   m_cache_size = p.size;
   m_cache_assoc = p.assoc;
   m_replacementPolicy_ptr = p.replacement_policy;
@@ -97,12 +97,26 @@ CacheMemory::CacheMemory(const Params &p, const std::string &cache_level_call)
   std::cout << "Is STT-RAM mode enabled: " << (m_is_sttram ? "True" : "False")
             << '\n';
 
+  m_lazy_redirection_scheme = p.lazy_redirection_scheme;
+  std::cout << "Is STT-RAM Lazy redirection enabled: "
+            << (m_lazy_redirection_scheme ? "True" : "False") << '\n';
+
+  if (m_lazy_redirection_scheme && !m_is_sttram) {
+    fatal("Invalid Configuration: You cannot enable lazy redirection "
+          "if STT-RAM is disabled. Check your Python flags!");
+  }
+
   std::cout << "RETENTION_ZONE_1: " << m_RETENTION_ZONE_1 << '\n';
   std::cout << "RETENTION_ZONE_2: " << m_RETENTION_ZONE_2 << '\n';
   std::cout << "RETENTION_ZONE_3: " << m_RETENTION_ZONE_3 << '\n';
   std::cout << "RETENTION_ZONE_4: " << m_RETENTION_ZONE_4 << '\n';
 
   m_num_of_retention_zones = p.num_of_retention_zones;
+  if (m_num_of_retention_zones < 1 || m_num_of_retention_zones > 4) {
+    fatal("Invalid Flag: num_of_retention_zones must be between 1 and 4. "
+          "Provided: %d",
+          m_num_of_retention_zones);
+  }
 
   m_low_retention.data.read_latency = p.low_retention_data_read_latency;
   m_low_retention.tag.read_latency = p.low_retention_tag_read_latency;
@@ -261,13 +275,12 @@ void CacheMemory::init() {
     }
   }
 
+  // Assigning sets to chunks
   int num_chunks = m_cache_num_sets / 4;
   m_chunk.resize(num_chunks);
   for (int i = 0; i < num_chunks; i++) {
     m_chunk[i] = {0, 0};
   }
-
-  m_chunk_counters.resize(num_chunks, SatCounter8(4, 0));
 }
 
 CacheMemory::~CacheMemory() {
@@ -341,22 +354,61 @@ Cycles CacheMemory::getRetentionLatency(CacheRequestType requestType,
 }
 
 // convert a Address to its location in the cache
+// int64_t CacheMemory::addressToCacheSet(Addr address) const {
+//   assert(address == makeLineAddress(address));
+//   return bitSelect(address, m_start_index_bit,
+//                    m_start_index_bit + m_cache_num_set_bits - 1);
+// }
+
 int64_t CacheMemory::addressToCacheSet(Addr address) const {
   assert(address == makeLineAddress(address));
-  return bitSelect(address, m_start_index_bit,
-                   m_start_index_bit + m_cache_num_set_bits - 1);
+  int64_t default_set = getDefaultSet(address);
+
+  // If not in 4-retention mode, just use standard routing
+  if (!m_lazy_redirection_scheme || m_num_of_retention_zones != 4) {
+    return default_set;
+  }
+
+  Addr addr_chunk_ID = address >> 12;
+  auto redir_it = m_chunk_redirection_table.find(addr_chunk_ID);
+
+  if (redir_it != m_chunk_redirection_table.end()) {
+    int max_lr_set = m_thresholds[1];
+    int64_t redirected_set = (default_set + redir_it->second) % max_lr_set;
+
+    auto tag_it = m_tag_index.find(address);
+    if (tag_it != m_tag_index.end()) {
+      int way = tag_it->second;
+
+      // SLICC finds its dead blocks to properly process
+      // coherence snoops and officially evict them.
+      if (m_cache[default_set][way] != nullptr &&
+          m_cache[default_set][way]->m_Address == address) {
+        return default_set;
+      }
+    }
+
+    // The old block was officially evicted and erased from the tag index.
+    // Safely route future allocations to the new LR zone!
+    return redirected_set;
+  }
+
+  return default_set;
 }
 
 // Given a cache index: returns the index of the tag in a set.
 // returns -1 if the tag is not found.
 int CacheMemory::findTagInSet(int64_t cacheSet, Addr tag) const {
   assert(tag == makeLineAddress(tag));
-  // search the set for the tags
   auto it = m_tag_index.find(tag);
-  if (it != m_tag_index.end())
-    if (m_cache[cacheSet][it->second]->m_Permission !=
-        AccessPermission_NotPresent)
-      return it->second;
+  if (it != m_tag_index.end()) {
+    int way = it->second;
+    if (m_cache[cacheSet][way] != nullptr &&
+        m_cache[cacheSet][way]->m_Address == tag &&
+        m_cache[cacheSet][way]->m_Permission != AccessPermission_NotPresent) {
+      return way;
+    }
+  }
   return -1; // Not found
 }
 
@@ -365,10 +417,14 @@ int CacheMemory::findTagInSet(int64_t cacheSet, Addr tag) const {
 int CacheMemory::findTagInSetIgnorePermissions(int64_t cacheSet,
                                                Addr tag) const {
   assert(tag == makeLineAddress(tag));
-  // search the set for the tags
   auto it = m_tag_index.find(tag);
-  if (it != m_tag_index.end())
-    return it->second;
+  if (it != m_tag_index.end()) {
+    int way = it->second;
+    if (m_cache[cacheSet][way] != nullptr &&
+        m_cache[cacheSet][way]->m_Address == tag) {
+      return way;
+    }
+  }
   return -1; // Not found
 }
 
@@ -477,7 +533,7 @@ AbstractCacheEntry *CacheMemory::allocate(Addr address,
     // Find an empty or NotPresent slot
     if (!set[i] || set[i]->m_Permission == AccessPermission_NotPresent) {
       if (set[i] != nullptr) {
-        // Remove the OLD address from the tag index before overwriting
+        // Remove the old address from the tag index before overwriting
         m_tag_index.erase(set[i]->m_Address);
 
         // Cleanup the new entry pointer provided by SLICC since we reuse
@@ -490,7 +546,7 @@ AbstractCacheEntry *CacheMemory::allocate(Addr address,
         set[i]->replacementData = replacement_data[cacheSet][i];
       }
 
-      // Initialize the "new" entry
+      // Initialize new entry
       set[i]->m_Address = address;
       set[i]->m_is_expired = false;
       set[i]->m_Permission = AccessPermission_Invalid;
@@ -585,8 +641,12 @@ AbstractCacheEntry *CacheMemory::lookup(Addr address) {
   AbstractCacheEntry *entry = m_cache[cacheSet][loc];
   if (entry != NULL) {
     if (entry->m_retention_limit > 0 && !entry->m_is_expired) {
-      if (curTick() > (entry->m_last_refresh_tick + entry->m_retention_limit)) {
-        entry->m_is_expired = true;
+
+      if (entry->m_Permission != AccessPermission_Busy) {
+        if (curTick() >
+            (entry->m_last_refresh_tick + entry->m_retention_limit)) {
+          entry->m_is_expired = true;
+        }
       }
     }
   }
@@ -833,16 +893,17 @@ void CacheMemory::recordRequestType(CacheRequestType requestType, Addr addr) {
   int64_t cacheSet = addressToCacheSet(addr);
   cacheMemoryStats.m_accesses_per_set[cacheSet]++;
 
+  // Physical IDs
   int retention_threshold = getRetentionZone(cacheSet);
   int chunkID = getChunkId(cacheSet);
 
-  // --- CHANGE 1: Find entry even if it is a Zombie ---
-  // Standard lookup() returns NULL for zombies. We need the actual pointer
-  // to "resurrect" it if this is a Write.
+  // Address chunk IDs (4KB page ID)
+  Addr addr_chunk_ID = addr >> 12;
+
+  // Find the block physically, even if it is a "Zombie" (expired/invalid)
   int loc = findTagInSetIgnorePermissions(cacheSet, addr);
   AbstractCacheEntry *entry = (loc != -1) ? m_cache[cacheSet][loc] : nullptr;
 
-  // CRITICAL: Update the last access time regardless of the request type.
   if (entry != nullptr) {
     entry->setLastAccess(curTick());
   }
@@ -861,7 +922,7 @@ void CacheMemory::recordRequestType(CacheRequestType requestType, Addr addr) {
 
   case CacheRequestType_DataArrayWrite:
     if (entry != nullptr) {
-      // Physical Magnet Reset
+      // Resets the STT-RAMN, if new write occurs
       entry->m_last_refresh_tick = curTick();
       entry->m_is_expired = false;
 
@@ -869,9 +930,34 @@ void CacheMemory::recordRequestType(CacheRequestType requestType, Addr addr) {
       if (!m_is_sttram) {
         entry->m_retention_limit = 0;
       } else {
-        int retention_threshold = getRetentionZone(cacheSet);
         Tick total_retention_time = m_retention_table[retention_threshold].time;
         entry->m_retention_limit = total_retention_time;
+
+        // Initialize the saturating counter for this page if it doesn't exist
+        if (m_lazy_redirection_scheme) {
+          if (m_chunk_counters.find(addr_chunk_ID) == m_chunk_counters.end()) {
+            m_chunk_counters.emplace(addr_chunk_ID, SatCounter8(4));
+          }
+
+          // If not redirected increment sat counter
+          if (m_chunk_redirection_table.find(addr_chunk_ID) ==
+              m_chunk_redirection_table.end()) {
+
+            m_chunk_counters.at(addr_chunk_ID)++;
+
+            // Lazy redirection
+            if (m_chunk_counters.at(addr_chunk_ID).isSaturated()) {
+              DPRINTF(RubyCache, "Page %#x saturated! Lazy redirect to LR.\n",
+                      addr_chunk_ID);
+
+              // addressToCacheSet() will safely route to the old blocks until
+              // they die naturally.
+              int max_lr_set = m_thresholds[1];
+              int offset = addr_chunk_ID % max_lr_set;
+              m_chunk_redirection_table[addr_chunk_ID] = offset;
+            }
+          }
+        }
       }
 
       DPRINTF(RubyCache, "ALLOCATE: Addr %#x assigned retention limit: %llu\n",
@@ -879,6 +965,7 @@ void CacheMemory::recordRequestType(CacheRequestType requestType, Addr addr) {
       DPRINTF(RubyCache, "RETENTION_RESET: Addr %#x refreshed to tick %lld\n",
               addr, entry->m_last_refresh_tick);
     }
+
     if (m_resource_stalls) {
       Cycles accessLatency =
           m_retention_table[retention_threshold].data.write_latency;
@@ -906,13 +993,17 @@ void CacheMemory::recordRequestType(CacheRequestType requestType, Addr addr) {
       entry->m_last_refresh_tick = curTick();
       entry->m_is_expired = false;
 
-      // Acts as a reset, such that newly written data doesn't get expired
       if (!m_is_sttram) {
         entry->m_retention_limit = 0;
       } else {
-        int retention_threshold = getRetentionZone(cacheSet);
-        Tick total_retention_time = m_retention_table[retention_threshold].time;
+        int current_zone = getRetentionZone(cacheSet);
+        Tick total_retention_time = m_retention_table[current_zone].time;
         entry->m_retention_limit = total_retention_time;
+      }
+
+      // Tag writes usually happen during state transitions; restore stability
+      if (entry->m_Permission == AccessPermission_NotPresent) {
+        entry->m_Permission = AccessPermission_Invalid;
       }
 
       DPRINTF(RubyCache, "ALLOCATE: Addr %#x assigned retention limit: %llu\n",
@@ -920,6 +1011,7 @@ void CacheMemory::recordRequestType(CacheRequestType requestType, Addr addr) {
       DPRINTF(RubyCache, "RETENTION_RESET: Addr %#x refreshed to tick %lld\n",
               addr, entry->m_last_refresh_tick);
     }
+
     if (m_resource_stalls) {
       Cycles accessLatency =
           m_retention_table[retention_threshold].tag.write_latency;

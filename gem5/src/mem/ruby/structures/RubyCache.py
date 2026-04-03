@@ -65,6 +65,7 @@ class RubyCache(SimObject):
             1, "num_of_retention_zones")
 
     is_sttram = Param.Bool(False, "if the cache is SRAM or STT-RAM")
+    lazy_redirection_scheme = Param.Bool(False, "activate the redirection scheme")
 
     low_retention_data_read_latency = Param.Cycles(
             1, "cycles read access for low retention for data array")
