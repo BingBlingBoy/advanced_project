@@ -14,8 +14,8 @@ fi
 
 BENCHMARK=$1
 RUN_SCRIPT=./benchmark.sh
-INPUT=${BENCHMARK}_16c_simmedium.rcS
-# INPUT=${BENCHMARK}_16c_test.rcS
+# INPUT=${BENCHMARK}_16c_simmedium.rcS
+INPUT=${BENCHMARK}_16c_test.rcS
 
 OUTPUT_LOG=OUTPUT/${BENCHMARK}
 mkdir -p ${OUTPUT_LOG}
@@ -27,13 +27,15 @@ AVAILABLE_HARDWARE=(
   # "4MiB_1RET_STTRAM"
   # "4MiB_2RET_STTRAM"
   # "4MiB_3RET_STTRAM"
-  "4MiB_base_4RET_STTRAM"
+  # "4MiB_base_4RET_STTRAM"
   "4MiB_custom_4RET_STTRAM"
   # "8MiB_SRAM"
   # "8MiB_1RET_STTRAM"
   # "8MiB_2RET_STTRAM"
   # "8MiB_3RET_STTRAM"
   # "8MiB_4RET_STTRAM"
+  # "16MiB_SRAM"
+  # "16MiB_1RET_STTRAM"
 )
 
 for HARDWARE in ${AVAILABLE_HARDWARE[@]}; do
