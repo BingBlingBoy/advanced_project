@@ -405,9 +405,6 @@ int64_t CacheMemory::addressToCacheSet(Addr address) const {
     }
   }
 
-  // ========================================================
-  // PHASE 3: THE DYNAMIC ROUTER (Find the Dead Body)
-  // ========================================================
   auto tag_it = m_tag_index.find(address);
   if (tag_it != m_tag_index.end()) {
     int way = tag_it->second;
