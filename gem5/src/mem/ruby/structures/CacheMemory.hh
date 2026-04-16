@@ -176,9 +176,11 @@ private:
 
   // Given a cache tag: returns the index of the tag in a set.
   // returns -1 if the tag is not found.
-  int findTagInSet(int64_t line, Addr tag) const;
-  int findTagInSetIgnorePermissions(int64_t cacheSet, Addr tag) const;
+  // int findTagInSet(int64_t line, Addr tag) const;
+  // int findTagInSetIgnorePermissions(int64_t cacheSet, Addr tag) const;
 
+  int findTagInSet(int64_t &cacheSet, Addr tag) const;
+  int findTagInSetIgnorePermissions(int64_t &cacheSet, Addr tag) const;
   // Private copy constructor and assignment operator
   CacheMemory(const CacheMemory &obj);
   CacheMemory &operator=(const CacheMemory &obj);
@@ -324,6 +326,10 @@ private:
 
     statistics::Vector m_chunk_reads;
     statistics::Vector m_chunk_writes;
+
+    statistics::Scalar m_zombies_collected;
+    statistics::Scalar m_inter_zone_jumps;
+    statistics::Scalar m_intra_zone_walks;
   } cacheMemoryStats;
 
 public:

@@ -4,7 +4,6 @@
 #SBATCH --cpus-per-task=1
 
 #SBATCH --time=71:59:00
-##SBATCH --time=03:00:00
 #SBATCH --mem=56GB
 
 ##SBATCH -p long

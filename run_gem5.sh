@@ -23,22 +23,20 @@ mkdir -p ${OUTPUT_LOG}
 module load gcc
 
 AVAILABLE_HARDWARE=(
-  # "4MiB_SRAM"
-  # "4MiB_1RET_STTRAM"
-  # "4MiB_2RET_STTRAM"
-  # "4MiB_3RET_STTRAM"
+  "4MiB_SRAM"
+  "4MiB_1RET_STTRAM"
   "4MiB_base_4RET_STTRAM"
   "4MiB_custom_4RET_STTRAM"
+
   # "8MiB_SRAM"
   # "8MiB_1RET_STTRAM"
-  # "8MiB_2RET_STTRAM"
-  # "8MiB_3RET_STTRAM"
-  "8MiB_base_4RET_STTRAM"
-  "8MiB_custom_4RET_STTRAM"
+  # "8MiB_base_4RET_STTRAM"
+  # "8MiB_custom_4RET_STTRAM"
+  #
   # "16MiB_SRAM"
   # "16MiB_1RET_STTRAM"
-  "16MiB_base_4RET_STTRAM"
-  "16MiB_custom_4RET_STTRAM"
+  # "16MiB_base_4RET_STTRAM"
+  # "16MiB_custom_4RET_STTRAM"
 )
 
 for HARDWARE in ${AVAILABLE_HARDWARE[@]}; do

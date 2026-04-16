@@ -364,7 +364,6 @@ int64_t CacheMemory::addressToCacheSet(Addr address) const {
   assert(address == makeLineAddress(address));
   int64_t default_set = getDefaultSet(address);
 
-  // Standard routing if wear-leveling is off or not in 4-zone mode
   if (!m_lazy_redirection_scheme || m_num_of_retention_zones != 4) {
     return default_set;
   }
@@ -372,100 +371,241 @@ int64_t CacheMemory::addressToCacheSet(Addr address) const {
   Addr addr_chunk_ID = address >> 12;
   int zone_size = m_thresholds[0];
 
-  // Interset
   int64_t base_set = default_set;
   auto redir_it = m_chunk_redirection_table.find(addr_chunk_ID);
 
   if (redir_it != m_chunk_redirection_table.end()) {
-    // Strict Tiered Routing
+    // SCATTER MATH: Interleave the blocks across the zone
+    int block_offset = (address >> 6) & 0x3F;
+    int scatter_offset = (redir_it->second + (block_offset * 7)) % zone_size;
+
     if (default_set >= m_thresholds[2]) {
-      base_set = m_thresholds[0] + redir_it->second; // HR to Med-Low
+      base_set = m_thresholds[0] + scatter_offset;
     } else if (default_set >= m_thresholds[1]) {
-      base_set = redir_it->second; // Med-High to Low
+      base_set = scatter_offset;
     }
   }
 
-  // Walk
   int64_t target_set = base_set;
   int intra_offset = 0;
 
   auto counter_it = m_chunk_counters.find(addr_chunk_ID);
   if (counter_it != m_chunk_counters.end()) {
+    int writes = counter_it->second;
 
-    int writes = counter_it->second; // 0 to 15 writes
-    intra_offset = writes / 4;       // Step forward every 4 writes
+    // 4 SETS
+    // intra_offset = writes / 4;
+    //
+    // // Defensive clamp (Max offset for a 4-bit counter is naturally 3 anyway)
+    // if (intra_offset > 3) {
+    //   intra_offset = 3;
+    // }
+
+    // 8 SETS
+    intra_offset = writes / 2;
+
+    // Clamp the offset to 7 (Allows walking across 8 total sets)
+    if (intra_offset > 7) {
+      intra_offset = 7;
+    }
 
     if (intra_offset > 0) {
       int zone_start_index = (base_set / zone_size) * zone_size;
       int local_index = base_set % zone_size;
 
-      // Apply the walk safely inside the current zone bounds
       target_set =
           zone_start_index + ((local_index + intra_offset) % zone_size);
     }
   }
 
-  auto tag_it = m_tag_index.find(address);
-  if (tag_it != m_tag_index.end()) {
-    int way = tag_it->second;
-
-    // 1. Scan the entire Walk-Path of the ORIGINAL zone
-    int orig_zone_start = (default_set / zone_size) * zone_size;
-    int orig_local = default_set % zone_size;
-    for (int i = 0; i <= 3; i++) {
-      int check_set = orig_zone_start + ((orig_local + i) % zone_size);
-      if (m_cache[check_set][way] != nullptr &&
-          m_cache[check_set][way]->m_Address == address) {
-        return check_set; // Found it in the old zone!
-      }
-    }
-
-    // 2. Scan the entire Walk-Path of the TARGET zone
-    int target_zone_start = (base_set / zone_size) * zone_size;
-    int target_local = base_set % zone_size;
-    for (int i = 0; i <= 3; i++) {
-      int check_set = target_zone_start + ((target_local + i) % zone_size);
-      if (m_cache[check_set][way] != nullptr &&
-          m_cache[check_set][way]->m_Address == address) {
-        return check_set; // Found it in the new zone!
-      }
-    }
-  }
-
-  // The block is officially nowhere else. Safely route to the new target.
   return target_set;
 }
 
 // Given a cache index: returns the index of the tag in a set.
 // returns -1 if the tag is not found.
-int CacheMemory::findTagInSet(int64_t cacheSet, Addr tag) const {
+// 1. Update signature with &
+int CacheMemory::findTagInSet(int64_t &cacheSet, Addr tag) const {
   assert(tag == makeLineAddress(tag));
+
+  // OPTIMIZATION: O(1) Fast-Path Miss
   auto it = m_tag_index.find(tag);
-  if (it != m_tag_index.end()) {
-    int way = it->second;
-    if (m_cache[cacheSet][way] != nullptr &&
-        m_cache[cacheSet][way]->m_Address == tag &&
-        m_cache[cacheSet][way]->m_Permission != AccessPermission_NotPresent) {
+  if (it == m_tag_index.end()) {
+    return -1;
+  }
+  int way = it->second;
+
+  Addr addr_chunk_ID = tag >> 12;
+  int zone_size = m_thresholds[0];
+  int64_t default_set = getDefaultSet(tag);
+
+  // Calculate Target Base Set (WITH SCATTER MATH)
+  int64_t target_base_set = default_set;
+  auto redir_it = m_chunk_redirection_table.find(addr_chunk_ID);
+  if (redir_it != m_chunk_redirection_table.end()) {
+    int block_offset = (tag >> 6) & 0x3F;
+    int scatter_offset = (redir_it->second + (block_offset * 7)) % zone_size;
+
+    if (default_set >= m_thresholds[2]) {
+      target_base_set = m_thresholds[0] + scatter_offset;
+    } else if (default_set >= m_thresholds[1]) {
+      target_base_set = scatter_offset;
+    }
+  }
+
+  int target_zone_start = (target_base_set / zone_size) * zone_size;
+  int target_local = target_base_set % zone_size;
+
+  // 4 SETS
+  // for (int i = 0; i <= 3; i++) {
+  //   int check_set = target_zone_start + ((target_local + i) % zone_size);
+  //
+  //   if (m_cache[check_set][way] != nullptr &&
+  //       m_cache[check_set][way]->m_Address == tag &&
+  //       m_cache[check_set][way]->m_Permission != AccessPermission_NotPresent)
+  //       {
+  //
+  //     cacheSet = check_set;
+  //     return way;
+  //   }
+  // }
+  //
+  // if (target_base_set != default_set) {
+  //   int orig_zone_start = (default_set / zone_size) * zone_size;
+  //   int orig_local = default_set % zone_size;
+  //
+  //   for (int i = 0; i <= 3; i++) {
+  //     int check_set = orig_zone_start + ((orig_local + i) % zone_size);
+  //     if (m_cache[check_set][way] != nullptr &&
+  //         m_cache[check_set][way]->m_Address == tag &&
+  //         m_cache[check_set][way]->m_Permission !=
+  //             AccessPermission_NotPresent) {
+  //
+  //       cacheSet = check_set;
+  //       return way;
+  //     }
+  //   }
+  // }
+
+  // 8 SETS
+  for (int i = 0; i <= 7; i++) {
+    int check_set = target_zone_start + ((target_local + i) % zone_size);
+
+    if (m_cache[check_set][way] != nullptr &&
+        m_cache[check_set][way]->m_Address == tag &&
+        m_cache[check_set][way]->m_Permission != AccessPermission_NotPresent) {
+
+      cacheSet = check_set;
       return way;
     }
   }
-  return -1; // Not found
+
+  if (target_base_set != default_set) {
+    int orig_zone_start = (default_set / zone_size) * zone_size;
+    int orig_local = default_set % zone_size;
+
+    for (int i = 0; i <= 7; i++) {
+      int check_set = orig_zone_start + ((orig_local + i) % zone_size);
+      if (m_cache[check_set][way] != nullptr &&
+          m_cache[check_set][way]->m_Address == tag &&
+          m_cache[check_set][way]->m_Permission !=
+              AccessPermission_NotPresent) {
+
+        cacheSet = check_set;
+        return way;
+      }
+    }
+  }
+  return -1;
 }
 
 // Given a cache index: returns the index of the tag in a set.
 // returns -1 if the tag is not found.
-int CacheMemory::findTagInSetIgnorePermissions(int64_t cacheSet,
+int CacheMemory::findTagInSetIgnorePermissions(int64_t &cacheSet,
                                                Addr tag) const {
   assert(tag == makeLineAddress(tag));
+
+  // OPTIMIZATION: O(1) Fast-Path Miss
   auto it = m_tag_index.find(tag);
-  if (it != m_tag_index.end()) {
-    int way = it->second;
-    if (m_cache[cacheSet][way] != nullptr &&
-        m_cache[cacheSet][way]->m_Address == tag) {
+  if (it == m_tag_index.end()) {
+    return -1;
+  }
+  int way = it->second;
+
+  Addr addr_chunk_ID = tag >> 12;
+  int zone_size = m_thresholds[0];
+  int64_t default_set = getDefaultSet(tag);
+
+  // Calculate Target Base Set (WITH SCATTER MATH)
+  int64_t target_base_set = default_set;
+  auto redir_it = m_chunk_redirection_table.find(addr_chunk_ID);
+  if (redir_it != m_chunk_redirection_table.end()) {
+    int block_offset = (tag >> 6) & 0x3F;
+    int scatter_offset = (redir_it->second + (block_offset * 7)) % zone_size;
+
+    if (default_set >= m_thresholds[2]) {
+      target_base_set = m_thresholds[0] + scatter_offset;
+    } else if (default_set >= m_thresholds[1]) {
+      target_base_set = scatter_offset;
+    }
+  }
+
+  int target_zone_start = (target_base_set / zone_size) * zone_size;
+  int target_local = target_base_set % zone_size;
+
+  // 4 SETS
+  // for (int i = 0; i <= 3; i++) {
+  //   int check_set = target_zone_start + ((target_local + i) % zone_size);
+  //
+  //   if (m_cache[check_set][way] != nullptr &&
+  //       m_cache[check_set][way]->m_Address == tag) {
+  //
+  //     cacheSet = check_set;
+  //     return way;
+  //   }
+  // }
+  //
+  // if (target_base_set != default_set) {
+  //   int orig_zone_start = (default_set / zone_size) * zone_size;
+  //   int orig_local = default_set % zone_size;
+  //
+  //   for (int i = 0; i <= 3; i++) {
+  //     int check_set = orig_zone_start + ((orig_local + i) % zone_size);
+  //     if (m_cache[check_set][way] != nullptr &&
+  //         m_cache[check_set][way]->m_Address == tag) {
+  //
+  //       cacheSet = check_set;
+  //       return way;
+  //     }
+  //   }
+  // }
+
+  // 8 SETS
+  for (int i = 0; i <= 7; i++) {
+    int check_set = target_zone_start + ((target_local + i) % zone_size);
+
+    if (m_cache[check_set][way] != nullptr &&
+        m_cache[check_set][way]->m_Address == tag) {
+
+      cacheSet = check_set;
       return way;
     }
   }
-  return -1; // Not found
+
+  if (target_base_set != default_set) {
+    int orig_zone_start = (default_set / zone_size) * zone_size;
+    int orig_local = default_set % zone_size;
+
+    for (int i = 0; i <= 7; i++) {
+      int check_set = orig_zone_start + ((orig_local + i) % zone_size);
+      if (m_cache[check_set][way] != nullptr &&
+          m_cache[check_set][way]->m_Address == tag) {
+
+        cacheSet = check_set;
+        return way;
+      }
+    }
+  }
+  return -1;
 }
 
 // Given an unique cache block identifier (idx): return the valid address
@@ -640,13 +780,17 @@ Addr CacheMemory::cacheProbe(Addr address) const {
 
   int64_t cacheSet = addressToCacheSet(address);
 
-  // If there is an expired block, evict it
+  // If there is an expired block AND it is NOT busy, evict it
   for (int i = 0; i < m_cache_assoc; i++) {
-    if (m_cache[cacheSet][i] && m_cache[cacheSet][i]->m_is_expired) {
+    if (m_cache[cacheSet][i] && m_cache[cacheSet][i]->m_is_expired &&
+        m_cache[cacheSet][i]->m_Permission !=
+            AccessPermission_Busy) { // <-- CRITICAL FIX
+
       return m_cache[cacheSet][i]->m_Address;
     }
   }
 
+  // Fallback to standard LRU
   std::vector<ReplaceableEntry *> candidates;
   for (int i = 0; i < m_cache_assoc; i++) {
     candidates.push_back(static_cast<ReplaceableEntry *>(m_cache[cacheSet][i]));
@@ -670,15 +814,30 @@ void CacheMemory::regStats() {
   int num_chunks = m_cache_num_sets / 4;
   cacheMemoryStats.m_chunk_reads.init(num_chunks);
   cacheMemoryStats.m_chunk_writes.init(num_chunks);
+
+  m_zombies_collected.name(name() + ".m_zombies_collected")
+      .desc("Number of expired STT-RAM blocks overwritten or evicted");
+  m_inter_zone_jumps.name(name() + ".m_inter_zone_jumps")
+      .desc("Number of macro-level redirections to LR zones");
+  m_intra_zone_walks.name(name() + ".m_intra_zone_walks")
+      .desc("Number of micro-level intra-set walks executed");
 }
 
 AbstractCacheEntry *CacheMemory::lookup(Addr address) {
-  int64_t cacheSet = addressToCacheSet(address);
-  int loc = findTagInSet(cacheSet, address);
-  if (loc == -1)
+  // int64_t cacheSet = addressToCacheSet(address);
+  // int loc = findTagInSet(cacheSet, address);
+  // if (loc == -1)
+  //   return NULL;
+  //
+  // AbstractCacheEntry *entry = m_cache[cacheSet][loc];
+  int64_t targetSet = addressToCacheSet(address);
+  int64_t actualSet = targetSet; // Copy it so we can modify it
+  int way = findTagInSet(actualSet,
+                         address); // actualSet is updated if found elsewhere
+  if (way == -1)
     return NULL;
 
-  AbstractCacheEntry *entry = m_cache[cacheSet][loc];
+  AbstractCacheEntry *entry = m_cache[actualSet][way];
   if (entry != NULL) {
     if (entry->m_retention_limit > 0 && !entry->m_is_expired) {
 
@@ -878,7 +1037,15 @@ CacheMemory::CacheMemoryStats::CacheMemoryStats(statistics::Group *parent)
       ADD_STAT(m_accesses_per_set,
                "Number of accesses per individual set index"),
       ADD_STAT(m_chunk_reads, "Number of accesses per individual set index"),
-      ADD_STAT(m_chunk_writes, "Number of accesses per individual set index") {
+      ADD_STAT(m_chunk_writes, "Number of accesses per individual set index"),
+
+      ADD_STAT(m_zombies_collected,
+               "Number of expired STT-RAM blocks overwritten or evicted"),
+      ADD_STAT(m_inter_zone_jumps,
+               "Number of macro-level redirections to LR zones"),
+      ADD_STAT(m_intra_zone_walks,
+               "Number of micro-level intra-set walks executed") {
+
   numDataArrayReads.flags(statistics::nozero);
 
   numDataArrayWrites.flags(statistics::nozero);
@@ -962,43 +1129,37 @@ void CacheMemory::recordRequestType(CacheRequestType requestType, Addr addr) {
 
   case CacheRequestType_DataArrayWrite:
     if (entry != nullptr) {
-      // Resets the STT-RAMN, if new write occurs
       entry->m_last_refresh_tick = curTick();
       entry->m_is_expired = false;
 
-      // Acts as a reset, such that newly written data doesn't get expired
       if (!m_is_sttram) {
         entry->m_retention_limit = 0;
       } else {
         Tick total_retention_time = m_retention_table[retention_threshold].time;
         entry->m_retention_limit = total_retention_time;
 
-        // Initialize the saturating counter for this page if it doesn't exist
         if (m_lazy_redirection_scheme) {
-          if (m_chunk_counters.find(addr_chunk_ID) == m_chunk_counters.end()) {
-            m_chunk_counters.emplace(addr_chunk_ID, SatCounter8(4));
+          // OPTIMIZATION: Use iterator to reduce map lookups
+          auto counter_it = m_chunk_counters.find(addr_chunk_ID);
+
+          if (counter_it == m_chunk_counters.end()) {
+            // Using 4-bit counter (saturates at 15) as requested
+            auto result =
+                m_chunk_counters.emplace(addr_chunk_ID, SatCounter8(4));
+            counter_it = result.first;
           }
 
-          // If not redirected increment sat counter
           if (m_chunk_redirection_table.find(addr_chunk_ID) ==
               m_chunk_redirection_table.end()) {
 
-            m_chunk_counters.at(addr_chunk_ID)++;
+            counter_it->second++;
 
-            // Lazy redirection
-            if (m_chunk_counters.at(addr_chunk_ID).isSaturated()) {
+            if (counter_it->second.isSaturated()) {
               DPRINTF(RubyCache, "Page %#x saturated! Lazy redirect to LR.\n",
                       addr_chunk_ID);
 
-              // addressToCacheSet() will safely route to the old blocks until
-              // they die naturally.
-              // int max_lr_set = m_thresholds[1];
-              // int offset = addr_chunk_ID % max_lr_set;
-              // m_chunk_redirection_table[addr_chunk_ID] = offset;
-
               int zone_size = m_thresholds[0];
               int offset = addr_chunk_ID % zone_size;
-
               m_chunk_redirection_table[addr_chunk_ID] = offset;
             }
           }
