@@ -996,13 +996,11 @@ machine(MachineType:L1Cache, "MESI Directory L1 Cache CMP")
       set_tbe(TBEs[address]);
       tbe.isPrefetch := false;
 
-      // --- PROTECTIVE CHECK ---
-      // Only copy DataBlk if the cache_entry is valid AND holds real data.
-      // If it is I, NP, or Expired, the DataBlock contains stale garbage.
+      // CRITICAL FIX: ALWAYS copy data. An expired block is still the 
+      // ONLY valid copy of dirty data in the system!
       if (is_valid(cache_entry)) {
           if (cache_entry.CacheState != State:I && 
-              cache_entry.CacheState != State:NP && 
-              !cache_entry.m_is_expired) {
+              cache_entry.CacheState != State:NP) {
               tbe.DataBlk := cache_entry.DataBlk;
               tbe.Dirty := cache_entry.Dirty;
           }

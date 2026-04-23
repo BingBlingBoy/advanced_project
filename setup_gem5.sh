@@ -2,10 +2,9 @@
 
 #SBATCH --job-name=gem5_sim
 #SBATCH --nodes=1
-#SBATCH --time=00:10:00
+#SBATCH --time=02:00:00
 #SBATCH --output=OUTPUT/gem5_compilation.out
-#SBATCH --cpus-per-task=52
-#SBATCH --mem=64GB
+#SBATCH --cpus-per-task=16
 
 set -e
 
@@ -17,6 +16,7 @@ PARSEC_BENCHMARKS_DIR=./PARSEC_BENCHMARKS
 SIF_PATH=./gem5-v25-0.sif
 ISA=X86
 VARIANT=opt
+# VARIANT=fast
 
 module load gcc
 
@@ -26,13 +26,17 @@ singularity exec \
   --bind $GEM5_DIR:/gem5 \
   --bind $PARSEC_BENCHMARKS_DIR:/parsec \
   $SIF_PATH \
-  bash -c "cd /gem5 && scons build/$ISA/gem5.$VARIANT -j52"
+  bash -c "cd /gem5 && \
+  scons defconfig build/$ISA build_opts/$ISA && \
+  scons setconfig build/$ISA RUBY_PROTOCOL_STTRAM=y SLICC_HTML=y && \
+  touch src/mem/ruby/protocol/*.sm && \
+  scons build/$ISA/gem5.$VARIANT -j16"
 
 singularity exec \
   --bind $GEM5_DIR:/gem5 \
   --bind $PARSEC_BENCHMARKS_DIR:/parsec \
   $SIF_PATH \
-  bash -c "cd /gem5 &&  scons build/$ISA/compile_commands.json -j52"
+  bash -c "cd /gem5 &&  scons build/$ISA/compile_commands.json -j16"
 
 echo "Applying Neovim LSP and SSHFS path fixes..."
 

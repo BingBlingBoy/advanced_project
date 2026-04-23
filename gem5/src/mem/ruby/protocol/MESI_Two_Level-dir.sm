@@ -563,4 +563,17 @@ machine(MachineType:Directory, "MESI Two Level directory protocol")
     l_popMemQueue;
     kd_wakeUpDependents;
   }
+  // --- RACE CONDITION FIX ---
+  // If a late CleanReplacement arrives after the Directory is already Idle,
+  // simply send the required Ack so the L2 can finish its eviction, and pop the queue.
+  transition(I, CleanReplacement) {
+      a_sendAck;
+      k_popIncomingResponseQueue;
+      kd_wakeUpDependents; // <--- Wakes up any threads stalled in the queue!
+  }
+  // Drain stray clean-replacement ack that arrives after memory writeback is
+  // already in progress. The writeback is committed; the ack is redundant.
+  transition(MI, CleanReplacement) {
+      k_popIncomingResponseQueue;
+  }
 }

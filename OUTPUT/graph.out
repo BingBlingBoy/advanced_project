@@ -1,52 +1,25 @@
-Reading data from ./gem5/configs/PARSEC/4MiB_SRAM/canneal/ipc_log.csv.gz...
-Graph saved successfully to: OUTPUT/GRAPHS/canneal/canneal_4MiB_SRAM_ipc_graph.svg
-Parsing Chunk Data: ./gem5/configs/PARSEC/4MiB_SRAM/canneal/chunk.csv.gz (Filtering t > 5s)
-Graphs generated successfully for 4MiB_SRAM starting at 5s
-Parsing Chunk Data for Spatial Plot: ./gem5/configs/PARSEC/4MiB_SRAM/canneal/chunk.csv.gz
-Spatial bar plot saved to: OUTPUT/GRAPHS/canneal/spatial_bars_4MiB_SRAM_canneal.png
-Reading data from ./gem5/configs/PARSEC/4MiB_1RET_STTRAM/canneal/ipc_log.csv.gz...
-Graph saved successfully to: OUTPUT/GRAPHS/canneal/canneal_4MiB_1RET_STTRAM_ipc_graph.svg
-Parsing Chunk Data: ./gem5/configs/PARSEC/4MiB_1RET_STTRAM/canneal/chunk.csv.gz (Filtering t > 5s)
-Graphs generated successfully for 4MiB_1RET_STTRAM starting at 5s
-Parsing Chunk Data for Spatial Plot: ./gem5/configs/PARSEC/4MiB_1RET_STTRAM/canneal/chunk.csv.gz
-Spatial bar plot saved to: OUTPUT/GRAPHS/canneal/spatial_bars_4MiB_1RET_STTRAM_canneal.png
-Reading data from ./gem5/configs/PARSEC/4MiB_2RET_STTRAM/canneal/ipc_log.csv.gz...
-Graph saved successfully to: OUTPUT/GRAPHS/canneal/canneal_4MiB_2RET_STTRAM_ipc_graph.svg
-Parsing Chunk Data: ./gem5/configs/PARSEC/4MiB_2RET_STTRAM/canneal/chunk.csv.gz (Filtering t > 5s)
-Graphs generated successfully for 4MiB_2RET_STTRAM starting at 5s
-Parsing Chunk Data for Spatial Plot: ./gem5/configs/PARSEC/4MiB_2RET_STTRAM/canneal/chunk.csv.gz
-Spatial bar plot saved to: OUTPUT/GRAPHS/canneal/spatial_bars_4MiB_2RET_STTRAM_canneal.png
-Reading data from ./gem5/configs/PARSEC/4MiB_3RET_STTRAM/canneal/ipc_log.csv.gz...
-Error parsing CSV: Compressed file ended before the end-of-stream marker was reached
---> SKIPPING 4MiB_3RET_STTRAM: Data incomplete or missing.
-Reading data from ./gem5/configs/PARSEC/4MiB_4RET_STTRAM/canneal/ipc_log.csv.gz...
-Error parsing CSV: Compressed file ended before the end-of-stream marker was reached
---> SKIPPING 4MiB_4RET_STTRAM: Data incomplete or missing.
-Reading data from ./gem5/configs/PARSEC/8MiB_SRAM/canneal/ipc_log.csv.gz...
-Graph saved successfully to: OUTPUT/GRAPHS/canneal/canneal_8MiB_SRAM_ipc_graph.svg
-Parsing Chunk Data: ./gem5/configs/PARSEC/8MiB_SRAM/canneal/chunk.csv.gz (Filtering t > 5s)
-Graphs generated successfully for 8MiB_SRAM starting at 5s
-Parsing Chunk Data for Spatial Plot: ./gem5/configs/PARSEC/8MiB_SRAM/canneal/chunk.csv.gz
-Spatial bar plot saved to: OUTPUT/GRAPHS/canneal/spatial_bars_8MiB_SRAM_canneal.png
-Reading data from ./gem5/configs/PARSEC/8MiB_1RET_STTRAM/canneal/ipc_log.csv.gz...
-Graph saved successfully to: OUTPUT/GRAPHS/canneal/canneal_8MiB_1RET_STTRAM_ipc_graph.svg
-Parsing Chunk Data: ./gem5/configs/PARSEC/8MiB_1RET_STTRAM/canneal/chunk.csv.gz (Filtering t > 5s)
-Graphs generated successfully for 8MiB_1RET_STTRAM starting at 5s
-Parsing Chunk Data for Spatial Plot: ./gem5/configs/PARSEC/8MiB_1RET_STTRAM/canneal/chunk.csv.gz
-Spatial bar plot saved to: OUTPUT/GRAPHS/canneal/spatial_bars_8MiB_1RET_STTRAM_canneal.png
-Reading data from ./gem5/configs/PARSEC/8MiB_2RET_STTRAM/canneal/ipc_log.csv.gz...
-Graph saved successfully to: OUTPUT/GRAPHS/canneal/canneal_8MiB_2RET_STTRAM_ipc_graph.svg
-Parsing Chunk Data: ./gem5/configs/PARSEC/8MiB_2RET_STTRAM/canneal/chunk.csv.gz (Filtering t > 5s)
-Graphs generated successfully for 8MiB_2RET_STTRAM starting at 5s
-Parsing Chunk Data for Spatial Plot: ./gem5/configs/PARSEC/8MiB_2RET_STTRAM/canneal/chunk.csv.gz
-Spatial bar plot saved to: OUTPUT/GRAPHS/canneal/spatial_bars_8MiB_2RET_STTRAM_canneal.png
-Reading data from ./gem5/configs/PARSEC/8MiB_3RET_STTRAM/canneal/ipc_log.csv.gz...
-Graph saved successfully to: OUTPUT/GRAPHS/canneal/canneal_8MiB_3RET_STTRAM_ipc_graph.svg
-Parsing Chunk Data: ./gem5/configs/PARSEC/8MiB_3RET_STTRAM/canneal/chunk.csv.gz (Filtering t > 5s)
-Graphs generated successfully for 8MiB_3RET_STTRAM starting at 5s
-Parsing Chunk Data for Spatial Plot: ./gem5/configs/PARSEC/8MiB_3RET_STTRAM/canneal/chunk.csv.gz
-Spatial bar plot saved to: OUTPUT/GRAPHS/canneal/spatial_bars_8MiB_3RET_STTRAM_canneal.png
-Reading data from ./gem5/configs/PARSEC/8MiB_4RET_STTRAM/canneal/ipc_log.csv.gz...
-Error parsing CSV: Compressed file ended before the end-of-stream marker was reached
---> SKIPPING 8MiB_4RET_STTRAM: Data incomplete or missing.
+Error: Could not find directory '4MiB_SRAM/4bit_counter' or 'configs/PARSEC/4MiB_SRAM/4bit_counter'
+--> SKIPPING IPC COMPARE 4MiB_SRAM: Data incomplete or missing.
+Error: Could not find directory '4MiB_1RET_STTRAM/4bit_counter' or 'configs/PARSEC/4MiB_1RET_STTRAM/4bit_counter'
+--> SKIPPING IPC COMPARE 4MiB_1RET_STTRAM: Data incomplete or missing.
+Error: Could not find directory '4MiB_base_4RET_STTRAM/4bit_counter' or 'configs/PARSEC/4MiB_base_4RET_STTRAM/4bit_counter'
+--> SKIPPING IPC COMPARE 4MiB_base_4RET_STTRAM: Data incomplete or missing.
+Error: Could not find directory '4MiB_custom_4RET_STTRAM/4bit_counter' or 'configs/PARSEC/4MiB_custom_4RET_STTRAM/4bit_counter'
+--> SKIPPING IPC COMPARE 4MiB_custom_4RET_STTRAM: Data incomplete or missing.
+Error: Could not find directory '8MiB_SRAM/4bit_counter' or 'configs/PARSEC/8MiB_SRAM/4bit_counter'
+--> SKIPPING IPC COMPARE 8MiB_SRAM: Data incomplete or missing.
+Error: Could not find directory '8MiB_1RET_STTRAM/4bit_counter' or 'configs/PARSEC/8MiB_1RET_STTRAM/4bit_counter'
+--> SKIPPING IPC COMPARE 8MiB_1RET_STTRAM: Data incomplete or missing.
+Error: Could not find directory '8MiB_base_4RET_STTRAM/4bit_counter' or 'configs/PARSEC/8MiB_base_4RET_STTRAM/4bit_counter'
+--> SKIPPING IPC COMPARE 8MiB_base_4RET_STTRAM: Data incomplete or missing.
+Error: Could not find directory '8MiB_custom_4RET_STTRAM/4bit_counter' or 'configs/PARSEC/8MiB_custom_4RET_STTRAM/4bit_counter'
+--> SKIPPING IPC COMPARE 8MiB_custom_4RET_STTRAM: Data incomplete or missing.
+Error: Could not find directory '16MiB_SRAM/4bit_counter' or 'configs/PARSEC/16MiB_SRAM/4bit_counter'
+--> SKIPPING IPC COMPARE 16MiB_SRAM: Data incomplete or missing.
+Error: Could not find directory '16MiB_1RET_STTRAM/4bit_counter' or 'configs/PARSEC/16MiB_1RET_STTRAM/4bit_counter'
+--> SKIPPING IPC COMPARE 16MiB_1RET_STTRAM: Data incomplete or missing.
+Error: Could not find directory '16MiB_base_4RET_STTRAM/4bit_counter' or 'configs/PARSEC/16MiB_base_4RET_STTRAM/4bit_counter'
+--> SKIPPING IPC COMPARE 16MiB_base_4RET_STTRAM: Data incomplete or missing.
+Error: Could not find directory '16MiB_custom_4RET_STTRAM/4bit_counter' or 'configs/PARSEC/16MiB_custom_4RET_STTRAM/4bit_counter'
+--> SKIPPING IPC COMPARE 16MiB_custom_4RET_STTRAM: Data incomplete or missing.
 DONE

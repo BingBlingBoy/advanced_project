@@ -389,6 +389,7 @@ int64_t CacheMemory::addressToCacheSet(Addr address) const {
   int64_t target_set = base_set;
   int intra_offset = 0;
 
+  // 4 BIT COUNTER
   auto counter_it = m_chunk_counters.find(addr_chunk_ID);
   if (counter_it != m_chunk_counters.end()) {
     int writes = counter_it->second;
@@ -396,7 +397,8 @@ int64_t CacheMemory::addressToCacheSet(Addr address) const {
     // 4 SETS
     // intra_offset = writes / 4;
     //
-    // // Defensive clamp (Max offset for a 4-bit counter is naturally 3 anyway)
+    // // Defensive clamp (Max offset for a 4-bit counter is naturally 3
+    // anyway)
     // if (intra_offset > 3) {
     //   intra_offset = 3;
     // }
@@ -419,6 +421,30 @@ int64_t CacheMemory::addressToCacheSet(Addr address) const {
   }
 
   return target_set;
+
+  // 7 BIT COUNTER
+  // auto counter_it = m_chunk_counters.find(addr_chunk_ID);
+  // if (counter_it != m_chunk_counters.end()) {
+  //   int writes = counter_it->second;
+  //
+  //   // 8 SETS with 6-bit counter (Max 63 writes. 63 / 8 = 7)
+  //   intra_offset = writes / 8;
+  //
+  //   // Clamp the offset to 7 (Allows walking across 8 total sets)
+  //   if (intra_offset > 7) {
+  //     intra_offset = 7;
+  //   }
+  //
+  //   if (intra_offset > 0) {
+  //     int zone_start_index = (base_set / zone_size) * zone_size;
+  //     int local_index = base_set % zone_size;
+  //
+  //     target_set =
+  //         zone_start_index + ((local_index + intra_offset) % zone_size);
+  //   }
+  // }
+  //
+  // return target_set;
 }
 
 // Given a cache index: returns the index of the tag in a set.
@@ -427,183 +453,47 @@ int64_t CacheMemory::addressToCacheSet(Addr address) const {
 int CacheMemory::findTagInSet(int64_t &cacheSet, Addr tag) const {
   assert(tag == makeLineAddress(tag));
 
-  // OPTIMIZATION: O(1) Fast-Path Miss
   auto it = m_tag_index.find(tag);
   if (it == m_tag_index.end()) {
     return -1;
   }
-  int way = it->second;
 
-  Addr addr_chunk_ID = tag >> 12;
-  int zone_size = m_thresholds[0];
-  int64_t default_set = getDefaultSet(tag);
+  // Decode the exact Set and Way
+  int encoded = it->second;
+  int way = encoded & 0xFFFF;
+  int64_t found_set = (encoded >> 16) & 0xFFFF;
 
-  // Calculate Target Base Set (WITH SCATTER MATH)
-  int64_t target_base_set = default_set;
-  auto redir_it = m_chunk_redirection_table.find(addr_chunk_ID);
-  if (redir_it != m_chunk_redirection_table.end()) {
-    int block_offset = (tag >> 6) & 0x3F;
-    int scatter_offset = (redir_it->second + (block_offset * 7)) % zone_size;
+  if (m_cache[found_set][way] != nullptr &&
+      m_cache[found_set][way]->m_Address == tag &&
+      m_cache[found_set][way]->m_Permission != AccessPermission_NotPresent) {
 
-    if (default_set >= m_thresholds[2]) {
-      target_base_set = m_thresholds[0] + scatter_offset;
-    } else if (default_set >= m_thresholds[1]) {
-      target_base_set = scatter_offset;
-    }
-  }
-
-  int target_zone_start = (target_base_set / zone_size) * zone_size;
-  int target_local = target_base_set % zone_size;
-
-  // 4 SETS
-  // for (int i = 0; i <= 3; i++) {
-  //   int check_set = target_zone_start + ((target_local + i) % zone_size);
-  //
-  //   if (m_cache[check_set][way] != nullptr &&
-  //       m_cache[check_set][way]->m_Address == tag &&
-  //       m_cache[check_set][way]->m_Permission != AccessPermission_NotPresent)
-  //       {
-  //
-  //     cacheSet = check_set;
-  //     return way;
-  //   }
-  // }
-  //
-  // if (target_base_set != default_set) {
-  //   int orig_zone_start = (default_set / zone_size) * zone_size;
-  //   int orig_local = default_set % zone_size;
-  //
-  //   for (int i = 0; i <= 3; i++) {
-  //     int check_set = orig_zone_start + ((orig_local + i) % zone_size);
-  //     if (m_cache[check_set][way] != nullptr &&
-  //         m_cache[check_set][way]->m_Address == tag &&
-  //         m_cache[check_set][way]->m_Permission !=
-  //             AccessPermission_NotPresent) {
-  //
-  //       cacheSet = check_set;
-  //       return way;
-  //     }
-  //   }
-  // }
-
-  // 8 SETS
-  for (int i = 0; i <= 7; i++) {
-    int check_set = target_zone_start + ((target_local + i) % zone_size);
-
-    if (m_cache[check_set][way] != nullptr &&
-        m_cache[check_set][way]->m_Address == tag &&
-        m_cache[check_set][way]->m_Permission != AccessPermission_NotPresent) {
-
-      cacheSet = check_set;
-      return way;
-    }
-  }
-
-  if (target_base_set != default_set) {
-    int orig_zone_start = (default_set / zone_size) * zone_size;
-    int orig_local = default_set % zone_size;
-
-    for (int i = 0; i <= 7; i++) {
-      int check_set = orig_zone_start + ((orig_local + i) % zone_size);
-      if (m_cache[check_set][way] != nullptr &&
-          m_cache[check_set][way]->m_Address == tag &&
-          m_cache[check_set][way]->m_Permission !=
-              AccessPermission_NotPresent) {
-
-        cacheSet = check_set;
-        return way;
-      }
-    }
+    cacheSet = found_set; // Update the reference!
+    return way;
   }
   return -1;
 }
-
 // Given a cache index: returns the index of the tag in a set.
 // returns -1 if the tag is not found.
+
 int CacheMemory::findTagInSetIgnorePermissions(int64_t &cacheSet,
                                                Addr tag) const {
   assert(tag == makeLineAddress(tag));
 
-  // OPTIMIZATION: O(1) Fast-Path Miss
   auto it = m_tag_index.find(tag);
   if (it == m_tag_index.end()) {
     return -1;
   }
-  int way = it->second;
 
-  Addr addr_chunk_ID = tag >> 12;
-  int zone_size = m_thresholds[0];
-  int64_t default_set = getDefaultSet(tag);
+  // Decode the exact Set and Way
+  int encoded = it->second;
+  int way = encoded & 0xFFFF;
+  int64_t found_set = (encoded >> 16) & 0xFFFF;
 
-  // Calculate Target Base Set (WITH SCATTER MATH)
-  int64_t target_base_set = default_set;
-  auto redir_it = m_chunk_redirection_table.find(addr_chunk_ID);
-  if (redir_it != m_chunk_redirection_table.end()) {
-    int block_offset = (tag >> 6) & 0x3F;
-    int scatter_offset = (redir_it->second + (block_offset * 7)) % zone_size;
+  if (m_cache[found_set][way] != nullptr &&
+      m_cache[found_set][way]->m_Address == tag) {
 
-    if (default_set >= m_thresholds[2]) {
-      target_base_set = m_thresholds[0] + scatter_offset;
-    } else if (default_set >= m_thresholds[1]) {
-      target_base_set = scatter_offset;
-    }
-  }
-
-  int target_zone_start = (target_base_set / zone_size) * zone_size;
-  int target_local = target_base_set % zone_size;
-
-  // 4 SETS
-  // for (int i = 0; i <= 3; i++) {
-  //   int check_set = target_zone_start + ((target_local + i) % zone_size);
-  //
-  //   if (m_cache[check_set][way] != nullptr &&
-  //       m_cache[check_set][way]->m_Address == tag) {
-  //
-  //     cacheSet = check_set;
-  //     return way;
-  //   }
-  // }
-  //
-  // if (target_base_set != default_set) {
-  //   int orig_zone_start = (default_set / zone_size) * zone_size;
-  //   int orig_local = default_set % zone_size;
-  //
-  //   for (int i = 0; i <= 3; i++) {
-  //     int check_set = orig_zone_start + ((orig_local + i) % zone_size);
-  //     if (m_cache[check_set][way] != nullptr &&
-  //         m_cache[check_set][way]->m_Address == tag) {
-  //
-  //       cacheSet = check_set;
-  //       return way;
-  //     }
-  //   }
-  // }
-
-  // 8 SETS
-  for (int i = 0; i <= 7; i++) {
-    int check_set = target_zone_start + ((target_local + i) % zone_size);
-
-    if (m_cache[check_set][way] != nullptr &&
-        m_cache[check_set][way]->m_Address == tag) {
-
-      cacheSet = check_set;
-      return way;
-    }
-  }
-
-  if (target_base_set != default_set) {
-    int orig_zone_start = (default_set / zone_size) * zone_size;
-    int orig_local = default_set % zone_size;
-
-    for (int i = 0; i <= 7; i++) {
-      int check_set = orig_zone_start + ((orig_local + i) % zone_size);
-      if (m_cache[check_set][way] != nullptr &&
-          m_cache[check_set][way]->m_Address == tag) {
-
-        cacheSet = check_set;
-        return way;
-      }
-    }
+    cacheSet = found_set; // Update the reference!
+    return way;
   }
   return -1;
 }
@@ -690,12 +580,32 @@ bool CacheMemory::isTagPresent(Addr address) const {
 // Returns true if there is:
 //   a) a tag match on this address or there is
 //   b) an unused line in the same cache "way"
+// bool CacheMemory::cacheAvail(Addr address) const {
+//   int64_t cacheSet = addressToCacheSet(address);
+//   for (int i = 0; i < m_cache_assoc; i++) {
+//     AbstractCacheEntry *entry = m_cache[cacheSet][i];
+//     // Expired lines must NOT be treated as available slots until SLICC
+//     replaces
+//     // them.
+//     if (entry == NULL || entry->m_Permission == AccessPermission_NotPresent)
+//     {
+//       return true;
+//     }
+//   }
+//   return false;
+// }
+
 bool CacheMemory::cacheAvail(Addr address) const {
+  // First: if the address is already in cache, it's always "available" (reuse
+  // slot)
+  int64_t existingSet = addressToCacheSet(address); // start with default
+  if (findTagInSetIgnorePermissions(existingSet, address) != -1) {
+    return true; // Will reuse existing slot in allocate()
+  }
+  // Otherwise check the target set for a free slot
   int64_t cacheSet = addressToCacheSet(address);
   for (int i = 0; i < m_cache_assoc; i++) {
     AbstractCacheEntry *entry = m_cache[cacheSet][i];
-    // Expired lines must NOT be treated as available slots until SLICC replaces
-    // them.
     if (entry == NULL || entry->m_Permission == AccessPermission_NotPresent) {
       return true;
     }
@@ -706,44 +616,78 @@ bool CacheMemory::cacheAvail(Addr address) const {
 AbstractCacheEntry *CacheMemory::allocate(Addr address,
                                           AbstractCacheEntry *entry) {
   int64_t cacheSet = addressToCacheSet(address);
-  std::vector<AbstractCacheEntry *> &set = m_cache[cacheSet];
 
-  for (int i = 0; i < m_cache_assoc; i++) {
+  // 1. PREVENT DUPLICATES
+  int loc = findTagInSetIgnorePermissions(cacheSet, address);
+  if (loc != -1) {
+    AbstractCacheEntry *old_entry = m_cache[cacheSet][loc];
+    if (old_entry != nullptr) {
+      if (old_entry->m_is_expired)
+        cacheMemoryStats.m_zombies_collected++;
 
-    // Find an empty or NotPresent slot
-    if (!set[i] || set[i]->m_Permission == AccessPermission_NotPresent) {
-      if (set[i] != nullptr) {
-        // Remove the old address from the tag index before overwriting
-        m_tag_index.erase(set[i]->m_Address);
-
-        // Cleanup the new entry pointer provided by SLICC since we reuse
-        // set[i]
-        if (set[i] != entry) {
-          delete entry;
-        }
-      } else {
-        set[i] = entry;
-        set[i]->replacementData = replacement_data[cacheSet][i];
+      if (old_entry != entry) {
+        delete entry;
       }
 
-      // Initialize new entry
+      old_entry->m_is_expired = false;
+      old_entry->m_Permission = AccessPermission_Invalid;
+
+      if (!m_is_sttram) {
+        old_entry->m_retention_limit = 0;
+      } else {
+        int retention_threshold = getRetentionZone(cacheSet);
+        old_entry->m_retention_limit =
+            m_retention_table[retention_threshold].time;
+      }
+      old_entry->setLastAccess(curTick());
+      old_entry->m_last_refresh_tick = curTick();
+      m_replacementPolicy_ptr->reset(old_entry->replacementData);
+
+      // CRITICAL: Ensure tag still points here using 32-bit packed integer
+      m_tag_index[address] = (int)((cacheSet << 16) | (loc & 0xFFFF));
+      return old_entry;
+    }
+  }
+
+  // 2. STANDARD ALLOCATION
+  std::vector<AbstractCacheEntry *> &set = m_cache[cacheSet];
+  for (int i = 0; i < m_cache_assoc; i++) {
+
+    if (!set[i] || set[i]->m_Permission == AccessPermission_NotPresent) {
+      if (set[i] != nullptr) {
+        if (set[i]->m_is_expired)
+          cacheMemoryStats.m_zombies_collected++;
+
+        // Only erase the old tag if it perfectly matches this Set and Way
+        auto it = m_tag_index.find(set[i]->m_Address);
+        if (it != m_tag_index.end()) {
+          int encoded = it->second;
+          int way = encoded & 0xFFFF;
+          int64_t found_set = (encoded >> 16) & 0xFFFF;
+          if (way == i && found_set == cacheSet) {
+            m_tag_index.erase(it);
+          }
+        }
+
+        if (set[i] != entry)
+          delete set[i];
+      }
+
+      set[i] = entry;
+      set[i]->replacementData = replacement_data[cacheSet][i];
       set[i]->m_Address = address;
       set[i]->m_is_expired = false;
       set[i]->m_Permission = AccessPermission_Invalid;
-      m_tag_index[address] = i;
+
+      // CRITICAL FIX: Pack the target Set and Way together into a 32-bit int
+      m_tag_index[address] = (int)((cacheSet << 16) | (i & 0xFFFF));
 
       if (!m_is_sttram) {
         set[i]->m_retention_limit = 0;
       } else {
         int retention_threshold = getRetentionZone(cacheSet);
-        Tick total_retention_time = m_retention_table[retention_threshold].time;
-        set[i]->m_retention_limit = total_retention_time;
-        // std::cout << "Set retention limit: " << set[i]->m_retention_limit
-        //           << '\n';
+        set[i]->m_retention_limit = m_retention_table[retention_threshold].time;
       }
-
-      DPRINTF(RubyCache, "ALLOCATE: Addr %#x assigned retention limit: %llu\n",
-              address, set[i]->m_retention_limit);
       set[i]->setLastAccess(curTick());
       set[i]->m_last_refresh_tick = curTick();
       m_replacementPolicy_ptr->reset(set[i]->replacementData);
@@ -758,17 +702,24 @@ void CacheMemory::deallocate(Addr address) {
   DPRINTF(RubyCache, "deallocating address: %#x\n", address);
   int64_t cacheSet = addressToCacheSet(address);
 
-  // Find the block physically, ignoring whether it is a "Zombie"
-  // (Expired/NotPresent)
+  // Find the block physically
   int loc = findTagInSetIgnorePermissions(cacheSet, address);
 
   // Safely deallocate if found, otherwise do nothing
   if (loc != -1) {
     AbstractCacheEntry *entry = m_cache[cacheSet][loc];
+    if (entry->m_is_expired) {
+      cacheMemoryStats.m_zombies_collected++;
+    }
     m_replacementPolicy_ptr->invalidate(entry->replacementData);
 
-    delete entry;
-    m_cache[cacheSet][loc] = NULL;
+    // CRITICAL FIX: DO NOT use 'delete entry;' here!
+    // SLICC still holds a pointer to this block and needs to update its
+    // permissions before the cycle ends. We simply mark it as NotPresent so it
+    // can be safely overwritten by allocate() later.
+    entry->m_Permission = AccessPermission_NotPresent;
+
+    // Erase it from the fast-lookup index so it is officially "evicted"
     m_tag_index.erase(address);
   }
 }
@@ -780,25 +731,73 @@ Addr CacheMemory::cacheProbe(Addr address) const {
 
   int64_t cacheSet = addressToCacheSet(address);
 
-  // If there is an expired block AND it is NOT busy, evict it
+  // 1. Try to find an expired block AND it is NOT busy
   for (int i = 0; i < m_cache_assoc; i++) {
     if (m_cache[cacheSet][i] && m_cache[cacheSet][i]->m_is_expired &&
-        m_cache[cacheSet][i]->m_Permission !=
-            AccessPermission_Busy) { // <-- CRITICAL FIX
-
+        m_cache[cacheSet][i]->m_Permission != AccessPermission_Busy) {
       return m_cache[cacheSet][i]->m_Address;
     }
   }
 
-  // Fallback to standard LRU
+  // 2. Standard Replacement Policy
+  // We MUST push all 16 elements to prevent vector out-of-bounds crashes
   std::vector<ReplaceableEntry *> candidates;
   for (int i = 0; i < m_cache_assoc; i++) {
     candidates.push_back(static_cast<ReplaceableEntry *>(m_cache[cacheSet][i]));
   }
-  return m_cache[cacheSet]
-                [m_replacementPolicy_ptr->getVictim(candidates)->getWay()]
-                    ->m_Address;
+
+  ReplaceableEntry *victim_entry =
+      m_replacementPolicy_ptr->getVictim(candidates);
+
+  // ====================================================================
+  // SAFELY FIND THE WAY BY MATCHING POINTERS (Avoids uninitialized getWay()
+  // garbage)
+  // ====================================================================
+  int victim_way = -1;
+  for (int i = 0; i < m_cache_assoc; i++) {
+    if (m_cache[cacheSet][i] == victim_entry) {
+      victim_way = i;
+      break;
+    }
+  }
+
+  // Fallback safety net
+  if (victim_way == -1)
+    victim_way = 0;
+  // ====================================================================
+
+  // 3. The Anti-Livelock Override
+  // If the standard policy picked a Busy block, OVERRULE IT.
+  if (m_cache[cacheSet][victim_way]->m_Permission == AccessPermission_Busy) {
+
+    Tick oldest_tick = curTick() + 1;
+    int safe_way = -1;
+
+    // Manually find the oldest block that is NOT Busy
+    for (int i = 0; i < m_cache_assoc; i++) {
+      if (m_cache[cacheSet][i] &&
+          m_cache[cacheSet][i]->m_Permission != AccessPermission_Busy) {
+        Tick tick = m_cache[cacheSet][i]->getLastAccess();
+        if (tick < oldest_tick) {
+          oldest_tick = tick;
+          safe_way = i;
+        }
+      }
+    }
+
+    // Extreme Edge Case Safety Net
+    if (safe_way == -1) {
+      warn("Extreme Congestion in Set %d. Forcing Busy eviction.", cacheSet);
+      return m_cache[cacheSet][0]->m_Address;
+    }
+
+    return m_cache[cacheSet][safe_way]->m_Address;
+  }
+
+  // If the victim is safe, proceed normally
+  return m_cache[cacheSet][victim_way]->m_Address;
 }
+// Returns with the physical address of the conflicting cache line
 
 void CacheMemory::regStats() {
   // 1. Call parent to register the Stats::Group (cacheMemoryStats)
@@ -815,33 +814,29 @@ void CacheMemory::regStats() {
   cacheMemoryStats.m_chunk_reads.init(num_chunks);
   cacheMemoryStats.m_chunk_writes.init(num_chunks);
 
-  m_zombies_collected.name(name() + ".m_zombies_collected")
+  cacheMemoryStats.m_zombies_collected.name(name() + ".m_zombies_collected")
       .desc("Number of expired STT-RAM blocks overwritten or evicted");
-  m_inter_zone_jumps.name(name() + ".m_inter_zone_jumps")
+  cacheMemoryStats.m_inter_zone_jumps.name(name() + ".m_inter_zone_jumps")
       .desc("Number of macro-level redirections to LR zones");
-  m_intra_zone_walks.name(name() + ".m_intra_zone_walks")
+  cacheMemoryStats.m_intra_zone_walks.name(name() + ".m_intra_zone_walks")
       .desc("Number of micro-level intra-set walks executed");
 }
 
 AbstractCacheEntry *CacheMemory::lookup(Addr address) {
-  // int64_t cacheSet = addressToCacheSet(address);
-  // int loc = findTagInSet(cacheSet, address);
-  // if (loc == -1)
-  //   return NULL;
-  //
-  // AbstractCacheEntry *entry = m_cache[cacheSet][loc];
   int64_t targetSet = addressToCacheSet(address);
-  int64_t actualSet = targetSet; // Copy it so we can modify it
-  int way = findTagInSet(actualSet,
-                         address); // actualSet is updated if found elsewhere
+  int64_t actualSet = targetSet;
+  int way = findTagInSet(actualSet, address);
+
   if (way == -1)
     return NULL;
 
   AbstractCacheEntry *entry = m_cache[actualSet][way];
   if (entry != NULL) {
     if (entry->m_retention_limit > 0 && !entry->m_is_expired) {
+      // NEW FIX: Do not expire blocks that are Busy or Maybe_Stale (MT)
+      if (entry->m_Permission != AccessPermission_Busy &&
+          entry->m_Permission != AccessPermission_Maybe_Stale) {
 
-      if (entry->m_Permission != AccessPermission_Busy) {
         if (curTick() >
             (entry->m_last_refresh_tick + entry->m_retention_limit)) {
           entry->m_is_expired = true;
@@ -851,7 +846,6 @@ AbstractCacheEntry *CacheMemory::lookup(Addr address) {
   }
   return entry;
 }
-
 const AbstractCacheEntry *CacheMemory::lookup(Addr address) const {
   assert(address == makeLineAddress(address));
   int64_t cacheSet = addressToCacheSet(address);
@@ -1100,12 +1094,34 @@ void CacheMemory::recordRequestType(CacheRequestType requestType, Addr addr) {
   int64_t cacheSet = addressToCacheSet(addr);
   cacheMemoryStats.m_accesses_per_set[cacheSet]++;
 
+  // 4 BIT COUNTER
+  // Address chunk IDs(4KB page ID)
+  Addr addr_chunk_ID = addr >> 12;
+  auto walk_it = m_chunk_counters.find(addr_chunk_ID);
+  if (walk_it != m_chunk_counters.end()) {
+    int writes = walk_it->second;
+    int intra_offset =
+        writes / 2; // Match the math you used in addressToCacheSet! (2 or 4)
+    if (intra_offset > 0) {
+      cacheMemoryStats.m_intra_zone_walks++;
+    }
+  }
+
+  // 7 BIT COUNTER
+  // Address chunk IDs (4KB page ID)
+  // Addr addr_chunk_ID = addr >> 12;
+  // auto walk_it = m_chunk_counters.find(addr_chunk_ID);
+  // if (walk_it != m_chunk_counters.end()) {
+  //   int writes = walk_it->second;
+  //   int intra_offset = writes / 8; // Match the math used in
+  //   addressToCacheSet if (intra_offset > 0) {
+  //     cacheMemoryStats.m_intra_zone_walks++;
+  //   }
+  // }
+
   // Physical IDs
   int retention_threshold = getRetentionZone(cacheSet);
   int chunkID = getChunkId(cacheSet);
-
-  // Address chunk IDs (4KB page ID)
-  Addr addr_chunk_ID = addr >> 12;
 
   // Find the block physically, even if it is a "Zombie" (expired/invalid)
   int loc = findTagInSetIgnorePermissions(cacheSet, addr);
@@ -1138,6 +1154,7 @@ void CacheMemory::recordRequestType(CacheRequestType requestType, Addr addr) {
         Tick total_retention_time = m_retention_table[retention_threshold].time;
         entry->m_retention_limit = total_retention_time;
 
+        // 4 BIT COUNTER
         if (m_lazy_redirection_scheme) {
           // OPTIMIZATION: Use iterator to reduce map lookups
           auto counter_it = m_chunk_counters.find(addr_chunk_ID);
@@ -1152,6 +1169,21 @@ void CacheMemory::recordRequestType(CacheRequestType requestType, Addr addr) {
           if (m_chunk_redirection_table.find(addr_chunk_ID) ==
               m_chunk_redirection_table.end()) {
 
+            // // 7 BIT COUNTER
+            // if (m_lazy_redirection_scheme) {
+            //   // OPTIMIZATION: Use iterator to reduce map lookups
+            //   auto counter_it = m_chunk_counters.find(addr_chunk_ID);
+            //
+            //   if (counter_it == m_chunk_counters.end()) {
+            //     // Using 6-bit counter (saturates at 63 writes)
+            //     auto result =
+            //         m_chunk_counters.emplace(addr_chunk_ID, SatCounter8(6));
+            //     counter_it = result.first;
+            //   }
+            //
+            //   if (m_chunk_redirection_table.find(addr_chunk_ID) ==
+            //       m_chunk_redirection_table.end()) {
+
             counter_it->second++;
 
             if (counter_it->second.isSaturated()) {
@@ -1161,6 +1193,8 @@ void CacheMemory::recordRequestType(CacheRequestType requestType, Addr addr) {
               int zone_size = m_thresholds[0];
               int offset = addr_chunk_ID % zone_size;
               m_chunk_redirection_table[addr_chunk_ID] = offset;
+
+              cacheMemoryStats.m_inter_zone_jumps++;
             }
           }
         }
