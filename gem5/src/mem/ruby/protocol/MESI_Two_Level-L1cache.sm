@@ -559,7 +559,7 @@ machine(MachineType:L1Cache, "MESI Directory L1 Cache CMP")
   //             trigger(mandatory_request_type_to_event(in_msg.Type), in_msg.LineAddress,
   //                     L1Dcache_entry, TBEs[in_msg.LineAddress]);
   //           } else {
-  //             // No room in the L1, so we need to make room in the L1
+  //             // no room in the l1, so we need to make room in the l1
 
   //             // Check if the line we want to evict is not locked
   //             Addr addr := L1Dcache.cacheProbe(in_msg.LineAddress);
@@ -575,15 +575,14 @@ machine(MachineType:L1Cache, "MESI Directory L1 Cache CMP")
   //   }
   // }
 
-// Mandatory Queue - requests from the CPU
+  // Mandatory Queue - requests from the CPU
   in_port(mandatoryQueue_in, RubyRequest, mandatoryQueue, desc="...", rank = 0) {
     if (mandatoryQueue_in.isReady(clockEdge())) {
       peek(mandatoryQueue_in, RubyRequest, block_on="LineAddress") {
 
         if (in_msg.Type == RubyRequestType:IFETCH) {
-          // --- INSTRUCTION FETCH PATH ---
           Entry L1Icache_entry := getL1ICacheEntry(in_msg.LineAddress);
-          
+
           if (is_valid(L1Icache_entry)) {
             if (L1Icache_entry.m_is_expired) {
               // Target is a Zombie. Force replacement to notify L2.
@@ -593,7 +592,7 @@ machine(MachineType:L1Cache, "MESI Directory L1 Cache CMP")
               trigger(mandatory_request_type_to_event(in_msg.Type), in_msg.LineAddress, L1Icache_entry, TBEs[in_msg.LineAddress]);
             }
           } else {
-            // True Miss. Check cross-contamination: is it in the D-cache?
+            // Check to see if it is in the OTHER L1
             Entry L1Dcache_entry := getL1DCacheEntry(in_msg.LineAddress);
             if (is_valid(L1Dcache_entry)) {
               trigger(Event:L1_Replacement, in_msg.LineAddress, L1Dcache_entry, TBEs[in_msg.LineAddress]);
@@ -608,7 +607,7 @@ machine(MachineType:L1Cache, "MESI Directory L1 Cache CMP")
             }
           }
         } else {
-          // --- DATA ACCESS PATH ---
+          // *** DATA ACCESS ***
           Entry L1Dcache_entry := getL1DCacheEntry(in_msg.LineAddress);
 
           if (is_valid(L1Dcache_entry)) {
@@ -620,15 +619,18 @@ machine(MachineType:L1Cache, "MESI Directory L1 Cache CMP")
               trigger(mandatory_request_type_to_event(in_msg.Type), in_msg.LineAddress, L1Dcache_entry, TBEs[in_msg.LineAddress]);
             }
           } else {
-            // True Miss. Check cross-contamination: is it in the I-cache?
+            // Check to see if it is in the OTHER L1
             Entry L1Icache_entry := getL1ICacheEntry(in_msg.LineAddress);
             if (is_valid(L1Icache_entry)) {
+              // L1 does't have the line, but we have space for it
+              // in the L1 let's see if the L2 has it.
               trigger(Event:L1_Replacement, in_msg.LineAddress, L1Icache_entry, TBEs[in_msg.LineAddress]);
             }
 
             if (L1Dcache.cacheAvail(in_msg.LineAddress)) {
               trigger(mandatory_request_type_to_event(in_msg.Type), in_msg.LineAddress, L1Dcache_entry, TBEs[in_msg.LineAddress]);
             } else {
+              // no room in the l1, so we need to make room in the l1
               Addr addr := L1Dcache.cacheProbe(in_msg.LineAddress);
               check_on_cache_probe(mandatoryQueue_in, addr);
               trigger(Event:L1_Replacement, addr, getL1DCacheEntry(addr), TBEs[addr]);

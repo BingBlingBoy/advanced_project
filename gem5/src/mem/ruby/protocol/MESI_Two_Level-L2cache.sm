@@ -2,8 +2,40 @@
  * Copyright (c) 2020 ARM Limited
  * All rights reserved
  *
+ * The license below extends only to copyright in the software and shall
+ * not be construed as granting a license to any other intellectual
+ * property including but not limited to intellectual property relating
+ * to a hardware implementation of the functionality of the software
+ * licensed hereunder.  You may use the software subject to the license
+ * terms below provided that you ensure that this notice is replicated
+ * unmodified and in its entirety in all distributions of the software,
+ * modified or unmodified, in source code or in binary form.
+ *
  * Copyright (c) 1999-2013 Mark D. Hill and David A. Wood
  * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met: redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer;
+ * redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution;
+ * neither the name of the copyright holders nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
@@ -13,7 +45,7 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
    Cycles to_l1_latency := 3;
    
    // FIX: Define a strictly-typed Cycles variable for recycling
-   Cycles recycle_latency := 1; 
+   Cycles recycle_latency := 1;
 
    Cycles read_latency := 2;
    Cycles write_latency := 2;
@@ -244,8 +276,20 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
                 if (in_msg.Dirty) { trigger(Event:WB_Data, in_msg.addr, cache_entry, tbe); } 
                 else { trigger(Event:WB_Data_clean, in_msg.addr, cache_entry, tbe); }
               } else if (in_msg.Type == CoherenceResponseType:ACK) {
-                if ((getPendingAcks(tbe) - in_msg.AckCount) == 0) { trigger(Event:Ack_all, in_msg.addr, cache_entry, tbe); } 
-                else { trigger(Event:Ack, in_msg.addr, cache_entry, tbe); }
+                
+                // CRITICAL FIX FOR DEDUP: Check if TBE exists before reading pending acks!
+                if (is_valid(tbe)) {
+                    if ((getPendingAcks(tbe) - in_msg.AckCount) == 0) { 
+                        trigger(Event:Ack_all, in_msg.addr, cache_entry, tbe); 
+                    } else { 
+                        trigger(Event:Ack, in_msg.addr, cache_entry, tbe); 
+                    }
+                } else {
+                    // Stray ack for an already evicted block. Safely trigger an Ack so the 
+                    // NP or M_I drains can pop it and throw it away without segfaulting.
+                    trigger(Event:Ack, in_msg.addr, cache_entry, tbe);
+                }
+
               } else { error("unknown message type"); }
             } else { 
               if(in_msg.Type == CoherenceResponseType:MEMORY_DATA) { trigger(Event:Mem_Data, in_msg.addr, cache_entry, tbe); } 
@@ -261,8 +305,8 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
   in_port(L1RequestL2Network_in, RequestMsg, L1RequestToL2Cache, rank = 0) {
     if(L1RequestL2Network_in.isReady(clockEdge())) {
       peek(L1RequestL2Network_in,  RequestMsg) {
-        
-        // STT-RAM STALL: Bounce the message if memory bank is busy!
+
+        // If a bank is currently processing long writes, cannot process the message, so delay it
         if (L2cache.checkResourceAvailable(CacheResourceType:DataArray, in_msg.addr) == false) {
             L1RequestL2Network_in.recycle(clockEdge(), cyclesToTicks(recycle_latency));
         } else {
@@ -271,28 +315,32 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
             assert(machineIDToMachineType(in_msg.Requestor) == MachineType:L1Cache);
             assert(in_msg.Destination.isElement(machineID));
 
-            // 1. Expired Block
+            // Expired Block, cannot pass it to L1, so force the eviction to write to main memory
             if (is_valid(cache_entry) && cache_entry.m_is_expired) {
               if (isDirty(cache_entry)) { trigger(Event:L2_Replacement, in_msg.addr, cache_entry, tbe); } 
               else { trigger(Event:L2_Replacement_clean, in_msg.addr, cache_entry, tbe); }
-            } 
-            // 2. Normal Hit
+            }
+
+            // The block is present, healthy, and not expired. Serve the request!
             else if (is_valid(cache_entry)) {
               trigger(L1Cache_request_type_to_event(in_msg.Type, in_msg.addr, in_msg.Requestor, cache_entry), in_msg.addr, cache_entry, tbe);
-            } 
-            // 3. True Miss
+            }
+
+            // Miss
             else {
               if (L2cache.cacheAvail(in_msg.addr)) {
                  trigger(L1Cache_request_type_to_event(in_msg.Type, in_msg.addr, in_msg.Requestor, cache_entry), in_msg.addr, cache_entry, tbe);
-              } else {
+              }
+              // The cache set is 100% full. We must pick a victim to evict.
+              else {
                 Addr victim := L2cache.cacheProbe(in_msg.addr);
                 Entry L2cache_entry := getCacheEntry(victim);
-                
-                // BACKPRESSURE: Stall if victim is already talking to memory
+
+                // Stall if victim is already talking to memory
                 if (is_valid(TBEs[victim])) {
                     L1RequestL2Network_in.recycle(clockEdge(), cyclesToTicks(recycle_latency));
                 } else {
-                    if (isDirty(L2cache_entry)) { trigger(Event:L2_Replacement, victim, L2cache_entry, TBEs[victim]); } 
+                    if (isDirty(L2cache_entry)) { trigger(Event:L2_Replacement, victim, L2cache_entry, TBEs[victim]); }
                     else { trigger(Event:L2_Replacement_clean, victim, L2cache_entry, TBEs[victim]); }
                 }
               }
@@ -315,10 +363,10 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
     peek(L1RequestL2Network_in, RequestMsg) {
       enqueue(DirRequestL2Network_out, RequestMsg, l2_request_latency) {
         out_msg.addr := address;
-        
-        // FIX: The Directory Upgrade Bug!
+
+        // Pass the exact permissions, L1 asked for
         out_msg.Type := in_msg.Type; 
-        
+
         out_msg.Requestor := machineID;
         out_msg.Destination.add(mapAddressToMachine(address, MachineType:Directory));
         out_msg.MessageSize := MessageSizeType:Control;
@@ -529,7 +577,7 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
     set_tbe(TBEs[address]);
     tbe.L1_GetS_IDs.clear();
     
-    // CRITICAL FIX: ALWAYS copy the data to the TBE
+    // Always copy the data that is present to the TBE
     if (cache_entry.CacheState != State:NP) {
         tbe.DataBlk := cache_entry.DataBlk;
         tbe.Dirty := cache_entry.Dirty;
@@ -1006,10 +1054,8 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
     o_popIncomingResponseQueue;
   }
 
-  // --- THE GHOST ENTRY FIXES ---
-  // Safely capture dirty data from an in-flight PUTX during an eviction.
-  // Because the L2 cache entry was deallocated, isSharer() returns false,
-  // causing L1_PUTX to be misclassified as L1_PUTX_old. We capture BOTH!
+  // Catches both PUTX and PUTX_old while the L2 is evicting, safely snatches the dirty data
+  // and places it in the Temporary Buffer Entry (TBE) to be sent to Main Memory.
   transition(MCT_I, {L1_PUTX, L1_PUTX_old}, M_I) {
     qqr_writeDataToTBEFromPUTX;      
     ct_exclusiveReplacementFromTBE;  
@@ -1024,7 +1070,7 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
       jj_popL1RequestQueue;
   }
 
-  // possible race between unblock and immediate replacement
+  // Possible race between unblock and immediate replacement
   transition({MT_MB,SS_MB}, {L1_PUTX, L1_PUTX_old}) {
     zz_stallAndWaitL1RequestQueue;
   }
@@ -1045,8 +1091,15 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
     kd_wakeUpDependents;
   }
 
-  // --- STRAY ACK DRAIN FIX ---
+  // Delayed message from the L1 (an Ack or a WB_Data) 
+  // arrives at the L2 cache for that address.
+  // Pop the message off the incoming queue
+
   transition(M_I, {Ack, Ack_all}) {
+      o_popIncomingResponseQueue;
+  }
+
+  transition(NP, {WB_Data, WB_Data_clean}) {
       o_popIncomingResponseQueue;
   }
 
@@ -1054,22 +1107,20 @@ machine(MachineType:L2Cache, "MESI Directory L2 Cache CMP")
       o_popIncomingResponseQueue;
   }
 
-  // --- LATE WB_DATA DRAINS ---
   transition(M_I, {WB_Data, WB_Data_clean}) {
       o_popIncomingResponseQueue;
   }
   
-  transition(NP, {WB_Data, WB_Data_clean}) {
-      o_popIncomingResponseQueue;
-  }
 
-  // --- RACE CONDITION FIXES ---
+  // L2 block has expired, before the L1 sends
+  // a Unblock message to the L2 after recieving data
   transition(NP, {Exclusive_Unblock, Unblock}) {
     k_popUnblockQueue;
   }
-  // --- THE MISSING MT_I ACK HANDLERS ---
-  // If the L1 responds to our INV with a clean writeback or an Ack_all,
-  // push the data to memory.
+  
+  // The L2 was expecting dirty data, but got an Ack.
+  // The L2 has the correct data in my TBE already.
+  // Send it to Main Memory
   transition(MT_I, {WB_Data_clean, Ack_all}, M_I) {
     ct_exclusiveReplacementFromTBE;
     o_popIncomingResponseQueue;

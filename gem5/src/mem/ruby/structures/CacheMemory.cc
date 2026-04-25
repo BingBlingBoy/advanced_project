@@ -375,7 +375,7 @@ int64_t CacheMemory::addressToCacheSet(Addr address) const {
   auto redir_it = m_chunk_redirection_table.find(addr_chunk_ID);
 
   if (redir_it != m_chunk_redirection_table.end()) {
-    // SCATTER MATH: Interleave the blocks across the zone
+    // Interleaves the blocks across the zone
     int block_offset = (address >> 6) & 0x3F;
     int scatter_offset = (redir_it->second + (block_offset * 7)) % zone_size;
 
@@ -617,7 +617,8 @@ AbstractCacheEntry *CacheMemory::allocate(Addr address,
                                           AbstractCacheEntry *entry) {
   int64_t cacheSet = addressToCacheSet(address);
 
-  // 1. PREVENT DUPLICATES
+  // Check if physical cache line already holds this address (even if Invalid or
+  // NotPresent)
   int loc = findTagInSetIgnorePermissions(cacheSet, address);
   if (loc != -1) {
     AbstractCacheEntry *old_entry = m_cache[cacheSet][loc];
@@ -632,6 +633,7 @@ AbstractCacheEntry *CacheMemory::allocate(Addr address,
       old_entry->m_is_expired = false;
       old_entry->m_Permission = AccessPermission_Invalid;
 
+      // Assigning correct retention limit based on zone
       if (!m_is_sttram) {
         old_entry->m_retention_limit = 0;
       } else {
@@ -639,21 +641,28 @@ AbstractCacheEntry *CacheMemory::allocate(Addr address,
         old_entry->m_retention_limit =
             m_retention_table[retention_threshold].time;
       }
+
+      // Reset the aging and replacement policy metadata
       old_entry->setLastAccess(curTick());
       old_entry->m_last_refresh_tick = curTick();
       m_replacementPolicy_ptr->reset(old_entry->replacementData);
 
-      // CRITICAL: Ensure tag still points here using 32-bit packed integer
+      // Fast lookup (upper 16 bits + lower way 16 bits to an int)
       m_tag_index[address] = (int)((cacheSet << 16) | (loc & 0xFFFF));
       return old_entry;
     }
   }
 
-  // 2. STANDARD ALLOCATION
+  // Standard allocation
+  // If the block is entirely new, scan the set to find an empty or evicted
+  // slot
   std::vector<AbstractCacheEntry *> &set = m_cache[cacheSet];
   for (int i = 0; i < m_cache_assoc; i++) {
 
+    // Look for a physically empty pointer OR an entry SLICC has marked for
+    // eviction
     if (!set[i] || set[i]->m_Permission == AccessPermission_NotPresent) {
+      // If there is an old object here, safely clean it up
       if (set[i] != nullptr) {
         if (set[i]->m_is_expired)
           cacheMemoryStats.m_zombies_collected++;
@@ -669,6 +678,7 @@ AbstractCacheEntry *CacheMemory::allocate(Addr address,
           }
         }
 
+        // Safely destroy the old object
         if (set[i] != entry)
           delete set[i];
       }
@@ -679,9 +689,10 @@ AbstractCacheEntry *CacheMemory::allocate(Addr address,
       set[i]->m_is_expired = false;
       set[i]->m_Permission = AccessPermission_Invalid;
 
-      // CRITICAL FIX: Pack the target Set and Way together into a 32-bit int
+      // Pack the target Set and Way together into a 32-bit int
       m_tag_index[address] = (int)((cacheSet << 16) | (i & 0xFFFF));
 
+      // Assigning correct retention limit based on zone
       if (!m_is_sttram) {
         set[i]->m_retention_limit = 0;
       } else {
@@ -702,24 +713,24 @@ void CacheMemory::deallocate(Addr address) {
   DPRINTF(RubyCache, "deallocating address: %#x\n", address);
   int64_t cacheSet = addressToCacheSet(address);
 
-  // Find the block physically
+  // We use IgnorePermissions because a block might be marked Invalid by
+  // coherence, but we still need to physically clear its metadata.
   int loc = findTagInSetIgnorePermissions(cacheSet, address);
 
-  // Safely deallocate if found, otherwise do nothing
   if (loc != -1) {
     AbstractCacheEntry *entry = m_cache[cacheSet][loc];
+
     if (entry->m_is_expired) {
       cacheMemoryStats.m_zombies_collected++;
     }
+
+    // Tell the replacement policy (e.g., LRU) that this slot is now worthless
     m_replacementPolicy_ptr->invalidate(entry->replacementData);
 
-    // CRITICAL FIX: DO NOT use 'delete entry;' here!
-    // SLICC still holds a pointer to this block and needs to update its
-    // permissions before the cycle ends. We simply mark it as NotPresent so it
-    // can be safely overwritten by allocate() later.
+    // Mark block as NotPresent so it can be overwritten by allocate()
     entry->m_Permission = AccessPermission_NotPresent;
 
-    // Erase it from the fast-lookup index so it is officially "evicted"
+    // Erase it from the fast-lookup index so it is officially evicted
     m_tag_index.erase(address);
   }
 }
@@ -727,11 +738,11 @@ void CacheMemory::deallocate(Addr address) {
 // Returns with the physical address of the conflicting cache line
 Addr CacheMemory::cacheProbe(Addr address) const {
   assert(address == makeLineAddress(address));
-  assert(!cacheAvail(address));
+  assert(!cacheAvail(address)); // We only probe if the set is 100% full
 
   int64_t cacheSet = addressToCacheSet(address);
 
-  // 1. Try to find an expired block AND it is NOT busy
+  // Find an expired block that is is not busy
   for (int i = 0; i < m_cache_assoc; i++) {
     if (m_cache[cacheSet][i] && m_cache[cacheSet][i]->m_is_expired &&
         m_cache[cacheSet][i]->m_Permission != AccessPermission_Busy) {
@@ -739,8 +750,7 @@ Addr CacheMemory::cacheProbe(Addr address) const {
     }
   }
 
-  // 2. Standard Replacement Policy
-  // We MUST push all 16 elements to prevent vector out-of-bounds crashes
+  // Candidates is for gem5 replacement policy
   std::vector<ReplaceableEntry *> candidates;
   for (int i = 0; i < m_cache_assoc; i++) {
     candidates.push_back(static_cast<ReplaceableEntry *>(m_cache[cacheSet][i]));
@@ -749,10 +759,8 @@ Addr CacheMemory::cacheProbe(Addr address) const {
   ReplaceableEntry *victim_entry =
       m_replacementPolicy_ptr->getVictim(candidates);
 
-  // ====================================================================
-  // SAFELY FIND THE WAY BY MATCHING POINTERS (Avoids uninitialized getWay()
-  // garbage)
-  // ====================================================================
+  // Find way by matching pointers since it newly init entries may contain
+  // garbage values
   int victim_way = -1;
   for (int i = 0; i < m_cache_assoc; i++) {
     if (m_cache[cacheSet][i] == victim_entry) {
@@ -761,19 +769,17 @@ Addr CacheMemory::cacheProbe(Addr address) const {
     }
   }
 
-  // Fallback safety net
   if (victim_way == -1)
     victim_way = 0;
-  // ====================================================================
 
-  // 3. The Anti-Livelock Override
-  // If the standard policy picked a Busy block, OVERRULE IT.
+  // If it picked a block currently waiting for data from Main Memory, it may
+  // cause a deadlock
   if (m_cache[cacheSet][victim_way]->m_Permission == AccessPermission_Busy) {
 
     Tick oldest_tick = curTick() + 1;
     int safe_way = -1;
 
-    // Manually find the oldest block that is NOT Busy
+    // Manually find the oldest block that is not busy
     for (int i = 0; i < m_cache_assoc; i++) {
       if (m_cache[cacheSet][i] &&
           m_cache[cacheSet][i]->m_Permission != AccessPermission_Busy) {
@@ -785,7 +791,8 @@ Addr CacheMemory::cacheProbe(Addr address) const {
       }
     }
 
-    // Extreme Edge Case Safety Net
+    // We force an eviction and let the SLICC protocol attempt to resolve the
+    // resulting collision.
     if (safe_way == -1) {
       warn("Extreme Congestion in Set %d. Forcing Busy eviction.", cacheSet);
       return m_cache[cacheSet][0]->m_Address;
@@ -798,7 +805,6 @@ Addr CacheMemory::cacheProbe(Addr address) const {
   return m_cache[cacheSet][victim_way]->m_Address;
 }
 // Returns with the physical address of the conflicting cache line
-
 void CacheMemory::regStats() {
   // 1. Call parent to register the Stats::Group (cacheMemoryStats)
   SimObject::regStats();
@@ -856,10 +862,9 @@ const AbstractCacheEntry *CacheMemory::lookup(Addr address) const {
 
   const AbstractCacheEntry *entry = m_cache[cacheSet][loc];
   if (entry != NULL) {
-    // Passive check for expiry
+    // Check for expiry
     if (entry->m_retention_limit > 0 &&
         curTick() > (entry->m_last_refresh_tick + entry->m_retention_limit)) {
-      // Return the entry anyway so SLICC knows what state it was in
       return entry;
     }
   }
@@ -1123,7 +1128,7 @@ void CacheMemory::recordRequestType(CacheRequestType requestType, Addr addr) {
   int retention_threshold = getRetentionZone(cacheSet);
   int chunkID = getChunkId(cacheSet);
 
-  // Find the block physically, even if it is a "Zombie" (expired/invalid)
+  // Find the block physically, even if it is a expired/invalid
   int loc = findTagInSetIgnorePermissions(cacheSet, addr);
   AbstractCacheEntry *entry = (loc != -1) ? m_cache[cacheSet][loc] : nullptr;
 
@@ -1156,7 +1161,6 @@ void CacheMemory::recordRequestType(CacheRequestType requestType, Addr addr) {
 
         // 4 BIT COUNTER
         if (m_lazy_redirection_scheme) {
-          // OPTIMIZATION: Use iterator to reduce map lookups
           auto counter_it = m_chunk_counters.find(addr_chunk_ID);
 
           if (counter_it == m_chunk_counters.end()) {

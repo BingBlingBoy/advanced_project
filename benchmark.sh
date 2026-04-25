@@ -3,8 +3,8 @@
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
 
-#SBATCH --time=71:59:00
-#SBATCH --mem=42GB
+#SBATCH --time=23:59:00
+#SBATCH --mem=24GB
 
 set -e
 
@@ -19,9 +19,6 @@ BENCHMARK=$1
 HARDWARE=$2
 INPUT=$3
 PROPERTY=$4
-
-OUTPUT_LOG=OUTPUT/${BENCHMARK}
-mkdir -p ${OUTPUT_LOG}
 
 module load gcc
 

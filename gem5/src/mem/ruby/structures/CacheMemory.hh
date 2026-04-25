@@ -261,10 +261,16 @@ private:
   std::vector<int> m_set_wear_offsets;
 
   // The threshold before we consider a physical set "burnt out"
-  // (e.g., 16 bits = 65,535 writes)
   const int WEAR_BIT_SIZE = 16;
 
-  // Default of addressToCacheSet
+  // // Hysteresis / Cooldown variables
+  // Tick m_cooldown_interval;
+  // EventFunctionWrapper cooldownEvent;
+  //
+  // // The function that performs the actual decay
+  // void processCooldownEvent();
+
+  // Default addressToCacheSet with gem5
   int64_t getDefaultSet(Addr address) const {
     return bitSelect(address, m_start_index_bit,
                      m_start_index_bit + m_cache_num_set_bits - 1);

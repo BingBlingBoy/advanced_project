@@ -17,7 +17,7 @@ RUN_SCRIPT=./benchmark.sh
 INPUT=${BENCHMARK}_16c_simmedium.rcS
 # INPUT=${BENCHMARK}_16c_simsmall.rcS
 # INPUT=${BENCHMARK}_16c_test.rcS
-PROPERTY=sm_testing
+PROPERTY=standard
 
 OUTPUT_LOG=OUTPUT/${PROPERTY}/${BENCHMARK}
 mkdir -p ${OUTPUT_LOG}
@@ -25,25 +25,24 @@ mkdir -p ${OUTPUT_LOG}
 module load gcc
 
 AVAILABLE_HARDWARE=(
-  "4MiB_SRAM"
-  "4MiB_1RET_STTRAM"
-  "4MiB_base_4RET_STTRAM"
-  "4MiB_custom_4RET_STTRAM"
+  # "4MiB_SRAM"
+  # "4MiB_1RET_STTRAM"
+  # "4MiB_base_4RET_STTRAM"
+  # "4MiB_custom_4RET_STTRAM"
+  #
+  # "8MiB_SRAM"
+  # "8MiB_1RET_STTRAM"
+  # "8MiB_base_4RET_STTRAM"
+  # "8MiB_custom_4RET_STTRAM"
+  #
+  # "16MiB_SRAM"
+  # "16MiB_1RET_STTRAM"
+  # "16MiB_base_4RET_STTRAM"
+  # "16MiB_custom_4RET_STTRAM"
 
-  "8MiB_SRAM"
-  "8MiB_1RET_STTRAM"
-  "8MiB_base_4RET_STTRAM"
-  "8MiB_custom_4RET_STTRAM"
-
-  "16MiB_SRAM"
-  "16MiB_1RET_STTRAM"
-  "16MiB_base_4RET_STTRAM"
-  "16MiB_custom_4RET_STTRAM"
+  "1MiB_custom_4RET_STTRAM"
 )
 
 for HARDWARE in ${AVAILABLE_HARDWARE[@]}; do
-  # Debug
-  # sbatch --time=00:05:00 --output=${OUTPUT_LOG}/${HARDWARE}.log -J ${BENCHMARK}_${HARDWARE} ${RUN_SCRIPT} ${BENCHMARK} ${HARDWARE} ${INPUT}
-
   sbatch --output=${OUTPUT_LOG}/${HARDWARE}.log -J ${BENCHMARK}_${HARDWARE} ${RUN_SCRIPT} ${BENCHMARK} ${HARDWARE} ${INPUT} ${PROPERTY}
 done
