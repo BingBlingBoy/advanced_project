@@ -634,13 +634,9 @@ AbstractCacheEntry *CacheMemory::allocate(Addr address,
       old_entry->m_Permission = AccessPermission_Invalid;
 
       // Assigning correct retention limit based on zone
-      if (!m_is_sttram) {
-        old_entry->m_retention_limit = 0;
-      } else {
-        int retention_threshold = getRetentionZone(cacheSet);
-        old_entry->m_retention_limit =
-            m_retention_table[retention_threshold].time;
-      }
+      int retention_threshold = getRetentionZone(cacheSet);
+      old_entry->m_retention_limit =
+          m_retention_table[retention_threshold].time;
 
       // Reset the aging and replacement policy metadata
       old_entry->setLastAccess(curTick());
@@ -838,8 +834,8 @@ AbstractCacheEntry *CacheMemory::lookup(Addr address) {
 
   AbstractCacheEntry *entry = m_cache[actualSet][way];
   if (entry != NULL) {
-    if (entry->m_retention_limit > 0 && !entry->m_is_expired) {
-      // NEW FIX: Do not expire blocks that are Busy or Maybe_Stale (MT)
+    if (!entry->m_is_expired) {
+      // Do not expire blocks that are Busy or Maybe_Stale (MT)
       if (entry->m_Permission != AccessPermission_Busy &&
           entry->m_Permission != AccessPermission_Maybe_Stale) {
 
@@ -1153,53 +1149,48 @@ void CacheMemory::recordRequestType(CacheRequestType requestType, Addr addr) {
       entry->m_last_refresh_tick = curTick();
       entry->m_is_expired = false;
 
-      if (!m_is_sttram) {
-        entry->m_retention_limit = 0;
-      } else {
-        Tick total_retention_time = m_retention_table[retention_threshold].time;
-        entry->m_retention_limit = total_retention_time;
+      Tick total_retention_time = m_retention_table[retention_threshold].time;
+      entry->m_retention_limit = total_retention_time;
 
-        // 4 BIT COUNTER
-        if (m_lazy_redirection_scheme) {
-          auto counter_it = m_chunk_counters.find(addr_chunk_ID);
+      // 4 BIT COUNTER
+      if (m_lazy_redirection_scheme) {
+        auto counter_it = m_chunk_counters.find(addr_chunk_ID);
 
-          if (counter_it == m_chunk_counters.end()) {
-            // Using 4-bit counter (saturates at 15) as requested
-            auto result =
-                m_chunk_counters.emplace(addr_chunk_ID, SatCounter8(4));
-            counter_it = result.first;
-          }
+        if (counter_it == m_chunk_counters.end()) {
+          // Using 4-bit counter (saturates at 15) as requested
+          auto result = m_chunk_counters.emplace(addr_chunk_ID, SatCounter8(4));
+          counter_it = result.first;
+        }
 
-          if (m_chunk_redirection_table.find(addr_chunk_ID) ==
-              m_chunk_redirection_table.end()) {
+        if (m_chunk_redirection_table.find(addr_chunk_ID) ==
+            m_chunk_redirection_table.end()) {
 
-            // // 7 BIT COUNTER
-            // if (m_lazy_redirection_scheme) {
-            //   // OPTIMIZATION: Use iterator to reduce map lookups
-            //   auto counter_it = m_chunk_counters.find(addr_chunk_ID);
-            //
-            //   if (counter_it == m_chunk_counters.end()) {
-            //     // Using 6-bit counter (saturates at 63 writes)
-            //     auto result =
-            //         m_chunk_counters.emplace(addr_chunk_ID, SatCounter8(6));
-            //     counter_it = result.first;
-            //   }
-            //
-            //   if (m_chunk_redirection_table.find(addr_chunk_ID) ==
-            //       m_chunk_redirection_table.end()) {
+          // // 7 BIT COUNTER
+          // if (m_lazy_redirection_scheme) {
+          //   // OPTIMIZATION: Use iterator to reduce map lookups
+          //   auto counter_it = m_chunk_counters.find(addr_chunk_ID);
+          //
+          //   if (counter_it == m_chunk_counters.end()) {
+          //     // Using 6-bit counter (saturates at 63 writes)
+          //     auto result =
+          //         m_chunk_counters.emplace(addr_chunk_ID, SatCounter8(6));
+          //     counter_it = result.first;
+          //   }
+          //
+          //   if (m_chunk_redirection_table.find(addr_chunk_ID) ==
+          //       m_chunk_redirection_table.end()) {
 
-            counter_it->second++;
+          counter_it->second++;
 
-            if (counter_it->second.isSaturated()) {
-              DPRINTF(RubyCache, "Page %#x saturated! Lazy redirect to LR.\n",
-                      addr_chunk_ID);
+          if (counter_it->second.isSaturated()) {
+            DPRINTF(RubyCache, "Page %#x saturated! Lazy redirect to LR.\n",
+                    addr_chunk_ID);
 
-              int zone_size = m_thresholds[0];
-              int offset = addr_chunk_ID % zone_size;
-              m_chunk_redirection_table[addr_chunk_ID] = offset;
+            int zone_size = m_thresholds[0];
+            int offset = addr_chunk_ID % zone_size;
+            m_chunk_redirection_table[addr_chunk_ID] = offset;
 
-              cacheMemoryStats.m_inter_zone_jumps++;
-            }
+            cacheMemoryStats.m_inter_zone_jumps++;
           }
         }
       }
@@ -1237,13 +1228,9 @@ void CacheMemory::recordRequestType(CacheRequestType requestType, Addr addr) {
       entry->m_last_refresh_tick = curTick();
       entry->m_is_expired = false;
 
-      if (!m_is_sttram) {
-        entry->m_retention_limit = 0;
-      } else {
-        int current_zone = getRetentionZone(cacheSet);
-        Tick total_retention_time = m_retention_table[current_zone].time;
-        entry->m_retention_limit = total_retention_time;
-      }
+      int current_zone = getRetentionZone(cacheSet);
+      Tick total_retention_time = m_retention_table[current_zone].time;
+      entry->m_retention_limit = total_retention_time;
 
       // Tag writes usually happen during state transitions; restore stability
       if (entry->m_Permission == AccessPermission_NotPresent) {

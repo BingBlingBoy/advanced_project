@@ -18,6 +18,7 @@ INPUT=${BENCHMARK}_16c_simmedium.rcS
 # INPUT=${BENCHMARK}_16c_simsmall.rcS
 # INPUT=${BENCHMARK}_16c_test.rcS
 PROPERTY=standard
+# PROPERTY=optimised
 
 OUTPUT_LOG=OUTPUT/${PROPERTY}/${BENCHMARK}
 mkdir -p ${OUTPUT_LOG}
@@ -34,13 +35,14 @@ AVAILABLE_HARDWARE=(
   # "8MiB_1RET_STTRAM"
   # "8MiB_base_4RET_STTRAM"
   # "8MiB_custom_4RET_STTRAM"
+  "8MiB_ISO_AREA_custom_4RET_STTRAM"
   #
   # "16MiB_SRAM"
   # "16MiB_1RET_STTRAM"
   # "16MiB_base_4RET_STTRAM"
   # "16MiB_custom_4RET_STTRAM"
 
-  "1MiB_custom_4RET_STTRAM"
+  # "8MiB_base_4RET_STTRAM"
 )
 
 for HARDWARE in ${AVAILABLE_HARDWARE[@]}; do

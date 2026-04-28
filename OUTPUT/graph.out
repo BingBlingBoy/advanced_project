@@ -1,25 +1,106 @@
-Error: Could not find directory '4MiB_SRAM/4bit_counter' or 'configs/PARSEC/4MiB_SRAM/4bit_counter'
---> SKIPPING IPC COMPARE 4MiB_SRAM: Data incomplete or missing.
-Error: Could not find directory '4MiB_1RET_STTRAM/4bit_counter' or 'configs/PARSEC/4MiB_1RET_STTRAM/4bit_counter'
---> SKIPPING IPC COMPARE 4MiB_1RET_STTRAM: Data incomplete or missing.
-Error: Could not find directory '4MiB_base_4RET_STTRAM/4bit_counter' or 'configs/PARSEC/4MiB_base_4RET_STTRAM/4bit_counter'
---> SKIPPING IPC COMPARE 4MiB_base_4RET_STTRAM: Data incomplete or missing.
-Error: Could not find directory '4MiB_custom_4RET_STTRAM/4bit_counter' or 'configs/PARSEC/4MiB_custom_4RET_STTRAM/4bit_counter'
---> SKIPPING IPC COMPARE 4MiB_custom_4RET_STTRAM: Data incomplete or missing.
-Error: Could not find directory '8MiB_SRAM/4bit_counter' or 'configs/PARSEC/8MiB_SRAM/4bit_counter'
---> SKIPPING IPC COMPARE 8MiB_SRAM: Data incomplete or missing.
-Error: Could not find directory '8MiB_1RET_STTRAM/4bit_counter' or 'configs/PARSEC/8MiB_1RET_STTRAM/4bit_counter'
---> SKIPPING IPC COMPARE 8MiB_1RET_STTRAM: Data incomplete or missing.
-Error: Could not find directory '8MiB_base_4RET_STTRAM/4bit_counter' or 'configs/PARSEC/8MiB_base_4RET_STTRAM/4bit_counter'
---> SKIPPING IPC COMPARE 8MiB_base_4RET_STTRAM: Data incomplete or missing.
-Error: Could not find directory '8MiB_custom_4RET_STTRAM/4bit_counter' or 'configs/PARSEC/8MiB_custom_4RET_STTRAM/4bit_counter'
---> SKIPPING IPC COMPARE 8MiB_custom_4RET_STTRAM: Data incomplete or missing.
-Error: Could not find directory '16MiB_SRAM/4bit_counter' or 'configs/PARSEC/16MiB_SRAM/4bit_counter'
---> SKIPPING IPC COMPARE 16MiB_SRAM: Data incomplete or missing.
-Error: Could not find directory '16MiB_1RET_STTRAM/4bit_counter' or 'configs/PARSEC/16MiB_1RET_STTRAM/4bit_counter'
---> SKIPPING IPC COMPARE 16MiB_1RET_STTRAM: Data incomplete or missing.
-Error: Could not find directory '16MiB_base_4RET_STTRAM/4bit_counter' or 'configs/PARSEC/16MiB_base_4RET_STTRAM/4bit_counter'
---> SKIPPING IPC COMPARE 16MiB_base_4RET_STTRAM: Data incomplete or missing.
-Error: Could not find directory '16MiB_custom_4RET_STTRAM/4bit_counter' or 'configs/PARSEC/16MiB_custom_4RET_STTRAM/4bit_counter'
---> SKIPPING IPC COMPARE 16MiB_custom_4RET_STTRAM: Data incomplete or missing.
+Excluding folders containing: ['1RET', 'base_4RET']
+Scanning 'gem5/configs/PARSEC' for '4MiB' technologies...
+
+  -> Skipping excluded directory: 4MiB_1RET_STTRAM
+  -> Skipping excluded directory: 4MiB_base_4RET_STTRAM
+
+==================================================
+Generating Routing Mechanics for Benchmark: blackscholes
+==================================================
+Processing Technology: 4MiB_custom_4RET_STTRAM...
+    -> [HOOKS EXACT] Math Phase = 5.41s to 5.90s
+
+  -> Saved: OUTPUT/GRAPHS/ROUTING/blackscholes_4MiB_inter_zone_jumps.svg
+  -> Saved: OUTPUT/GRAPHS/ROUTING/blackscholes_4MiB_intra_zone_walks.svg
+
+==================================================
+Generating Routing Mechanics for Benchmark: fluidanimate
+==================================================
+Processing Technology: 4MiB_custom_4RET_STTRAM...
+    -> [HOOKS EXACT] Math Phase = 5.81s to 6.80s
+
+  -> Saved: OUTPUT/GRAPHS/ROUTING/fluidanimate_4MiB_inter_zone_jumps.svg
+  -> Saved: OUTPUT/GRAPHS/ROUTING/fluidanimate_4MiB_intra_zone_walks.svg
+
+==================================================
+Generating Routing Mechanics for Benchmark: canneal
+==================================================
+Processing Technology: 4MiB_custom_4RET_STTRAM...
+    -> [HOOKS EXACT] Math Phase = 11.94s to 12.93s
+
+  -> Saved: OUTPUT/GRAPHS/ROUTING/canneal_4MiB_inter_zone_jumps.svg
+  -> Saved: OUTPUT/GRAPHS/ROUTING/canneal_4MiB_intra_zone_walks.svg
+
+==================================================
+Generating Routing Mechanics for Benchmark: streamcluster
+==================================================
+Processing Technology: 4MiB_custom_4RET_STTRAM...
+    -> [HOOKS EXACT] Math Phase = 4.37s to 8.11s
+
+  -> Saved: OUTPUT/GRAPHS/ROUTING/streamcluster_4MiB_inter_zone_jumps.svg
+  -> Saved: OUTPUT/GRAPHS/ROUTING/streamcluster_4MiB_intra_zone_walks.svg
+
+==================================================
+Generating Routing Mechanics for Benchmark: dedup
+==================================================
+Processing Technology: 4MiB_custom_4RET_STTRAM...
+    -> [HOOKS EXACT] Math Phase = 6.38s to 8.37s
+
+  -> Saved: OUTPUT/GRAPHS/ROUTING/dedup_4MiB_inter_zone_jumps.svg
+  -> Saved: OUTPUT/GRAPHS/ROUTING/dedup_4MiB_intra_zone_walks.svg
+
+All requested benchmarks processed.
+Excluding folders containing: ['1RET', 'base_4RET', 'ISO_AREA']
+Scanning 'gem5/configs/PARSEC' for '8MiB' technologies...
+
+  -> Skipping excluded directory: 8MiB_1RET_STTRAM
+  -> Skipping excluded directory: 8MiB_ISO_AREA_custom_4RET_STTRAM
+  -> Skipping excluded directory: 8MiB_base_4RET_STTRAM
+
+==================================================
+Generating Routing Mechanics for Benchmark: blackscholes
+==================================================
+Processing Technology: 8MiB_custom_4RET_STTRAM...
+    -> [HOOKS EXACT] Math Phase = 5.53s to 6.52s
+
+  -> Saved: OUTPUT/GRAPHS/ROUTING/blackscholes_8MiB_inter_zone_jumps.svg
+  -> Saved: OUTPUT/GRAPHS/ROUTING/blackscholes_8MiB_intra_zone_walks.svg
+
+==================================================
+Generating Routing Mechanics for Benchmark: fluidanimate
+==================================================
+Processing Technology: 8MiB_custom_4RET_STTRAM...
+    -> [HOOKS EXACT] Math Phase = 5.92s to 7.91s
+
+  -> Saved: OUTPUT/GRAPHS/ROUTING/fluidanimate_8MiB_inter_zone_jumps.svg
+  -> Saved: OUTPUT/GRAPHS/ROUTING/fluidanimate_8MiB_intra_zone_walks.svg
+
+==================================================
+Generating Routing Mechanics for Benchmark: canneal
+==================================================
+Processing Technology: 8MiB_custom_4RET_STTRAM...
+    -> [HOOKS EXACT] Math Phase = 13.61s to 15.60s
+
+  -> Saved: OUTPUT/GRAPHS/ROUTING/canneal_8MiB_inter_zone_jumps.svg
+  -> Saved: OUTPUT/GRAPHS/ROUTING/canneal_8MiB_intra_zone_walks.svg
+
+==================================================
+Generating Routing Mechanics for Benchmark: streamcluster
+==================================================
+Processing Technology: 8MiB_custom_4RET_STTRAM...
+    -> [HOOKS EXACT] Math Phase = 5.19s to 10.68s
+
+  -> Saved: OUTPUT/GRAPHS/ROUTING/streamcluster_8MiB_inter_zone_jumps.svg
+  -> Saved: OUTPUT/GRAPHS/ROUTING/streamcluster_8MiB_intra_zone_walks.svg
+
+==================================================
+Generating Routing Mechanics for Benchmark: dedup
+==================================================
+Processing Technology: 8MiB_custom_4RET_STTRAM...
+    -> [HOOKS EXACT] Math Phase = 6.50s to 11.49s
+
+  -> Saved: OUTPUT/GRAPHS/ROUTING/dedup_8MiB_inter_zone_jumps.svg
+  -> Saved: OUTPUT/GRAPHS/ROUTING/dedup_8MiB_intra_zone_walks.svg
+
+All requested benchmarks processed.
 DONE

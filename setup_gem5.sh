@@ -15,8 +15,8 @@ GEM5_DIR=./gem5
 PARSEC_BENCHMARKS_DIR=./PARSEC_BENCHMARKS
 SIF_PATH=./gem5-v25-0.sif
 ISA=X86
-VARIANT=opt
-# VARIANT=fast
+# VARIANT=opt
+VARIANT=fast
 
 module load gcc
 
