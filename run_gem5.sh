@@ -17,7 +17,7 @@ RUN_SCRIPT=./benchmark.sh
 INPUT=${BENCHMARK}_16c_simmedium.rcS
 # INPUT=${BENCHMARK}_16c_simsmall.rcS
 # INPUT=${BENCHMARK}_16c_test.rcS
-PROPERTY=standard
+PROPERTY=testing
 # PROPERTY=optimised
 
 OUTPUT_LOG=OUTPUT/${PROPERTY}/${BENCHMARK}

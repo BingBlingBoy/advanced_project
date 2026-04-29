@@ -59,7 +59,7 @@ class RubyCache(SimObject):
     resourceStalls = Param.Bool(False, "stall if there is a resource failure")
 
     percentage_of_low_retention_sets = Param.Float(
-            0, "percentage of low retention sets")
+            0.0, "percentage of low retention sets")
 
     num_of_retention_zones = Param.Int(
             1, "num_of_retention_zones")

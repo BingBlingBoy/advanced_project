@@ -34,7 +34,7 @@ with open(parsec_path, "r") as f: input_contents = f.read()
 
 requires(isa_required=ISA.X86, coherence_protocol_required=CoherenceProtocol.MESI_TWO_LEVEL)
 
-common_config = {"l1d_size": "64KiB", "l1d_assoc": 4, "l1i_size": "64KiB", "l1i_assoc": 4, "l2_size": f"{l2_size}", "l2_assoc": 16, "num_l2_banks": 4}
+common_config = {"l1d_size": "64KiB", "l1d_assoc": 4, "l1i_size": "64KiB", "l1i_assoc": 4, "l2_size": f"{l2_size}", "l2_assoc": 16, "num_l2_banks": 1}
 
 SRAM_LATENCIES = {
     "4MiB": {"low_retention_data_read_latency": 6, "low_retention_data_write_latency": 3, "low_retention_tag_read_latency": 2, "low_retention_tag_write_latency": 1},
@@ -55,6 +55,13 @@ STT_LATENCIES = {
         "MEDLOW": {"mediumlow_retention_data_read_latency": 18, "mediumlow_retention_data_write_latency": 36, "mediumlow_retention_tag_read_latency": 2, "mediumlow_retention_tag_write_latency": 1, "mediumlow_retention_limit": 10_000_000_000},
         "MEDHIGH": {"mediumhigh_retention_data_read_latency": 18, "mediumhigh_retention_data_write_latency": 40, "mediumhigh_retention_tag_read_latency": 2, "mediumhigh_retention_tag_write_latency": 1, "mediumhigh_retention_limit": 100_000_000_000},
         "HIGH": {"high_retention_data_read_latency": 18, "high_retention_data_write_latency": 43, "high_retention_tag_read_latency": 2, "high_retention_tag_write_latency": 1, "high_retention_limit": 1_000_000_000_000}
+    },
+
+    "16MiB": {
+        "LOW": {"low_retention_data_read_latency": 45, "low_retention_data_write_latency": 50, "low_retention_tag_read_latency": 3, "low_retention_tag_write_latency": 2, "low_retention_limit": 1_000_000_000},
+        "MEDLOW": {"mediumlow_retention_data_read_latency": 45, "mediumlow_retention_data_write_latency": 53, "mediumlow_retention_tag_read_latency": 3, "mediumlow_retention_tag_write_latency": 2, "mediumlow_retention_limit": 10_000_000_000},
+        "MEDHIGH": {"mediumhigh_retention_data_read_latency": 45, "mediumhigh_retention_data_write_latency": 57, "mediumhigh_retention_tag_read_latency": 3, "mediumhigh_retention_tag_write_latency": 2, "mediumhigh_retention_limit": 100_000_000_000},
+        "HIGH": {"high_retention_data_read_latency": 45, "high_retention_data_write_latency": 60, "high_retention_tag_read_latency": 3, "high_retention_tag_write_latency": 2, "high_retention_limit": 1_000_000_000_000}
     }
 }
 
@@ -110,6 +117,7 @@ m5.instantiate()
 output_dir = m5.options.outdir if hasattr(m5.options, 'outdir') else "m5out"
 if not os.path.exists(output_dir): os.makedirs(output_dir)
 
+# --- NEW FILE DEFINITION ---
 ipc_log_path = os.path.join(output_dir, "ipc_log.csv.gz")
 stats_log_path = os.path.join(output_dir, "l2_stats_log.csv.gz")
 chunk_path = os.path.join(output_dir, "chunk.csv.gz")
@@ -125,6 +133,7 @@ f_ipc.write("Time_s,IPC,Insts,Cycles\n")
 f_stats.write("Time_s,Reads,Writes,Stalls,Misses\n")
 f_chunk.write("Time_s,Chunk_ID,Reads,Writes\n")
 
+# --- NEW FILE HEADER ---
 f_mechanics.write("Time_s,Zombies_Collected,Inter_Zone_Jumps,Intra_Zone_Walks,L2_Writebacks\n")
 
 WARMUP_SECONDS = 0.0
@@ -172,7 +181,7 @@ try:
                         if "m_zombies_collected" in name: c_zombies += int(val)
                         if "m_inter_zone_jumps" in name: c_jumps += int(val)
                         if "m_intra_zone_walks" in name: c_walks += int(val)
-
+                        # if "writeback" in name.lower() and "l2" in name.lower(): c_writebacks += int(val)
                         if "dir_cntrl" in name.lower() and "memory.num_writes" in name.lower(): c_writebacks += int(val)
 
                         if "m_chunk_reads::" in name:
@@ -214,3 +223,4 @@ try:
 finally:
     f_ipc.close(); f_stats.close(); f_chunk.close(); f_mechanics.close()
     print("Simulation Complete. Logs saved to m5out.")
+

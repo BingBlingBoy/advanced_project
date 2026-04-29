@@ -3,8 +3,8 @@
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
 
-#SBATCH --time=71:59:00
-#SBATCH --mem=42GB
+#SBATCH --time=11:59:00
+#SBATCH --mem=12GB
 
 set -e
 
@@ -43,6 +43,6 @@ singularity exec \
   $SIF_PATH \
   /gem5/build/$ISA/gem5.$VARIANT \
   --outdir=/gem5/configs/PARSEC/${HARDWARE}/${PROPERTY}/${BENCHMARK} \
-  /gem5/configs/PARSEC/hardware_config.py --benchmark=${BENCHMARK} --input=${INPUT} --hardware=${HARDWARE}
+  /gem5/configs/FINAL/hardware_config.py --benchmark=${BENCHMARK} --input=${INPUT} --hardware=${HARDWARE}
 
 # /gem5/configs/PARSEC/hardware_config.py --benchmark=${BENCHMARK} --input=${INPUT} --hardware=${HARDWARE} >"${LOG_FILE}" 2>&1
